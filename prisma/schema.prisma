@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth Domains
+model User {
+  id       String  @id @default(cuid())
+  email    String? @unique
+  username String? @unique
+  password String
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id])
+  bumdesId String @unique
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("users")
+}
+
+// Bumdes Domains
+model BumdesAddress {
+  id              String  @id @default(cuid())
+  completeAddress String?
+  province        String // Provinsi
+  regency         String // Kabupaten
+  district        String // Kecamatan
+  subDistrict     String // Kelurahan
+  village         String // Desa
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id])
+  bumdesId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_address")
+}
+
+model Bumdes {
+  id       String         @id @default(cuid())
+  name     String
+  phone    String
+  units    BumdesUnit[]
+  address  BumdesAddress?
+  rootUser User?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes")
+}
+
+model BumdesUnit {
+  id       String                 @id @default(cuid())
+  name     String
+  type     BumdesUnitBusinessType
+  bumdes   Bumdes                 @relation(fields: [bumdesId], references: [id])
+  bumdesId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_units")
+}
+
+enum BumdesUnitBusinessType {
+  JASA
+  DAGANG
+  INDUSTRI
+}
