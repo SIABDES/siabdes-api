@@ -2,92 +2,81 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["auth", "bumdes"]
 }
 
-// Auth Schema
-model AuthUser {
-  id String @id @default(cuid())
+// Auth Domains
+model User {
+  id       String  @id @default(cuid())
+  email    String? @unique
+  username String? @unique
+  password String
 
-  identifier String       @unique
-  password   String
-  role       AuthUserRole
-
-  bumdes     Bumdes?
-  bumdesUnit BumdesUnit?
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id])
+  bumdesId String @unique
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@map("users")
-  @@schema("auth")
 }
 
-enum AuthUserRole {
-  UNIT
-  BUMDES
-  KECAMATAN
-  KABUPATEN
-
-  @@map("users_role")
-  @@schema("auth")
-}
-
-// Bumdes Schema
-model Bumdes {
-  id String @id @default(cuid())
-
-  name  String
-  phone String
-
+// Bumdes Domains
+model BumdesAddress {
+  id              String  @id @default(cuid())
   completeAddress String?
-  province        String
-  regency         String
-  district        String
-  village         String
-  postalCode      String
+  province        String // Provinsi
+  regency         String // Kabupaten
+  district        String // Kecamatan
+  subDistrict     String // Kelurahan
+  village         String // Desa
 
-  user   AuthUser @relation(fields: [userId], references: [id])
-  userId String   @unique
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id])
+  bumdesId String @unique
 
-  units BumdesUnit[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_address")
+}
+
+model Bumdes {
+  id       String         @id @default(cuid())
+  name     String
+  phone    String
+  units    BumdesUnit[]
+  address  BumdesAddress?
+  rootUser User?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@map("bumdes")
-  @@schema("bumdes")
 }
 
 model BumdesUnit {
-  id String @id @default(cuid())
+  id       String                 @id @default(cuid())
+  name     String
+  type     BumdesUnitBusinessType
+  bumdes   Bumdes                 @relation(fields: [bumdesId], references: [id])
+  bumdesId String
 
-  name         String
-  businessType BumdesUnitBusinessType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  bumdes   Bumdes? @relation(fields: [bumdesId], references: [id])
-  bumdesId String?
-
-  user   AuthUser @relation(fields: [userId], references: [id])
-  userId String   @unique
-
-  @@map("bumdes_unit")
-  @@schema("bumdes")
+  @@map("bumdes_units")
 }
 
 enum BumdesUnitBusinessType {
   JASA
   DAGANG
   INDUSTRI
-
-  @@schema("bumdes")
 }
