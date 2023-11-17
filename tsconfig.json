@@ -13,6 +13,7 @@
     "paths": {
       "~lib/*": ["src/lib/*"],
       "~app/*": ["src/app/*"],
+      "~modules/*": ["src/modules/*"],
       "~common/*": ["src/common/*"]
     },
     "incremental": true,
