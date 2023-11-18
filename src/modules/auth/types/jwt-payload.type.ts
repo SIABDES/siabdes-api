@@ -1,8 +1,15 @@
 import { AuthUserRole } from '@prisma/client';
 
-export type JwtPayload = {
-  sub: string;
+type CorePayload = {
   bumdesId: string;
   unitId?: string;
   role: AuthUserRole;
 };
+
+export type JwtPayload = {
+  sub: string;
+} & CorePayload;
+
+export type JwtUserPayload = {
+  id: string;
+} & CorePayload;

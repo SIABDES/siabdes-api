@@ -4,7 +4,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~modules/auth/auth.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
-import { JwtGuard } from '~modules/auth/guards';
+import { AuthJwtGuard } from '~modules/auth/guards';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { JwtGuard } from '~modules/auth/guards';
     },
     {
       provide: APP_GUARD,
-      useClass: JwtGuard,
+      useClass: AuthJwtGuard,
     },
   ],
 })
