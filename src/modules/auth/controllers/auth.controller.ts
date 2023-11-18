@@ -7,10 +7,10 @@ import {
   Post,
 } from '@nestjs/common';
 import { ResponseBuilder } from '~common/response.builder';
-import { AuthService } from './auth.service';
-import { GetUser, Public } from './decorators';
-import { AuthLoginDto, AuthRegisterDto } from './dto';
-import { JwtPayload, JwtUserPayload } from './types';
+import { AuthService } from '../services/auth.service';
+import { GetUser, Public } from '../decorators';
+import { AuthLoginDto, AuthRegisterDto } from '../dto';
+import { JwtPayload, JwtUserPayload } from '../types';
 
 @Controller('auth')
 export class AuthController {

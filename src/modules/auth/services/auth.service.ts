@@ -1,13 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthUserRole } from '@prisma/client';
 import * as argon2 from 'argon2';
-import { AuthLoginDto, AuthRegisterDto } from './dto';
-import { IAuthService } from './interfaces';
-import { JwtPayload, JwtToken, JwtUserPayload } from './types';
+import { AuthLoginDto, AuthRegisterDto } from '../dto';
+import { IAuthService } from '../interfaces';
+import { JwtPayload, JwtToken, JwtUserPayload } from '../types';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthLoginResponse } from './types/responses';
+import { AuthLoginResponse } from '../types/responses';
 
 @Injectable()
 export class AuthService implements IAuthService {
