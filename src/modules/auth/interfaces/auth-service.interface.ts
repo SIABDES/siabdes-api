@@ -1,8 +1,9 @@
 import { AuthLoginDto, AuthRegisterDto } from '../dto';
 import { JwtPayload, JwtToken } from '../types';
+import { AuthLoginResponse } from '../types/responses';
 
 export interface IAuthService {
-  login(data: AuthLoginDto): Promise<JwtToken>;
+  login(data: AuthLoginDto): Promise<AuthLoginResponse>;
 
   register(
     data: AuthRegisterDto,

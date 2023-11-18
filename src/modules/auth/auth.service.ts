@@ -7,6 +7,7 @@ import { JwtPayload, JwtToken } from './types';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AuthLoginResponse } from './types/responses';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -29,8 +30,8 @@ export class AuthService implements IAuthService {
     });
 
     return {
-      access_token,
-      refresh_token,
+      accessToken: access_token,
+      refreshToken: refresh_token,
     };
   }
 
@@ -38,7 +39,7 @@ export class AuthService implements IAuthService {
     throw new Error('Method not implemented.');
   }
 
-  async login(data: AuthLoginDto): Promise<JwtToken> {
+  async login(data: AuthLoginDto): Promise<AuthLoginResponse> {
     const user = await this.prisma.authUser.findUnique({
       where: {
         identifier: data.identifier,
@@ -66,7 +67,15 @@ export class AuthService implements IAuthService {
       role: user.role,
     });
 
-    return tokens;
+    return {
+      user: {
+        id: user.id,
+        bumdesId: user.bumdes.id,
+        unitId: user.bumdesUnit?.id,
+        role: user.role,
+      },
+      backendTokens: tokens,
+    };
   }
 
   async register(
