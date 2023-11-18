@@ -10,3 +10,5 @@ export type AuthLoginResponse = {
   };
   backendTokens: JwtToken;
 };
+
+export type AuthRefreshTokenResponse = JwtToken;

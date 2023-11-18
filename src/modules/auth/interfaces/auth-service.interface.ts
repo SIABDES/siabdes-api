@@ -1,5 +1,5 @@
 import { AuthLoginDto, AuthRegisterDto } from '../dto';
-import { JwtPayload, JwtToken } from '../types';
+import { JwtPayload, JwtToken, JwtUserPayload } from '../types';
 import { AuthLoginResponse } from '../types/responses';
 
 export interface IAuthService {
@@ -11,5 +11,7 @@ export interface IAuthService {
 
   logout(request: Request): Promise<boolean>;
 
-  generateTokens(payload: JwtPayload): Promise<JwtToken>;
+  refresh(payload: JwtUserPayload): Promise<JwtToken>;
+
+  generateTokens(payload: JwtUserPayload): Promise<JwtToken>;
 }

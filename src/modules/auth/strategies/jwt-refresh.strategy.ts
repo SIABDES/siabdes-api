@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { COOKIE_JWT_ACCESS_TOKEN_KEY } from '../constants';
+import { COOKIE_JWT_REFRESH_TOKEN_KEY } from '../constants';
 import { JwtPayload, JwtUserPayload } from '../types';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -14,14 +17,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (req) => {
           let token: string | null = null;
           if (req && req.cookies) {
-            token = req.cookies[COOKIE_JWT_ACCESS_TOKEN_KEY];
+            token = req.cookies[COOKIE_JWT_REFRESH_TOKEN_KEY];
           }
 
           return token;
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: config.getOrThrow('JWT_SECRET'),
+      secretOrKey: config.getOrThrow('JWT_REFRESH_SECRET'),
+      passReqToCallback: true,
     });
   }
 

@@ -2,16 +2,15 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Logger,
   Post,
 } from '@nestjs/common';
-import { AuthLoginDto, AuthRegisterDto } from './dto';
-import { AuthService } from './auth.service';
 import { ResponseBuilder } from '~common/response.builder';
+import { AuthService } from './auth.service';
 import { GetUser, Public } from './decorators';
-import { JwtPayload } from './types';
+import { AuthLoginDto, AuthRegisterDto } from './dto';
+import { JwtPayload, JwtUserPayload } from './types';
 
 @Controller('auth')
 export class AuthController {
@@ -48,17 +47,31 @@ export class AuthController {
   }
 
   @Get('me')
-  async me(@GetUser() user: JwtPayload) {
-    this.logger.log(`Get user data for user '${user.sub}'`);
+  async me(@GetUser() user: JwtUserPayload) {
+    this.logger.log(`Get user data for user '${user.id}'`);
 
     return new ResponseBuilder()
       .setMessage('Success')
       .setData({
-        id: user.sub,
+        id: user,
         bumdesId: user.bumdesId,
         unitId: user.unitId,
         role: user.role,
       })
+      .build();
+  }
+
+  @Post('refresh')
+  async refresh(@GetUser() user: JwtUserPayload) {
+    console.log(user);
+
+    const result = await this.authService.refresh(user);
+
+    this.logger.log(`Refresh token success`);
+
+    return new ResponseBuilder()
+      .setMessage('Refresh token success')
+      .setData(result)
       .build();
   }
 }
