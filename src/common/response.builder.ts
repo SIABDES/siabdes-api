@@ -1,7 +1,7 @@
-export class ResponseBuilder {
+export class ResponseBuilder<T extends object = any> {
   private statusCode: number;
   private message: string | string[];
-  private data: any;
+  private data: T;
 
   constructor() {
     this.statusCode = 200;

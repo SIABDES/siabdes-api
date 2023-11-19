@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 import { GetUser, Public } from '../decorators';
 import { AuthLoginDto, AuthRegisterDto } from '../dto';
 import { JwtPayload, JwtUserPayload } from '../types';
+import { AuthLoginResponse } from '../types/responses';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
 
     this.logger.log(`Login success for user '${data.identifier}'`);
 
-    return new ResponseBuilder()
+    return new ResponseBuilder<AuthLoginResponse>()
       .setMessage('Login success')
       .setStatusCode(HttpStatus.CREATED)
       .setData(result)

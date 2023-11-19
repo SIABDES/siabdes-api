@@ -9,7 +9,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["auth", "bumdes"]
+  schemas  = ["auth", "bumdes", "journals"]
 }
 
 // Auth Schema
@@ -55,7 +55,7 @@ model Bumdes {
   village         String
   postalCode      String
 
-  user   AuthUser @relation(fields: [userId], references: [id])
+  user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
   units BumdesUnit[]
@@ -64,6 +64,7 @@ model Bumdes {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([province, regency, district, village, postalCode], name: "bumdes_address")
   @@map("bumdes")
   @@schema("bumdes")
 }
@@ -74,20 +75,98 @@ model BumdesUnit {
   name         String
   businessType BumdesUnitBusinessType
 
-  bumdes   Bumdes? @relation(fields: [bumdesId], references: [id])
+  bumdes   Bumdes? @relation(fields: [bumdesId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   bumdesId String?
 
-  user   AuthUser @relation(fields: [userId], references: [id])
+  user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
+  generalJournals GeneralJournal[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([businessType, bumdesId], name: "bumdes_unit_business_type")
   @@map("bumdes_unit")
   @@schema("bumdes")
 }
 
 enum BumdesUnitBusinessType {
-  JASA
-  DAGANG
-  INDUSTRI
+  SERVICES // JASA
+  COMMERCE // DAGANG
+  INDUSTRY // INDUSTRI
 
   @@schema("bumdes")
+}
+
+// Journals Schema
+model AccountGroup {
+  id   String @id @default(cuid())
+  ref  String @unique // misal kelompok Aset: ref = 1
+  name String
+  slug String @unique
+
+  accounts Account[]
+
+  @@map("account_groups")
+  @@schema("journals")
+}
+
+model Account {
+  id       String  @id @default(cuid())
+  ref      String  @unique // misal di kelompok Aset, akun Kas: ref = 1-1001. format: <account group ref>-<account ref>. src: COA
+  name     String
+  slug     String  @unique
+  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
+
+  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  groupRef String
+
+  journalItems  GeneralJournalItem[]
+  businessTypes BumdesUnitBusinessType[]
+
+  @@map("accounts")
+  @@schema("journals")
+}
+
+model GeneralJournal {
+  id String @id @default(cuid())
+
+  description String
+  occuredAt   DateTime // Tanggal Transaksi
+  evidence    String?
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id])
+  bumdesUnitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  journalItems GeneralJournalItem[]
+
+  @@map("general_journals")
+  @@schema("journals")
+}
+
+model GeneralJournalItem {
+  id String @id @default(cuid())
+
+  description String
+  amount      Decimal
+  isCredit    Boolean // Saldo Umum => Kredit jika true, Debit jika false
+
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
+
+  generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id])
+  generalJournalId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("general_journal_items")
+  @@schema("journals")
 }

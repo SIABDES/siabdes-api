@@ -5,6 +5,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~modules/auth/auth.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
 import { AuthJwtGuard } from '~modules/auth/guards';
+import { BumdesModule } from '~modules/bumdes/bumdes.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthJwtGuard } from '~modules/auth/guards';
     }),
     PrismaModule,
     AuthModule,
+    BumdesModule,
   ],
   providers: [
     {
