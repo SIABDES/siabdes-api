@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { GeneralJournalsService } from '../services';
 import { GeneralJournalCreateTransactionDto } from '../dto';
@@ -15,6 +16,7 @@ import { GetUser, HasRoles } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
 import { AuthUserRole } from '@prisma/client';
 import { GeneralJournalUpdateTransactionDto } from '../dto/update-transaction.dto';
+import { PaginationDto } from '~common/dto';
 
 @HasRoles(AuthUserRole.UNIT)
 @Controller('general_journals')
@@ -24,6 +26,25 @@ export class GeneralJournalsController {
   constructor(
     private readonly generalJournalsService: GeneralJournalsService,
   ) {}
+
+  @Get()
+  async getUnitTransactions(
+    @GetUser('unitId') unitId: string,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.generalJournalsService.getUnitTransactions(
+      unitId,
+      pagination,
+    );
+
+    this.logger.log(`Get transactions for unit ${unitId}`);
+
+    return new ResponseBuilder()
+      .setStatusCode(HttpStatus.OK)
+      .setMessage('Transaksi berhasil diambil')
+      .setData(result)
+      .build();
+  }
 
   @Post()
   async createTransaction(

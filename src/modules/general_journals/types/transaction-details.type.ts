@@ -6,7 +6,9 @@ export type GeneralJournalItem = {
 };
 
 export type GeneralJournalDetails = {
+  id: string;
   description: string;
+  evidence: string;
   occuredAt: Date;
   data_transactions: GeneralJournalItem[];
 };

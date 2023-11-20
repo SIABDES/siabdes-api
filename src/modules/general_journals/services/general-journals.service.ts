@@ -7,12 +7,55 @@ import { IGeneralJournalsService } from '../interfaces';
 import {
   CreateTransactionResponse,
   GetJournalDetailsResponse,
+  GetUnitJournalsResponse,
   UpdateTransactionResponse,
 } from '../types/responses';
+import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class GeneralJournalsService implements IGeneralJournalsService {
   constructor(private prisma: PrismaService) {}
+
+  async getUnitTransactions(
+    unitId: string,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitJournalsResponse> {
+    const { cursor, limit } = pagination;
+
+    const paginationQuery: Prisma.GeneralJournalFindManyArgs = {
+      cursor: cursor ? { id: String(cursor) } : undefined,
+      take: limit ? limit : undefined,
+    };
+
+    const journals = await this.prisma.generalJournal.findMany({
+      ...paginationQuery,
+      orderBy: {
+        occuredAt: 'desc',
+      },
+      where: {
+        bumdesUnitId: unitId,
+      },
+      include: {
+        journalItems: true,
+      },
+    });
+
+    return {
+      _count: journals.length,
+      journals: journals.map((journal) => ({
+        id: journal.id,
+        description: journal.description,
+        occuredAt: journal.occuredAt,
+        evidence: journal.evidence,
+        data_transactions: journal.journalItems.map((journalItem) => ({
+          id: journalItem.id,
+          account_ref: journalItem.accountRef,
+          amount: journalItem.amount.toNumber(),
+          is_credit: journalItem.isCredit,
+        })),
+      })),
+    };
+  }
 
   async deleteTransaction(unitId: string, journalId: string): Promise<void> {
     try {
@@ -130,8 +173,10 @@ export class GeneralJournalsService implements IGeneralJournalsService {
       return {
         _count: journal._count.journalItems,
         details: {
+          id: journal.id,
           description: journal.description,
           occuredAt: journal.occuredAt,
+          evidence: journal.evidence,
           data_transactions: journal.journalItems.map((item) => ({
             id: item.id,
             account_ref: item.accountRef,

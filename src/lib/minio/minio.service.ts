@@ -12,13 +12,19 @@ export class MinioService implements IMinioService, OnModuleInit {
   constructor(config: ConfigService) {
     this.bucket = config.get<string>('MINIO_BUCKET_NAME') || 'siabdes';
 
-    this.minioClient = new Client({
+    this.minioClient = this.connect(config);
+  }
+
+  connect(config: ConfigService): Client {
+    const client = new Client({
       secretKey: config.getOrThrow('MINIO_SECRET_KEY'),
       accessKey: config.getOrThrow('MINIO_ACCESS_KEY'),
       endPoint: config.getOrThrow('MINIO_ENDPOINT'),
       useSSL: config.get('MINIO_USE_SSL') === 'true' ?? false,
       port: Number(config.get<string>('MINIO_PORT')),
     });
+
+    return client;
   }
 
   async onModuleInit() {
