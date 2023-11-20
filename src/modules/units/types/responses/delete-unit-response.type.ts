@@ -1,4 +1,4 @@
-export type BumdesCreateUnitResponse = {
+export type DeleteUnitResponse = {
   unitId: string;
   bumdesId: string;
 };

@@ -1,0 +1,20 @@
+import { CreateUnitDto } from '../dto';
+import {
+  CreateUnitResponse,
+  DeleteUnitResponse,
+  GetUnitResponse,
+  GetUnitsResponse,
+} from '../types/responses';
+
+export interface IUnitsService {
+  createUnit(
+    data: CreateUnitDto,
+    bumdesId: string,
+  ): Promise<CreateUnitResponse>;
+
+  deleteUnitById(bumdesId: string, unitId: string): Promise<DeleteUnitResponse>;
+
+  getUnits(bumdesId: string): Promise<GetUnitsResponse>;
+
+  getUnitById(bumdesId: string, unitId: string): Promise<GetUnitResponse>;
+}

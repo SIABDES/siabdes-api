@@ -2,7 +2,7 @@ import { BumdesUnitBusinessType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
-export const CreateBumdesUnitSchema = z.object({
+export const CreateUnitSchema = z.object({
   name: z.string({ required_error: 'Nama unit wajib diisi' }),
   business_type: z.enum([
     BumdesUnitBusinessType.SERVICES,
@@ -15,4 +15,4 @@ export const CreateBumdesUnitSchema = z.object({
   }),
 });
 
-export class CreateBumdesUnitDto extends createZodDto(CreateBumdesUnitSchema) {}
+export class CreateUnitDto extends createZodDto(CreateUnitSchema) {}
