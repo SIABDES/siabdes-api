@@ -3,14 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { MinioModule } from '~lib/minio/minio.module';
+import { AdjustmentJournalsModule } from '~modules/adjustment_journals/adjustment-journals.module';
 import { AuthModule } from '~modules/auth/auth.module';
 import { AuthJwtGuard } from '~modules/auth/guards';
+import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
 import { GeneralJournalsModule } from '~modules/general_journals/general-journals.module';
 import { UnitsModule } from '~modules/units/units.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
-import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
-import { AdjustmentJournalsModule } from '~modules/adjustment_journals/adjustment-journals.module';
-import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -21,9 +20,9 @@ import { AppController } from './app.controller';
     MinioModule,
     AuthModule,
     UnitsModule,
+    FilesManagerModule,
     GeneralJournalsModule,
     AdjustmentJournalsModule,
-    FilesManagerModule,
   ],
   providers: [
     {
@@ -35,6 +34,5 @@ import { AppController } from './app.controller';
       useClass: AuthJwtGuard,
     },
   ],
-  controllers: [AppController],
 })
 export class AppModule {}

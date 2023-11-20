@@ -11,10 +11,14 @@ import {
   UpdateTransactionResponse,
 } from '../types/responses';
 import { PaginationDto } from '~common/dto';
+import { GeneralJournalsFilesService } from '~modules/files_manager/services';
 
 @Injectable()
 export class GeneralJournalsService implements IGeneralJournalsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private filesService: GeneralJournalsFilesService,
+  ) {}
 
   async getUnitTransactions(
     unitId: string,
@@ -197,17 +201,25 @@ export class GeneralJournalsService implements IGeneralJournalsService {
   }
 
   async createTransaction(
+    evidence: Express.Multer.File,
     data: GeneralJournalCreateTransactionDto,
+    bumdesId: string,
     bumdesUnitId: string,
   ): Promise<CreateTransactionResponse> {
-    const { data_transactions, evidence, description, occured_at } = data;
+    const { data_transactions, description, occured_at } = data;
+
+    const evidenceKey = await this.filesService.uploadEvidence(
+      evidence,
+      bumdesId,
+      bumdesUnitId,
+    );
 
     try {
       const journal = await this.prisma.generalJournal.create({
         data: {
           description,
           occuredAt: occured_at,
-          evidence,
+          evidence: evidenceKey,
           bumdesUnit: {
             connect: {
               id: bumdesUnitId,
