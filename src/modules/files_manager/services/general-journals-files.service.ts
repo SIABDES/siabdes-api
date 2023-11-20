@@ -21,8 +21,6 @@ export class GeneralJournalsFilesService
 
     await this.minio.client.putObject(this.minio.bucketName, key, file.buffer);
 
-    // console.log({ minio: this.minio.client });
-
     return key;
   }
 

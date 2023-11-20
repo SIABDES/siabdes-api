@@ -1,12 +1,12 @@
-import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { TransactionDataSchema } from '../types';
+import { z } from 'nestjs-zod/z';
+import { AdjustmentDataSchema } from '../types';
 
-export const UpdateTransactionSchema = z
+export const CreateAdjustmentSchema = z
   .object({
-    description: z.string({ required_error: 'Deskripsi harus diisi' }),
+    description: z.string(),
     occured_at: z.coerce.date(),
-    data_transactions: z.array(TransactionDataSchema).min(2, 'Minimal 2 data'),
+    data_transactions: z.array(AdjustmentDataSchema).min(2, 'Minimal 2 data'),
   })
   .refine((data) => {
     const totalCredit = data.data_transactions.reduce(
@@ -21,6 +21,6 @@ export const UpdateTransactionSchema = z
     return totalCredit === totalDebit;
   }, 'Total kredit dan debit harus sama');
 
-export class GeneralJournalUpdateTransactionDto extends createZodDto(
-  UpdateTransactionSchema,
+export class AdjustmentJournalCreateTransactionDto extends createZodDto(
+  CreateAdjustmentSchema,
 ) {}

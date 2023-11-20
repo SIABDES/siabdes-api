@@ -15,7 +15,9 @@ export interface IGeneralJournalsService {
   ): Promise<GetUnitJournalsResponse>;
 
   createTransaction(
+    evidence: Express.Multer.File,
     data: GeneralJournalCreateTransactionDto,
+    bumdesId: string,
     bumdesUnitId: string,
   ): Promise<CreateTransactionResponse>;
 

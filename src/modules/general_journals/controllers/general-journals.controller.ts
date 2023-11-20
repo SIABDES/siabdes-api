@@ -9,6 +9,8 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GeneralJournalsService } from '../services';
 import { GeneralJournalCreateTransactionDto } from '../dto';
@@ -17,6 +19,7 @@ import { ResponseBuilder } from '~common/response.builder';
 import { AuthUserRole } from '@prisma/client';
 import { GeneralJournalUpdateTransactionDto } from '../dto/update-transaction.dto';
 import { PaginationDto } from '~common/dto';
+import { FileInterceptor, NoFilesInterceptor } from '@nestjs/platform-express';
 
 @HasRoles(AuthUserRole.UNIT)
 @Controller('general_journals')
@@ -47,12 +50,17 @@ export class GeneralJournalsController {
   }
 
   @Post()
+  @UseInterceptors(FileInterceptor('evidence'))
   async createTransaction(
+    @UploadedFile() evidence: Express.Multer.File,
     @Body() data: GeneralJournalCreateTransactionDto,
     @GetUser('unitId') unitId: string,
+    @GetUser('bumdesId') bumdesId: string,
   ) {
     const result = await this.generalJournalsService.createTransaction(
+      evidence,
       data,
+      bumdesId,
       unitId,
     );
 

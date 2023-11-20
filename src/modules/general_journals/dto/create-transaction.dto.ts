@@ -1,17 +1,11 @@
 import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
-
-export const TransactionDataSchema = z.object({
-  amount: z.number().min(1),
-  account_ref: z.string(),
-  is_credit: z.boolean(),
-});
+import { z } from 'nestjs-zod/z';
+import { TransactionDataSchema } from '../types';
 
 export const CreateTransactionSchema = z
   .object({
     description: z.string({ required_error: 'Deskripsi harus diisi' }),
     occured_at: z.coerce.date(),
-    evidence: z.string(),
     data_transactions: z.array(TransactionDataSchema).min(2, 'Minimal 2 data'),
   })
   .refine((data) => {

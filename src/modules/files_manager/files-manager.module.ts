@@ -5,5 +5,6 @@ import { GeneralJournalsFilesService } from './services';
 @Module({
   providers: [GeneralJournalsFilesService],
   controllers: [GeneralJournalsFilesController],
+  exports: [GeneralJournalsFilesService],
 })
 export class FilesManagerModule {}
