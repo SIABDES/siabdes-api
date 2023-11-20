@@ -1,10 +1,13 @@
 import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
+import { z } from 'nestjs-zod/z';
 
 export const PaginationSchema = z
   .object({
     cursor: z.string().or(z.number()).optional(),
-    limit: z.number().min(1).optional(),
+    limit: z
+      .string()
+      .transform((val) => parseInt(val))
+      .optional(),
   })
   .optional();
 

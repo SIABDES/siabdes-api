@@ -10,6 +10,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
 import { GeneralJournalsModule } from '~modules/general_journals/general-journals.module';
 import { UnitsModule } from '~modules/units/units.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
+import { AccountsModule } from '~modules/accounts/accounts.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PrismaModule } from './lib/prisma/prisma.module';
     }),
     PrismaModule,
     MinioModule,
+    AccountsModule,
     AuthModule,
     UnitsModule,
     FilesManagerModule,
