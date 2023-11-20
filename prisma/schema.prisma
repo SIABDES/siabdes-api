@@ -153,12 +153,11 @@ model GeneralJournal {
 model GeneralJournalItem {
   id String @id @default(cuid())
 
-  description String
-  amount      Decimal
-  isCredit    Boolean // Saldo Umum => Kredit jika true, Debit jika false
+  amount   Decimal
+  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
 
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId String
+  account    Account @relation(fields: [accountRef], references: [ref])
+  accountRef String
 
   generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id])
   generalJournalId String

@@ -3,9 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~modules/auth/auth.module';
-import { PrismaModule } from './lib/prisma/prisma.module';
 import { AuthJwtGuard } from '~modules/auth/guards';
-import { BumdesModule } from '~modules/bumdes/bumdes.module';
+import { GeneralJournalsModule } from '~modules/general_journals/general-journals.module';
+import { UnitsModule } from '~modules/units/units.module';
+import { PrismaModule } from './lib/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { BumdesModule } from '~modules/bumdes/bumdes.module';
     }),
     PrismaModule,
     AuthModule,
-    BumdesModule,
+    UnitsModule,
+    GeneralJournalsModule,
   ],
   providers: [
     {
