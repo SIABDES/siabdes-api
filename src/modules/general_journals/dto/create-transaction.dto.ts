@@ -1,11 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-
-export const TransactionDataSchema = z.object({
-  amount: z.number().min(1),
-  account_ref: z.string(),
-  is_credit: z.boolean(),
-});
+import { TransactionDataSchema } from '../types';
 
 export const CreateTransactionSchema = z
   .object({

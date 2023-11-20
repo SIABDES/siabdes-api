@@ -9,6 +9,8 @@ import { GeneralJournalsModule } from '~modules/general_journals/general-journal
 import { UnitsModule } from '~modules/units/units.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
 import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
+import { AdjustmentJournalsModule } from '~modules/adjustment_journals/adjustment-journals.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     AuthModule,
     UnitsModule,
     GeneralJournalsModule,
+    AdjustmentJournalsModule,
     FilesManagerModule,
   ],
   providers: [
@@ -32,5 +35,6 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
       useClass: AuthJwtGuard,
     },
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

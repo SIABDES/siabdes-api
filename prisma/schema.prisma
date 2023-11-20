@@ -81,7 +81,8 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
-  generalJournals GeneralJournal[]
+  generalJournals    GeneralJournal[]
+  adjustmentJournals AdjustmentJournal[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -123,8 +124,9 @@ model Account {
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
-  journalItems  GeneralJournalItem[]
-  businessTypes BumdesUnitBusinessType[]
+  generalJournalItems    GeneralJournalItem[]
+  adjustmentJournalItems AdjustmentJournalItem[]
+  businessTypes          BumdesUnitBusinessType[]
 
   @@map("accounts")
   @@schema("journals")
@@ -167,5 +169,44 @@ model GeneralJournalItem {
   deletedAt DateTime?
 
   @@map("general_journal_items")
+  @@schema("journals")
+}
+
+model AdjustmentJournal {
+  id String @id @default(cuid())
+
+  description String
+  occuredAt   DateTime // Tanggal Transaksi
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id])
+  bumdesUnitId String
+
+  journalItems AdjustmentJournalItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("adjustment_journals")
+  @@schema("journals")
+}
+
+model AdjustmentJournalItem {
+  id String @id @default(cuid())
+
+  amount   Decimal
+  isCredit Boolean
+
+  account    Account @relation(fields: [accountRef], references: [ref], onUpdate: Cascade, onDelete: Cascade)
+  accountRef String
+
+  adjustmentJournal   AdjustmentJournal @relation(fields: [adjustmentJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  adjustmentJournalId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("adjustment_journal_items")
   @@schema("journals")
 }
