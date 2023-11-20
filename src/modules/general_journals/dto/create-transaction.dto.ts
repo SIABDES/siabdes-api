@@ -11,6 +11,7 @@ export const CreateTransactionSchema = z
   .object({
     description: z.string({ required_error: 'Deskripsi harus diisi' }),
     occured_at: z.coerce.date(),
+    evidence: z.string(),
     data_transactions: z.array(TransactionDataSchema).min(2, 'Minimal 2 data'),
   })
   .refine((data) => {

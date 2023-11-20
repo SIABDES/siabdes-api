@@ -135,7 +135,7 @@ model GeneralJournal {
 
   description String
   occuredAt   DateTime // Tanggal Transaksi
-  evidence    String?
+  evidence    String
 
   bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id])
   bumdesUnitId String
@@ -156,10 +156,10 @@ model GeneralJournalItem {
   amount   Decimal
   isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
 
-  account    Account @relation(fields: [accountRef], references: [ref])
+  account    Account @relation(fields: [accountRef], references: [ref], onUpdate: Cascade, onDelete: Cascade)
   accountRef String
 
-  generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id])
+  generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   generalJournalId String
 
   createdAt DateTime  @default(now())

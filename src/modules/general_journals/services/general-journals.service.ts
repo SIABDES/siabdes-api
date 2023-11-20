@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { GeneralJournalCreateTransactionDto } from '../dto';
 import { GeneralJournalUpdateTransactionDto } from '../dto/update-transaction.dto';
@@ -8,7 +9,6 @@ import {
   GetJournalDetailsResponse,
   UpdateTransactionResponse,
 } from '../types/responses';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class GeneralJournalsService implements IGeneralJournalsService {
@@ -154,31 +154,41 @@ export class GeneralJournalsService implements IGeneralJournalsService {
     data: GeneralJournalCreateTransactionDto,
     bumdesUnitId: string,
   ): Promise<CreateTransactionResponse> {
-    const { data_transactions, description, occured_at } = data;
+    const { data_transactions, evidence, description, occured_at } = data;
 
-    const journal = await this.prisma.generalJournal.create({
-      data: {
-        description,
-        occuredAt: occured_at,
-        bumdesUnit: {
-          connect: {
-            id: bumdesUnitId,
+    try {
+      const journal = await this.prisma.generalJournal.create({
+        data: {
+          description,
+          occuredAt: occured_at,
+          evidence,
+          bumdesUnit: {
+            connect: {
+              id: bumdesUnitId,
+            },
+          },
+          journalItems: {
+            createMany: {
+              data: data_transactions.map((transaction) => ({
+                amount: transaction.amount,
+                isCredit: transaction.is_credit,
+                accountRef: transaction.account_ref,
+              })),
+            },
           },
         },
-        journalItems: {
-          createMany: {
-            data: data_transactions.map((transaction) => ({
-              amount: transaction.amount,
-              isCredit: transaction.is_credit,
-              accountRef: transaction.account_ref,
-            })),
-          },
-        },
-      },
-    });
+      });
 
-    return {
-      id: journal.id,
-    };
+      return {
+        id: journal.id,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new NotFoundException('Unit tidak ditemukan');
+        }
+      }
+      throw error;
+    }
   }
 }
