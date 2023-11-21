@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
-import { GeneralJournalCreateTransactionDto } from '../dto';
+import {
+  GeneralJournalCreateTransactionDto,
+  GetTransactionsFiltersDto,
+} from '../dto';
 import { GeneralJournalUpdateTransactionDto } from '../dto/update-transaction.dto';
 import { IGeneralJournalsService } from '../interfaces';
 import {
@@ -22,9 +25,11 @@ export class GeneralJournalsService implements IGeneralJournalsService {
 
   async getUnitTransactions(
     unitId: string,
+    filters?: GetTransactionsFiltersDto,
     pagination?: PaginationDto,
   ): Promise<GetUnitJournalsResponse> {
     const { cursor, limit } = pagination;
+    const { get_deleted } = filters;
 
     const paginationQuery: Prisma.GeneralJournalFindManyArgs = {
       cursor: cursor ? { id: String(cursor) } : undefined,
@@ -38,7 +43,7 @@ export class GeneralJournalsService implements IGeneralJournalsService {
       },
       where: {
         bumdesUnitId: unitId,
-        deletedAt: null,
+        deletedAt: get_deleted ? undefined : null,
       },
     });
 

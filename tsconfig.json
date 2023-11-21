@@ -14,7 +14,8 @@
       "~lib/*": ["src/lib/*"],
       "~app/*": ["src/app/*"],
       "~modules/*": ["src/modules/*"],
-      "~common/*": ["src/common/*"]
+      "~common/*": ["src/common/*"],
+      "~utils/*": ["src/utils/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

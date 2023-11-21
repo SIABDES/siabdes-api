@@ -1,6 +1,9 @@
 import { PaginationDto } from '~common/dto';
-import { GeneralJournalCreateTransactionDto } from '../dto';
-import { GeneralJournalUpdateTransactionDto } from '../dto/update-transaction.dto';
+import {
+  GeneralJournalCreateTransactionDto,
+  GeneralJournalUpdateTransactionDto,
+  GetTransactionsFiltersDto,
+} from '../dto';
 import {
   CreateTransactionResponse,
   GetJournalDetailsResponse,
@@ -11,6 +14,7 @@ import {
 export interface IGeneralJournalsService {
   getUnitTransactions(
     unitId: string,
+    filters?: GetTransactionsFiltersDto,
     pagination?: PaginationDto,
   ): Promise<GetUnitJournalsResponse>;
 

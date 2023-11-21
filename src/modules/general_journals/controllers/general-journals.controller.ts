@@ -13,7 +13,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { GeneralJournalsService } from '../services';
-import { GeneralJournalCreateTransactionDto } from '../dto';
+import {
+  GeneralJournalCreateTransactionDto,
+  GetTransactionsFiltersDto,
+} from '../dto';
 import { GetUser, HasRoles } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
 import { AuthUserRole } from '@prisma/client';
@@ -33,10 +36,12 @@ export class GeneralJournalsController {
   @Get()
   async getUnitTransactions(
     @GetUser('unitId') unitId: string,
+    @Query() filters?: GetTransactionsFiltersDto,
     @Query() pagination?: PaginationDto,
   ) {
     const result = await this.generalJournalsService.getUnitTransactions(
       unitId,
+      filters,
       pagination,
     );
 
