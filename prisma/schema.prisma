@@ -81,8 +81,9 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
-  generalJournals    GeneralJournal[]
-  adjustmentJournals AdjustmentJournal[]
+  // generalJournals    GeneralJournal[]
+  // adjustmentJournals AdjustmentJournal[]
+  journals Journal[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -124,74 +125,38 @@ model Account {
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
-  generalJournalItems    GeneralJournalItem[]
-  adjustmentJournalItems AdjustmentJournalItem[]
-  businessTypes          BumdesUnitBusinessType[]
+  // generalJournalItems    GeneralJournalItem[]
+  // adjustmentJournalItems AdjustmentJournalItem[]
+  journalItems JournalItem[]
+
+  businessTypes BumdesUnitBusinessType[]
 
   @@map("accounts")
   @@schema("journals")
 }
 
-model GeneralJournal {
+model Journal {
   id String @id @default(cuid())
 
   description String
-  occuredAt   DateTime // Tanggal Transaksi
-  evidence    String
+  occuredAt   DateTime
+  category    JournalCategory
+  evidence    String?
 
-  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id])
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   bumdesUnitId String
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  journalItems GeneralJournalItem[]
-
-  @@map("general_journals")
-  @@schema("journals")
-}
-
-model GeneralJournalItem {
-  id String @id @default(cuid())
-
-  amount   Decimal
-  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
-
-  account   Account @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  accountId Int
-
-  generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  generalJournalId String
+  items JournalItem[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("general_journal_items")
+  @@map("journals")
   @@schema("journals")
 }
 
-model AdjustmentJournal {
-  id String @id @default(cuid())
-
-  description String
-  occuredAt   DateTime // Tanggal Transaksi
-
-  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id])
-  bumdesUnitId String
-
-  journalItems AdjustmentJournalItem[]
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("adjustment_journals")
-  @@schema("journals")
-}
-
-model AdjustmentJournalItem {
+model JournalItem {
   id String @id @default(cuid())
 
   amount   Decimal
@@ -200,13 +165,21 @@ model AdjustmentJournalItem {
   account   Account @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   accountId Int
 
-  adjustmentJournal   AdjustmentJournal @relation(fields: [adjustmentJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  adjustmentJournalId String
+  journal   Journal @relation(fields: [journalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  journalId String
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("adjustment_journal_items")
+  @@map("journal_items")
+  @@schema("journals")
+}
+
+enum JournalCategory {
+  GENERAL
+  ADJUSTMENT
+
+  @@map("journal_categories")
   @@schema("journals")
 }
