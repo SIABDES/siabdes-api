@@ -1,3 +1,6 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
   AdjustmentJournalCreateTransactionDto,
@@ -11,9 +14,6 @@ import {
   GetUnitAdjustmentTransactionsResponse,
   UpdateAdjustmentTransactionResponse,
 } from '../types/responses';
-import { PaginationDto } from '~common/dto';
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AdjustmentJournalsService implements IAdjustmentJournalsService {
@@ -45,7 +45,7 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
         journalItems: {
           createMany: {
             data: data_transactions.map((transaction) => ({
-              accountRef: transaction.account_ref,
+              accountId: transaction.account_id,
               amount: transaction.amount,
               isCredit: transaction.is_credit,
             })),
@@ -67,7 +67,11 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
         id: journalId,
       },
       include: {
-        journalItems: true,
+        journalItems: {
+          include: {
+            account: true,
+          },
+        },
       },
     });
 
@@ -79,7 +83,7 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
       occured_at: journal.occuredAt,
       data_transactions: journal.journalItems.map((item) => ({
         id: item.id,
-        account_ref: item.accountRef,
+        account_ref: item.account.ref,
         amount: item.amount.toNumber(),
         is_credit: item.isCredit,
       })),
@@ -110,9 +114,6 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
         bumdesUnitId: unitId,
         deletedAt: null,
       },
-      include: {
-        journalItems: true,
-      },
       orderBy: {
         occuredAt: 'desc',
       },
@@ -125,12 +126,6 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
         id: journal.id,
         description: journal.description,
         occured_at: journal.occuredAt,
-        data_transactions: journal.journalItems.map((item) => ({
-          id: item.id,
-          account_ref: item.accountRef,
-          amount: item.amount.toNumber(),
-          is_credit: item.isCredit,
-        })),
       })),
     };
   }
@@ -162,6 +157,7 @@ export class AdjustmentJournalsService implements IAdjustmentJournalsService {
           },
           createMany: {
             data: data_transactions.map((transaction) => ({
+              accountId: transaction.account_id,
               accountRef: transaction.account_ref,
               amount: transaction.amount,
               isCredit: transaction.is_credit,

@@ -1,7 +1,7 @@
 import { BumdesUnitBusinessType } from '@prisma/client';
 
 export type AccountDetails = {
-  id: string;
+  id: number;
   name: string;
   business_type: BumdesUnitBusinessType[];
   group_ref: string;

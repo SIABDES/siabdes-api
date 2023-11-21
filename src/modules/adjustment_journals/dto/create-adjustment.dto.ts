@@ -1,12 +1,14 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'nestjs-zod/z';
-import { AdjustmentDataSchema } from '../types';
+import { AdjustmentDataSchema, AdjustmentInputDataSchema } from '../types';
 
 export const CreateAdjustmentSchema = z
   .object({
     description: z.string(),
     occured_at: z.coerce.date(),
-    data_transactions: z.array(AdjustmentDataSchema).min(2, 'Minimal 2 data'),
+    data_transactions: z
+      .array(AdjustmentInputDataSchema)
+      .min(2, 'Minimal 2 data'),
   })
   .refine((data) => {
     const totalCredit = data.data_transactions.reduce(

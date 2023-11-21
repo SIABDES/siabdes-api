@@ -40,9 +40,6 @@ export class GeneralJournalsService implements IGeneralJournalsService {
         bumdesUnitId: unitId,
         deletedAt: null,
       },
-      include: {
-        journalItems: true,
-      },
     });
 
     return {
@@ -52,12 +49,6 @@ export class GeneralJournalsService implements IGeneralJournalsService {
         description: journal.description,
         occuredAt: journal.occuredAt,
         evidence: journal.evidence,
-        data_transactions: journal.journalItems.map((journalItem) => ({
-          id: journalItem.id,
-          account_ref: journalItem.accountRef,
-          amount: journalItem.amount.toNumber(),
-          is_credit: journalItem.isCredit,
-        })),
       })),
     };
   }
@@ -130,7 +121,7 @@ export class GeneralJournalsService implements IGeneralJournalsService {
                 data: data.data_transactions.map((transaction) => ({
                   amount: transaction.amount,
                   isCredit: transaction.is_credit,
-                  accountRef: transaction.account_ref,
+                  accountId: transaction.account_id,
                 })),
               },
             },
@@ -169,7 +160,11 @@ export class GeneralJournalsService implements IGeneralJournalsService {
               },
             },
           },
-          journalItems: true,
+          journalItems: {
+            include: {
+              account: true,
+            },
+          },
         },
       });
 
@@ -184,7 +179,8 @@ export class GeneralJournalsService implements IGeneralJournalsService {
           evidence: journal.evidence,
           data_transactions: journal.journalItems.map((item) => ({
             id: item.id,
-            account_ref: item.accountRef,
+            account_ref: item.account.ref,
+            account_id: item.accountId,
             amount: item.amount.toNumber(),
             is_credit: item.isCredit,
           })),
@@ -230,7 +226,7 @@ export class GeneralJournalsService implements IGeneralJournalsService {
               data: data_transactions.map((transaction) => ({
                 amount: transaction.amount,
                 isCredit: transaction.is_credit,
-                accountRef: transaction.account_ref,
+                accountId: transaction.account_id,
               })),
             },
           },

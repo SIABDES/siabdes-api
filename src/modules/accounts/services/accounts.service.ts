@@ -18,7 +18,7 @@ export class AccountsService implements IAccountsService {
     const { cursor, limit } = pagination;
 
     const paginationQuery: Prisma.AccountFindManyArgs = {
-      cursor: cursor ? { id: String(cursor) } : undefined,
+      cursor: cursor ? { id: Number(cursor) } : undefined,
       take: limit ? limit : undefined,
     };
 

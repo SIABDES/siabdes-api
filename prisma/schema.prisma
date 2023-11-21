@@ -103,7 +103,7 @@ enum BumdesUnitBusinessType {
 
 // Journals Schema
 model AccountGroup {
-  id   String @id @default(cuid())
+  id   Int    @id @default(autoincrement())
   ref  String @unique // misal kelompok Aset: ref = 1
   name String
   slug String @unique
@@ -115,8 +115,8 @@ model AccountGroup {
 }
 
 model Account {
-  id       String  @id @default(cuid())
-  ref      String  @unique // misal di kelompok Aset, akun Kas: ref = 1-1001. format: <account group ref>-<account ref>. src: COA
+  id       Int     @id @default(autoincrement())
+  ref      String // misal di kelompok Aset, akun Kas: ref = 1-1001. format: <account group ref>-<account ref>. src: COA
   name     String
   slug     String  @unique
   isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
@@ -158,8 +158,8 @@ model GeneralJournalItem {
   amount   Decimal
   isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
 
-  account    Account @relation(fields: [accountRef], references: [ref], onUpdate: Cascade, onDelete: Cascade)
-  accountRef String
+  account   Account @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  accountId Int
 
   generalJournal   GeneralJournal @relation(fields: [generalJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   generalJournalId String
@@ -197,8 +197,8 @@ model AdjustmentJournalItem {
   amount   Decimal
   isCredit Boolean
 
-  account    Account @relation(fields: [accountRef], references: [ref], onUpdate: Cascade, onDelete: Cascade)
-  accountRef String
+  account   Account @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  accountId Int
 
   adjustmentJournal   AdjustmentJournal @relation(fields: [adjustmentJournalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   adjustmentJournalId String

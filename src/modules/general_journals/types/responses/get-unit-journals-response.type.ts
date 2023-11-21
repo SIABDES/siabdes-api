@@ -1,6 +1,6 @@
-import { GeneralJournalDetails } from '../transaction-details.type';
+import { GeneralJournalBrief } from '../transaction-details.type';
 
 export type GetUnitJournalsResponse = {
   _count: number;
-  journals: GeneralJournalDetails[];
+  journals: GeneralJournalBrief[];
 };
