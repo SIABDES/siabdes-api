@@ -32,6 +32,17 @@ export const CreateJournalSchema = z
       params: ['data_transactions'],
       message: 'Total kredit dan debit harus sama!',
     },
+  )
+  .refine(
+    (val) => {
+      const accountIds = val.data_transactions.map((item) => item.account_id);
+
+      return new Set(accountIds).size === accountIds.length;
+    },
+    {
+      params: ['data_transactions'],
+      message: 'Akun ID data transaksi tidak boleh ada yang duplikat!',
+    },
   );
 
 export class CreateJournalDto extends createZodDto(CreateJournalSchema) {}
