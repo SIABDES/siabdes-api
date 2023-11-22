@@ -12,3 +12,7 @@ export type JournalDetailsType = JournalType & {
   evidence?: string;
   data_transactions: JournalItemType[];
 };
+
+export type JournalDetailsWithOptionalItemsType = JournalDetailsType & {
+  data_transactions?: JournalItemType[];
+};

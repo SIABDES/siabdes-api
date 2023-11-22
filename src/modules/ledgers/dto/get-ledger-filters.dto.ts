@@ -1,10 +1,8 @@
 import { createZodDto } from 'nestjs-zod';
-import { z } from 'nestjs-zod/z';
+import { GetJournalsFilterSchema } from '~modules/journals/dto';
 
-export const GetLedgerFiltersSchema = z
-  .object({
-    get_deleted: z.boolean().optional().default(false),
-  })
-  .optional();
+export const GetLedgerFiltersSchema = GetJournalsFilterSchema;
 
-export class GetLedgerFiltersDto extends createZodDto(GetLedgerFiltersSchema) {}
+export class GetLedgerFiltersDto extends createZodDto(
+  GetLedgerFiltersSchema.optional(),
+) {}

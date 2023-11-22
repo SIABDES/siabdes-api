@@ -171,6 +171,7 @@ export class JournalsService implements IJournalsService {
       ...sortQuery,
       where: {
         bumdesUnitId: unitId,
+        deletedAt: filter?.get_deleted ? undefined : null,
         occuredAt: {
           gte: filter?.start_occured_at,
           lte: filter?.end_occured_at,
@@ -179,6 +180,19 @@ export class JournalsService implements IJournalsService {
         description: filter.description
           ? { contains: filter?.description, mode: 'insensitive' }
           : undefined,
+      },
+      include: {
+        items: filter.is_detailed
+          ? {
+              where: {
+                deletedAt: filter?.get_deleted ? undefined : null,
+                amount: {
+                  gte: filter?.min_amount,
+                  lte: filter?.max_amount,
+                },
+              },
+            }
+          : false,
       },
     });
 
@@ -189,6 +203,14 @@ export class JournalsService implements IJournalsService {
         category: journal.category,
         description: journal.description,
         occured_at: journal.occuredAt,
+        evidence: filter.is_detailed ? journal.evidence : undefined,
+        data_transactions: filter.is_detailed
+          ? journal.items.map((item) => ({
+              account_id: item.accountId,
+              amount: item.amount.toNumber(),
+              is_credit: item.isCredit,
+            }))
+          : undefined,
       })),
     };
   }

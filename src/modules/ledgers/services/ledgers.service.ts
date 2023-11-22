@@ -8,10 +8,14 @@ import {
 } from '../dto';
 import { ILedgersService } from '../interfaces';
 import { GetLedgerResponse } from '../types/responses';
+import { JournalsService } from '~modules/journals/services';
 
 @Injectable()
 export class LedgersService implements ILedgersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly journalsService: JournalsService,
+  ) {}
 
   async getLedger(
     unitId: string,

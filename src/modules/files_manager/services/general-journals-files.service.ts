@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { MinioService } from '~lib/minio/minio.service';
 import { IGeneralJournalsFilesService } from '../interfaces';
 import { PrismaService } from '~lib/prisma/prisma.service';
@@ -18,6 +18,8 @@ export class GeneralJournalsFilesService
     unitId: string,
   ): Promise<string> {
     try {
+      if (!file) throw new BadRequestException('Evidence file is required');
+
       const key = `${bumdesId}/${unitId}/general_journals/${file.originalname}`;
 
       await this.minio.client.putObject(

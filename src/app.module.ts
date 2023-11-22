@@ -10,6 +10,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
 import { UnitsModule } from '~modules/units/units.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
 import { JournalsModule } from '~modules/journals/journals.module';
+import { LedgersModule } from '~modules/ledgers/ledgers.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { JournalsModule } from '~modules/journals/journals.module';
     UnitsModule,
     FilesManagerModule,
     JournalsModule,
+    LedgersModule,
   ],
   providers: [
     {
