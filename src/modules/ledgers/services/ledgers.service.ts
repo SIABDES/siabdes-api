@@ -59,6 +59,7 @@ export class LedgersService implements ILedgersService {
       account_name: account.name,
       account_ref: account.ref,
       account_is_credit: account.isCredit,
+      result_balance: balance,
       _count: transactions.length,
       transactions,
     };

@@ -1,5 +1,5 @@
 import { AuthLoginDto, AuthRegisterDto } from '../dto';
-import { JwtPayload, JwtToken, JwtUserPayload } from '../types';
+import { JwtToken, JwtUserPayload } from '../types';
 import { AuthLoginResponse } from '../types/responses';
 
 export interface IAuthService {
