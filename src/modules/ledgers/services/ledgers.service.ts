@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { JournalsService } from '~modules/journals/services';
-import { GetLedgerFiltersDto, GetLedgerSortDto } from '../dto';
+import {
+  GetLedgerFiltersDto,
+  GetLedgerPayloadDto,
+  GetLedgerSortDto,
+} from '../dto';
 import { ILedgersService } from '../interfaces';
 import { GetLedgerResponse } from '../types/responses';
 import { AccountsService } from '~modules/accounts/services';
@@ -11,13 +15,13 @@ import { LedgerTransactionDetails } from '../types';
 @Injectable()
 export class LedgersService implements ILedgersService {
   constructor(
-    private prisma: PrismaService,
     private readonly accountsService: AccountsService,
     private readonly journalsService: JournalsService,
   ) {}
 
   async getLedger(
     unitId: string,
+    payload: GetLedgerPayloadDto,
     sort: GetLedgerSortDto,
     filters: GetLedgerFiltersDto,
     pagination?: PaginationDto,
@@ -31,7 +35,7 @@ export class LedgersService implements ILedgersService {
       pagination,
     );
 
-    let balance = 0;
+    let balance = payload.previous_balance ?? 0;
 
     const transactions: LedgerTransactionDetails[] = [];
 
@@ -45,15 +49,16 @@ export class LedgersService implements ILedgersService {
           is_credit: item.is_credit,
           occured_at: journal.occured_at,
           description: journal.description,
-          account_id: account.id,
           account_name: account.name,
-          account_ref: account.ref,
           calculation_result: balance,
         });
       });
     });
 
     return {
+      account_name: account.name,
+      account_ref: account.ref,
+      account_is_credit: account.isCredit,
       _count: transactions.length,
       transactions,
     };

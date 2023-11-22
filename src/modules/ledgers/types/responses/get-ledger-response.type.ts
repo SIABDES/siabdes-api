@@ -3,5 +3,8 @@ import { LedgerTransactionDetails } from '../ledger-details.type';
 
 export type GetLedgerResponse = PaginationResponse & {
   _count: number;
+  account_name: string;
+  account_ref: string;
+  account_is_credit: boolean;
   transactions: LedgerTransactionDetails[];
 };

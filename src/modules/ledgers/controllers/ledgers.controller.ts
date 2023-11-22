@@ -2,7 +2,7 @@ import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
 import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/auth/decorators';
-import { GetLedgerFiltersDto } from '../dto';
+import { GetLedgerFiltersDto, GetLedgerPayloadDto } from '../dto';
 import { GetLedgerSortDto } from '../dto/get-ledger-sort.dto';
 import { LedgersService } from '../services';
 
@@ -13,12 +13,14 @@ export class LedgersController {
   @Get()
   async getLedger(
     @GetUser('unitId') unitId: string,
+    @Query() payload: GetLedgerPayloadDto,
     @Query() filters: GetLedgerFiltersDto,
     @Query() sort?: GetLedgerSortDto,
     @Query() pagination?: PaginationDto,
   ) {
     const result = await this.ledgersService.getLedger(
       unitId,
+      payload,
       sort,
       filters,
       pagination,
