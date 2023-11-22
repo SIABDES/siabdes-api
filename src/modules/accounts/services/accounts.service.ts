@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { IAccountsService } from '../interfaces';
 import { $Enums, Account, Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
@@ -9,6 +9,16 @@ import { AccountsFindAllResponse } from '../types/responses';
 @Injectable()
 export class AccountsService implements IAccountsService {
   constructor(private prisma: PrismaService) {}
+
+  async findById(id: number): Promise<Account> {
+    const account = await this.prisma.account.findUnique({
+      where: { id },
+    });
+
+    if (!account) throw new NotFoundException('Account not found');
+
+    return account;
+  }
 
   async findAll(
     filters: AccountsFiltersDto,

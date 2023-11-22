@@ -8,4 +8,6 @@ export interface IAccountsService {
     filters: AccountsFiltersDto,
     pagination?: PaginationDto,
   ): Promise<AccountsFindAllResponse>;
+
+  findById(id: number): Promise<Account>;
 }

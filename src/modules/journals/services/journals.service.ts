@@ -186,6 +186,7 @@ export class JournalsService implements IJournalsService {
           ? {
               where: {
                 deletedAt: filter?.get_deleted ? undefined : null,
+                accountId: filter?.account_id ? filter?.account_id : undefined,
                 amount: {
                   gte: filter?.min_amount,
                   lte: filter?.max_amount,
