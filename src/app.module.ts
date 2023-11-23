@@ -11,6 +11,7 @@ import { UnitsModule } from '~modules/units/units.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
 import { JournalsModule } from '~modules/journals/journals.module';
 import { LedgersModule } from '~modules/ledgers/ledgers.module';
+import { WtbModule } from '~modules/wtb/wtb.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LedgersModule } from '~modules/ledgers/ledgers.module';
     FilesManagerModule,
     JournalsModule,
     LedgersModule,
+    WtbModule,
   ],
   providers: [
     {
