@@ -19,6 +19,7 @@ export const WtbAccountItemSchema = z.object({
     name: z.string(),
     ref: z.string(),
     is_credit: z.boolean(),
+    is_posisi_keuangan: z.boolean(),
   }),
   result: WtbAccountResultSchema.required(),
 });

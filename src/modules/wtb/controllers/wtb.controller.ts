@@ -1,4 +1,11 @@
-import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { WtbService } from '../services/wtb.service';
 import { ResponseBuilder } from '~common/response.builder';
 import { GetUser, HasRoles } from '~modules/auth/decorators';
@@ -8,6 +15,8 @@ import { PaginationDto } from '~common/dto';
 
 @Controller('wtb')
 export class WtbController {
+  private logger: Logger = new Logger(WtbController.name);
+
   constructor(private readonly wtbService: WtbService) {}
 
   @Get(':unitId')
@@ -22,6 +31,8 @@ export class WtbController {
       pagination,
     );
 
+    this.logger.log(`Get WTB for unit ${unitId}`);
+
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
       .setMessage('Berhasil mengambil data list akun WTB')
@@ -35,6 +46,8 @@ export class WtbController {
     @Query() filter?: WtbFilterDto,
   ) {
     const result = await this.wtbService.getWtbSummary(unitId, filter);
+
+    this.logger.log(`Get WTB summary for unit ${unitId}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
