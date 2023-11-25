@@ -144,10 +144,93 @@ export class WtbService implements IWtbService {
     unitId: string,
     filter?: WtbFilterDto,
   ): Promise<GetWtbSummaryResponse> {
-    const result = await this.getWtbForUnit(unitId, filter);
+    const summaryResult: GetWtbSummaryResponse = {
+      sum: {
+        laba_rugi: { credit: 0, debit: 0 },
+        neraca_saldo: { credit: 0, debit: 0 },
+        neraca_setelahnya: { credit: 0, debit: 0 },
+        penyesuaian: { credit: 0, debit: 0 },
+        posisi_keuangan: { credit: 0, debit: 0 },
+      },
+      laba_rugi_bersih: {
+        laba_rugi: { credit: 0, debit: 0 },
+        posisi_keuangan: { credit: 0, debit: 0 },
+      },
+      total: {
+        laba_rugi: { credit: 0, debit: 0 },
+        neraca_saldo: { credit: 0, debit: 0 },
+        neraca_setelahnya: { credit: 0, debit: 0 },
+        penyesuaian: { credit: 0, debit: 0 },
+        posisi_keuangan: { credit: 0, debit: 0 },
+      },
+    };
 
-    result.accounts.forEach((account) => {});
+    const wtbResult = await this.getWtbForUnit(unitId, filter);
 
-    throw new Error('Method not implemented.');
+    wtbResult.accounts.forEach((account) => {
+      // Jumlah or Summary
+      summaryResult.sum.neraca_saldo.credit +=
+        account.result.neraca_saldo.credit;
+      summaryResult.sum.neraca_saldo.debit += account.result.neraca_saldo.debit;
+
+      summaryResult.sum.penyesuaian.credit += account.result.penyesuaian.credit;
+      summaryResult.sum.penyesuaian.debit += account.result.penyesuaian.debit;
+
+      summaryResult.sum.neraca_setelahnya.credit +=
+        account.result.neraca_setelahnya.credit;
+      summaryResult.sum.neraca_setelahnya.debit +=
+        account.result.neraca_setelahnya.debit;
+
+      summaryResult.sum.laba_rugi.credit += account.result.laba_rugi.credit;
+      summaryResult.sum.laba_rugi.debit += account.result.laba_rugi.debit;
+
+      summaryResult.sum.posisi_keuangan.credit +=
+        account.result.posisi_keuangan.credit;
+      summaryResult.sum.posisi_keuangan.debit +=
+        account.result.posisi_keuangan.debit;
+    });
+
+    // Laba Rugi Bersih
+    summaryResult.laba_rugi_bersih.laba_rugi.credit =
+      summaryResult.sum.laba_rugi.credit - summaryResult.sum.laba_rugi.debit;
+    switchSectionIfNegativeNumber(summaryResult.laba_rugi_bersih.laba_rugi);
+
+    summaryResult.laba_rugi_bersih.posisi_keuangan.credit =
+      summaryResult.sum.posisi_keuangan.credit -
+      summaryResult.sum.posisi_keuangan.debit;
+    switchSectionIfNegativeNumber(
+      summaryResult.laba_rugi_bersih.posisi_keuangan,
+    );
+
+    // Total
+    summaryResult.total.neraca_saldo.credit =
+      summaryResult.sum.neraca_saldo.credit;
+    summaryResult.total.neraca_saldo.debit =
+      summaryResult.sum.neraca_saldo.debit;
+
+    summaryResult.total.penyesuaian.credit =
+      summaryResult.sum.penyesuaian.credit;
+    summaryResult.total.penyesuaian.debit = summaryResult.sum.penyesuaian.debit;
+
+    summaryResult.total.neraca_setelahnya.credit =
+      summaryResult.sum.neraca_setelahnya.credit;
+    summaryResult.total.neraca_setelahnya.debit =
+      summaryResult.sum.neraca_setelahnya.debit;
+
+    summaryResult.total.laba_rugi.credit =
+      summaryResult.laba_rugi_bersih.laba_rugi.credit +
+      summaryResult.sum.laba_rugi.credit;
+    summaryResult.total.laba_rugi.debit =
+      summaryResult.laba_rugi_bersih.laba_rugi.debit +
+      summaryResult.sum.laba_rugi.debit;
+
+    summaryResult.total.posisi_keuangan.credit =
+      summaryResult.laba_rugi_bersih.posisi_keuangan.credit +
+      summaryResult.sum.posisi_keuangan.credit;
+    summaryResult.total.posisi_keuangan.debit =
+      summaryResult.laba_rugi_bersih.posisi_keuangan.debit +
+      summaryResult.sum.posisi_keuangan.debit;
+
+    return summaryResult;
   }
 }
