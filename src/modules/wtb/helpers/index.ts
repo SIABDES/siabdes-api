@@ -1,4 +1,3 @@
-import { boolean, number } from 'zod';
 import { WTB_POSISI_KEUANGAN_GROUP_REFS } from '../constants';
 import { WtbAccountItemDetails } from '../types';
 

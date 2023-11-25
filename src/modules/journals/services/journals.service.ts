@@ -1,27 +1,26 @@
 import {
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { IJournalsService } from '../interfaces';
+import { Prisma } from '@prisma/client';
+import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
+import { GeneralJournalsFilesService } from '~modules/files_manager/services';
 import {
   CreateJournalDto,
   GetJournalsFilterDto,
   GetJournalsSortDto,
   UpdateJournalDto,
 } from '../dto';
+import { IJournalsService } from '../interfaces';
 import { JournalDetailsType } from '../types';
 import {
   CreateJournalResponse,
-  UpdateJournalReponse,
-  GetJournalsResponse,
   DeleteJournalResponse,
+  GetJournalsResponse,
+  UpdateJournalReponse,
 } from '../types/responses';
-import { GeneralJournalsFilesService } from '~modules/files_manager/services';
-import { PaginationDto } from '~common/dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class JournalsService implements IJournalsService {
@@ -44,48 +43,44 @@ export class JournalsService implements IJournalsService {
 
     if (!unit) throw new ForbiddenException('Unit not found');
 
-    try {
-      let evidenceKey =
-        category === 'GENERAL'
-          ? await this.generalJournalFiles.uploadEvidence(
-              evidenceFile,
-              unit.bumdesId,
-              unitId,
-            )
-          : null;
+    let evidenceKey =
+      category === 'GENERAL'
+        ? await this.generalJournalFiles.uploadEvidence(
+            evidenceFile,
+            unit.bumdesId,
+            unitId,
+          )
+        : null;
 
-      const journal = await this.prisma.journal.create({
-        data: {
-          category,
-          description,
-          occuredAt: occured_at,
-          evidence: evidenceKey,
-          bumdesUnit: {
-            connect: { id: unitId },
-          },
-          items: {
-            createMany: {
-              data: data_transactions.map((item) => ({
-                accountId: item.account_id,
-                amount: item.amount,
-                isCredit: item.is_credit,
-              })),
-            },
+    const journal = await this.prisma.journal.create({
+      data: {
+        category,
+        description,
+        occuredAt: occured_at,
+        evidence: evidenceKey,
+        bumdesUnit: {
+          connect: { id: unitId },
+        },
+        items: {
+          createMany: {
+            data: data_transactions.map((item) => ({
+              accountId: item.account_id,
+              amount: item.amount,
+              isCredit: item.is_credit,
+            })),
           },
         },
-        select: {
-          id: true,
-          category: true,
-        },
-      });
+      },
+      select: {
+        id: true,
+        category: true,
+      },
+    });
 
-      return {
-        id: journal.id,
-        category: journal.category,
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      id: journal.id,
+      category: journal.category,
+    };
   }
 
   async updateJournal(

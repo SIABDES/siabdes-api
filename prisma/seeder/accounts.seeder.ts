@@ -74,7 +74,6 @@ export async function seedAccounts(prisma: PrismaClient) {
     ],
   });
 
-  // TODO: ADD MORE
   await prismaAccountExtends.account.createBatch([
     {
       name: 'Kas',
@@ -965,6 +964,7 @@ export async function seedAccounts(prisma: PrismaClient) {
       isCredit: false,
       businessTypes: ['SERVICES'],
     },
+    // TODO: Add after confirmation with accountant team
     // {
     //   name: 'Beban Denda', <-- duplicate
     //   groupRef: '8',

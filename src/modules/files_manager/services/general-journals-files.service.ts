@@ -17,34 +17,25 @@ export class GeneralJournalsFilesService
     bumdesId: string,
     unitId: string,
   ): Promise<string> {
-    try {
-      if (!file) throw new BadRequestException('Evidence file is required');
+    if (!file) throw new BadRequestException('Evidence file is required');
 
-      const key = `${bumdesId}/${unitId}/general_journals/${file.originalname}`;
+    const key = `${bumdesId}/${unitId}/general_journals/${file.originalname}`;
 
-      await this.minio.client.putObject(
-        this.minio.bucketName,
-        key,
-        file.buffer,
-      );
+    await this.minio.client.putObject(this.minio.bucketName, key, file.buffer);
 
-      return key;
-    } catch (error) {
-      throw error;
-    }
+    return key;
   }
 
   async getEvidenceUrl(journalId: string): Promise<string> {
-    // const journal = await this.prisma.generalJournal.findUnique({
-    //   where: { id: journalId },
-    //   select: { evidence: true },
-    // });
+    const journal = await this.prisma.journal.findUnique({
+      where: { id: journalId, evidence: { not: null } },
+      select: { evidence: true },
+    });
 
-    // return this.minio.client.presignedUrl(
-    //   'GET',
-    //   this.minio.bucketName,
-    //   journal.evidence,
-    // );
-    throw new Error('Method not implemented.');
+    return this.minio.client.presignedUrl(
+      'GET',
+      this.minio.bucketName,
+      journal.evidence,
+    );
   }
 }

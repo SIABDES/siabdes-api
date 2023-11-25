@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IAccountsService } from '../interfaces';
-import { $Enums, Account, Prisma } from '@prisma/client';
+import { Account, Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
-import { AccountsFiltersDto } from '../dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
+import { AccountsFiltersDto } from '../dto';
+import { IAccountsService } from '../interfaces';
 import { AccountsFindAllResponse } from '../types/responses';
 
 @Injectable()
@@ -25,11 +25,12 @@ export class AccountsService implements IAccountsService {
     pagination?: PaginationDto,
   ): Promise<AccountsFindAllResponse> {
     const { business_types, group_ref, name, ref } = filters;
-    const { cursor, limit } = pagination;
 
     const paginationQuery: Prisma.AccountFindManyArgs = {
-      cursor: cursor ? { id: Number(cursor) } : undefined,
-      take: limit ? limit : undefined,
+      cursor: pagination?.cursor
+        ? { id: Number(pagination?.cursor) }
+        : undefined,
+      take: pagination?.limit ? pagination?.limit : undefined,
     };
 
     const results = await this.prisma.account.findMany({
