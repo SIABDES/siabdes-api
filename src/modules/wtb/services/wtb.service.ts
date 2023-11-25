@@ -144,6 +144,10 @@ export class WtbService implements IWtbService {
     unitId: string,
     filter?: WtbFilterDto,
   ): Promise<GetWtbSummaryResponse> {
+    const result = await this.getWtbForUnit(unitId, filter);
+
+    result.accounts.forEach((account) => {});
+
     throw new Error('Method not implemented.');
   }
 }

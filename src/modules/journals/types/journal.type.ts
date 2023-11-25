@@ -1,5 +1,5 @@
 import { JournalCategory } from '@prisma/client';
-import { JournalItemType } from './journal-item.type';
+import { JournalItemResultType, JournalItemType } from './journal-item.type';
 
 export type JournalType = {
   id: string;
@@ -10,9 +10,10 @@ export type JournalType = {
 
 export type JournalDetailsType = JournalType & {
   evidence?: string;
-  data_transactions: JournalItemType[];
+  data_transactions: JournalItemResultType[];
 };
 
-export type JournalDetailsWithOptionalItemsType = JournalDetailsType & {
+export type JournalDetailsWithOptionalItemsType = JournalType & {
+  evidence?: string;
   data_transactions?: JournalItemType[];
 };

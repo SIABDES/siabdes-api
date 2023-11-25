@@ -27,6 +27,11 @@ export const JournalItemSchema = z
 
 export type JournalItemType = z.infer<typeof JournalItemSchema>;
 
+export type JournalItemResultType = JournalItemType & {
+  account_ref: string;
+  account_name: string;
+};
+
 export type JournalItemWithAccountRefType = JournalItemType & {
   account_ref: string;
 };

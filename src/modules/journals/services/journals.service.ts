@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { IJournalsService } from '../interfaces';
@@ -236,6 +237,14 @@ export class JournalsService implements IJournalsService {
 
     if (!journal) throw new NotFoundException('Journal not found');
 
+    const accountIds = journal.items.map((item) => item.accountId);
+
+    const accounts = await this.prisma.account.findMany({
+      where: {
+        id: { in: accountIds },
+      },
+    });
+
     return {
       id: journal.id,
       category: journal.category,
@@ -244,6 +253,8 @@ export class JournalsService implements IJournalsService {
       occured_at: journal.occuredAt,
       data_transactions: journal.items.map((item) => ({
         account_id: item.accountId,
+        account_name: accounts.find((acc) => acc.id === item.accountId).name,
+        account_ref: accounts.find((acc) => acc.id === item.accountId).ref,
         amount: item.amount.toNumber(),
         is_credit: item.isCredit,
       })),
