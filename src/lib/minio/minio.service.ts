@@ -20,7 +20,7 @@ export class MinioService implements IMinioService, OnModuleInit {
       secretKey: config.getOrThrow('MINIO_SECRET_KEY'),
       accessKey: config.getOrThrow('MINIO_ACCESS_KEY'),
       endPoint: config.getOrThrow('MINIO_ENDPOINT'),
-      useSSL: config.get('MINIO_USE_SSL') === 'true' ?? false,
+      useSSL: config.get('MINIO_USE_SSL') === 'true',
       port: Number(config.get<string>('MINIO_PORT')),
     });
 

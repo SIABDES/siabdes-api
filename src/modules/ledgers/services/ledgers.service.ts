@@ -64,8 +64,7 @@ export class LedgersService implements ILedgersService {
       },
     });
 
-    let balance =
-      new Prisma.Decimal(payload.previous_balance) ?? new Prisma.Decimal(0);
+    let balance = new Prisma.Decimal(payload.previous_balance ?? 0);
 
     const transactions: LedgerTransactionDetails[] = [];
 
