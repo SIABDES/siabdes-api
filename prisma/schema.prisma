@@ -49,11 +49,11 @@ model Bumdes {
   phone String
 
   completeAddress String?
-  province        String
-  regency         String
-  district        String
-  village         String
-  postalCode      String
+  province        String // Pronvisi
+  regency         String // Kabupaten
+  district        String // Kecamatan
+  village         String // Desa
+  postalCode      String // Kode Pos
 
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
