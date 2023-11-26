@@ -47,18 +47,14 @@ export function addAmountToSection(
   isAccountCredit: boolean,
   isItemCredit: boolean,
 ) {
-  if (isAccountCredit) {
-    if (isItemCredit) {
-      section.credit += amount;
-    } else {
-      section.credit -= amount;
-    }
+  if (isAccountCredit && isItemCredit) {
+    section.credit += amount;
+  } else if (isAccountCredit && !isItemCredit) {
+    section.credit -= amount;
+  } else if (!isAccountCredit && isItemCredit) {
+    section.debit -= amount;
   } else {
-    if (isItemCredit) {
-      section.debit -= amount;
-    } else {
-      section.debit += amount;
-    }
+    section.debit += amount;
   }
 }
 
@@ -66,8 +62,7 @@ export function switchSectionIfNegativeNumber(section: WtbAccountItemDetails) {
   if (section.debit < 0) {
     section.credit = Math.abs(section.debit);
     section.debit = 0;
-  }
-  if (section.credit < 0) {
+  } else if (section.credit < 0) {
     section.debit = Math.abs(section.credit);
     section.credit = 0;
   }
