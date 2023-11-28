@@ -34,7 +34,12 @@ export class JournalsService implements IJournalsService {
     evidenceFile: Express.Multer.File,
     data: CreateJournalDto,
   ): Promise<CreateJournalResponse> {
-    const { category, data_transactions, description, occured_at } = data;
+    const {
+      category,
+      data_transactions,
+      description,
+      occurred_at: occured_at,
+    } = data;
 
     const unit = await this.prisma.bumdesUnit.findUnique({
       where: { id: unitId },
@@ -108,7 +113,7 @@ export class JournalsService implements IJournalsService {
         where: { id: journal.id },
         data: {
           description: data.description,
-          occuredAt: data.occured_at,
+          occuredAt: data.occurred_at,
           items: {
             deleteMany: {},
             createMany: {

@@ -6,7 +6,7 @@ import { isCreditAndDebitBalance } from '../helpers/dto';
 export const UpdateJournalSchema = z
   .object({
     description: z.string(),
-    occured_at: z.coerce.date(),
+    occurred_at: z.string().datetime(),
     data_transactions: z.array(JournalItemSchema).min(2),
   })
   .refine((val) => isCreditAndDebitBalance(val.data_transactions), {
