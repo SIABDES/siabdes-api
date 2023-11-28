@@ -18,6 +18,7 @@ import {
   CreateJournalDto,
   GetJournalsFilterDto,
   GetJournalsSortDto,
+  UpdateJournalDto,
 } from '../dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResponseBuilder } from '~common/response.builder';
@@ -95,10 +96,12 @@ export class JournalsController {
   }
 
   @Put(':journalId')
+  @UseInterceptors(FileInterceptor('evidence'))
   async updateJournal(
+    @UploadedFile() evidenceFile: Express.Multer.File,
     @GetUser('unitId') unitId: string,
     @Param('journalId') journalId: string,
-    @Body() data: CreateJournalDto,
+    @Body() data: UpdateJournalDto,
   ) {
     const result = await this.journalsService.updateJournal(
       unitId,
