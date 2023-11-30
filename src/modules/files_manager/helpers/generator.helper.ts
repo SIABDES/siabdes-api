@@ -4,7 +4,7 @@ import {
 } from './base-location.helper';
 
 export function generateJournalsKeyPath(
-  file: Express.Multer.File,
+  name: string,
   bumdesId: string,
   unitId: string,
   isAdjustment: boolean,
@@ -14,11 +14,11 @@ export function generateJournalsKeyPath(
     bumdesId,
     isAdjustment,
   );
-  return `${basePath}/${file.originalname}`;
+  return `${basePath}/${name}`;
 }
 
 export function generateFinancialStatementKeyPath(
-  file: Express.Multer.File,
+  name: string,
   bumdesId: string,
   unitId: string,
   type: 'calk' | 'laba_rugi' | 'posisi_keuangan',
@@ -29,5 +29,5 @@ export function generateFinancialStatementKeyPath(
     type,
   );
 
-  return `${basePath}/${file.originalname}`;
+  return `${basePath}/${name}`;
 }

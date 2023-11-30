@@ -7,7 +7,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
-import { GeneralJournalsFilesService } from '~modules/files_manager/services';
+import { JournalFilesService } from '~modules/files_manager/services';
 import {
   CreateJournalDto,
   GetJournalsFilterDto,
@@ -27,7 +27,7 @@ import {
 export class JournalsService implements IJournalsService {
   constructor(
     private prisma: PrismaService,
-    private generalJournalFiles: GeneralJournalsFilesService,
+    private files: JournalFilesService,
   ) {}
 
   async createJournal(
@@ -47,14 +47,12 @@ export class JournalsService implements IJournalsService {
     if (category === 'GENERAL' && !evidenceFile)
       throw new BadRequestException('Evidence file is required');
 
-    const evidenceKey =
-      category === 'GENERAL'
-        ? await this.generalJournalFiles.uploadEvidence(
-            evidenceFile,
-            unit.bumdesId,
-            unitId,
-          )
-        : null;
+    const evidenceKey = await this.files.upload({
+      category: category,
+      file: evidenceFile,
+      unitId: unit.id,
+      bumdesId: unit.bumdesId,
+    });
 
     try {
       const journal = await this.prisma.journal.create({
@@ -121,14 +119,11 @@ export class JournalsService implements IJournalsService {
       let evidenceKey: string | null = null;
 
       if (evidenceFile) {
-        evidenceKey =
-          journal.category === 'GENERAL'
-            ? await this.generalJournalFiles.uploadEvidence(
-                evidenceFile,
-                unitId,
-                journalId,
-              )
-            : null;
+        evidenceKey = await this.files.upload({
+          category: journal.category,
+          file: evidenceFile,
+          unitId: unitId,
+        });
       }
 
       const updatedJournal = await this.prisma.journal.update({

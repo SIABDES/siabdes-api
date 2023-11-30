@@ -3,6 +3,7 @@ import { AccountsService } from '../services';
 import { AccountsFiltersDto } from '../dto';
 import { PaginationDto } from '~common/dto';
 import { ResponseBuilder } from '~common/response.builder';
+import { GetUser } from '~modules/auth/decorators';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,12 +13,17 @@ export class AccountsController {
 
   @Get()
   async findAll(
+    @GetUser('unitId') unitId?: string,
     @Query() filters?: AccountsFiltersDto,
     @Query() pagination?: PaginationDto,
   ) {
-    const result = await this.accountsService.findAll(filters, pagination);
+    const result = await this.accountsService.findAll(
+      filters,
+      unitId,
+      pagination,
+    );
 
-    this.logger.log(`Get accounts`);
+    this.logger.log(`Get accounts for unit id success`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)

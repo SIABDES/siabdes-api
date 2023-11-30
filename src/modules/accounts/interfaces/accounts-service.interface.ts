@@ -6,6 +6,7 @@ import { AccountsFindAllResponse } from '../types/responses';
 export interface IAccountsService {
   findAll(
     filters: AccountsFiltersDto,
+    unitId?: string,
     pagination?: PaginationDto,
   ): Promise<AccountsFindAllResponse>;
 

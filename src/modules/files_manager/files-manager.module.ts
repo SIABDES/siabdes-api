@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
-import {
-  CalkFilesController,
-  GeneralJournalsFilesController,
-} from './controllers';
-import { CalkFilesService, GeneralJournalsFilesService } from './services';
+import { JournalFilesService } from './services';
+import { JournalFilesController } from './controllers';
 
 @Module({
-  providers: [GeneralJournalsFilesService, CalkFilesService],
-  controllers: [GeneralJournalsFilesController, CalkFilesController],
-  exports: [GeneralJournalsFilesService, CalkFilesService],
+  providers: [JournalFilesService],
+  controllers: [JournalFilesController],
+  exports: [JournalFilesService],
 })
 export class FilesManagerModule {}

@@ -17,7 +17,11 @@ export const WtbAccountItemSchema = z.object({
   account: z.object({
     id: z.number(),
     name: z.string(),
-    ref: z.string(),
+    ref: z.object({
+      group_ref: z.string(),
+      account_ref: z.string(),
+      complete_ref: z.string(),
+    }),
     is_credit: z.boolean(),
     is_posisi_keuangan: z.boolean(),
   }),

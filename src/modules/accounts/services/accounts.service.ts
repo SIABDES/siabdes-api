@@ -22,9 +22,20 @@ export class AccountsService implements IAccountsService {
 
   async findAll(
     filters: AccountsFiltersDto,
+    unitId?: string,
     pagination?: PaginationDto,
   ): Promise<AccountsFindAllResponse> {
     const { business_types, group_ref, name, ref } = filters;
+
+    if (unitId) {
+      const unit = await this.prisma.bumdesUnit.findUnique({
+        where: { id: unitId },
+      });
+
+      if (!unit) throw new NotFoundException('Unit not found');
+
+      filters.business_types = [unit.businessType];
+    }
 
     const paginationQuery: Prisma.AccountFindManyArgs = {
       cursor: pagination?.cursor

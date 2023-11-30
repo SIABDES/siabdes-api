@@ -63,12 +63,14 @@ export class LedgersService implements ILedgersService {
       },
       where: {
         accountId: accountId,
+        deletedAt: null,
         amount: {
           gte: filters?.min_amount,
           lte: filters?.max_amount,
         },
         journal: {
           bumdesUnitId: filters.unit_id ?? unitId,
+          deletedAt: null,
           occurredAt: {
             gte: filters?.start_occurred_at,
             lte: filters?.end_occurred_at,

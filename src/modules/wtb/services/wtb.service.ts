@@ -23,7 +23,7 @@ export class WtbService implements IWtbService {
     filter?: WtbFilterDto,
     pagination?: PaginationDto,
   ): Promise<GetWtbResponse> {
-    const { end_occured_at, start_occured_at } = filter;
+    const { end_occurred_at, start_occurred_at } = filter;
 
     const paginationQuery: Prisma.AccountFindManyArgs = {
       cursor: pagination?.cursor
@@ -40,8 +40,8 @@ export class WtbService implements IWtbService {
       where: {
         bumdesUnitId: unitId,
         occurredAt: {
-          gte: start_occured_at,
-          lte: end_occured_at,
+          gte: start_occurred_at,
+          lte: end_occurred_at,
         },
       },
       include: {
@@ -123,12 +123,18 @@ export class WtbService implements IWtbService {
         posisi_keuangan,
       });
 
+      const account_ref = account.ref.split('-')[1];
+
       return {
         account: {
           id: account.id,
           name: account.name,
           is_credit: account.isCredit,
-          ref: account.ref,
+          ref: {
+            group_ref: account.groupRef,
+            account_ref,
+            complete_ref: account.ref,
+          },
           is_posisi_keuangan: isPosisiKeuanganAccount(account.groupRef),
         },
         result,
