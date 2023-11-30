@@ -7,7 +7,7 @@ import { isAccountIdsUnique, isCreditAndDebitBalance } from '../helpers/dto';
 export const CreateJournalSchema = z
   .object({
     description: z.string(),
-    occurred_at: z.string().datetime(),
+    occurred_at: z.string().datetime().or(z.dateString()),
     data_transactions: z.array(JournalItemSchema).min(2),
     category: z.enum([JournalCategory.GENERAL, JournalCategory.ADJUSTMENT]),
   })

@@ -1,4 +1,12 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
 import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/auth/decorators';
@@ -8,23 +16,35 @@ import { LedgersService } from '../services';
 
 @Controller('ledgers')
 export class LedgersController {
+  private logger: Logger = new Logger(LedgersController.name);
+
   constructor(private readonly ledgersService: LedgersService) {}
 
-  @Get()
+  @Get(':accountId')
   async getLedger(
-    @GetUser('unitId') unitId: string,
+    @GetUser('bumdesId') bumdesId: string,
+    @Param('accountId', ParseIntPipe) accountId: number,
     @Query() payload: GetLedgerPayloadDto,
-    @Query() filters: GetLedgerFiltersDto,
+    @GetUser('unitId') unitId?: string,
+    @Query() filters?: GetLedgerFiltersDto,
     @Query() sort?: GetLedgerSortDto,
     @Query() pagination?: PaginationDto,
   ) {
     const result = await this.ledgersService.getLedger(
-      unitId,
+      bumdesId,
+      accountId,
       payload,
       sort,
       filters,
+      unitId,
       pagination,
     );
+
+    this.logger.log(`Get ledger for unit ${unitId}`);
+    this.logger.log(`Query Payload: ${JSON.stringify(payload)}`);
+    this.logger.log(`Query Filters: ${JSON.stringify(filters)}`);
+    this.logger.log(`Query Sort: ${JSON.stringify(sort)}`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)

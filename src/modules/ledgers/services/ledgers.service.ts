@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
@@ -20,13 +24,28 @@ export class LedgersService implements ILedgersService {
   ) {}
 
   async getLedger(
-    unitId: string,
+    bumdesId: string,
+    accountId: number,
     payload: GetLedgerPayloadDto,
     sort: GetLedgerSortDto,
     filters: GetLedgerFiltersDto,
+    unitId?: string,
     pagination?: PaginationDto,
   ): Promise<GetLedgerResponse> {
-    const account = await this.accountsService.findById(filters.account_id);
+    const hasNoUnitId = !filters.unit_id && !unitId;
+
+    if (hasNoUnitId) throw new BadRequestException('Unit ID is required');
+
+    const bumdes = await this.prisma.bumdesUnit.findUnique({
+      where: {
+        id: filters.unit_id ?? unitId,
+        bumdesId: bumdesId,
+      },
+    });
+
+    if (!bumdes) throw new NotFoundException('Unit not found');
+
+    const account = await this.accountsService.findById(accountId);
 
     const journalItems = await this.prisma.journalItem.findMany({
       cursor: pagination?.cursor
@@ -36,29 +55,29 @@ export class LedgersService implements ILedgersService {
       skip: pagination?.cursor ? 1 : undefined,
       orderBy: {
         journal: {
-          occuredAt:
-            sort.sort_by === 'occured_at' ? sort?.sort_direction : undefined,
+          occurredAt:
+            sort.sort_by === 'occurred_at' ? sort?.sort_direction : undefined,
           description:
             sort.sort_by === 'description' ? sort?.sort_direction : undefined,
         },
       },
       where: {
-        accountId: filters.account_id,
+        accountId: accountId,
         amount: {
           gte: filters?.min_amount,
           lte: filters?.max_amount,
         },
         journal: {
-          bumdesUnitId: unitId,
-          occuredAt: {
-            gte: filters?.start_occured_at,
-            lte: filters?.end_occured_at,
+          bumdesUnitId: filters.unit_id ?? unitId,
+          occurredAt: {
+            gte: filters?.start_occurred_at,
+            lte: filters?.end_occurred_at,
           },
         },
       },
       include: {
         journal: {
-          select: { occuredAt: true, description: true },
+          select: { occurredAt: true, description: true },
         },
       },
     });
@@ -66,22 +85,6 @@ export class LedgersService implements ILedgersService {
     let balance = new Prisma.Decimal(payload.previous_balance ?? 0);
 
     const transactions: LedgerTransactionDetails[] = [];
-
-    // result.journals.forEach((journal) => {
-    //   journal.data_transactions.forEach((item) => {
-    //     balance +=
-    //       account.isCredit === item.is_credit ? item.amount : -item.amount;
-
-    //     transactions.push({
-    //       amount: item.amount,
-    //       is_credit: item.is_credit,
-    //       occured_at: journal.occured_at,
-    //       description: journal.description,
-    //       account_name: account.name,
-    //       calculation_result: balance,
-    //     });
-    //   });
-    // });
 
     journalItems.forEach((item) => {
       balance = balance.add(
@@ -92,9 +95,9 @@ export class LedgersService implements ILedgersService {
 
       transactions.push({
         id: item.id,
-        amount: item.amount,
+        amount: item.amount.toNumber(),
         is_credit: item.isCredit,
-        occured_at: item.journal.occuredAt,
+        occurred_at: item.journal.occurredAt,
         description: item.journal.description,
         account_name: account.name,
         calculation_result: balance.toNumber(),

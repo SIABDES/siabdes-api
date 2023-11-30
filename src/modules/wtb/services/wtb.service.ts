@@ -39,7 +39,7 @@ export class WtbService implements IWtbService {
     const journals = await this.prisma.journal.findMany({
       where: {
         bumdesUnitId: unitId,
-        occuredAt: {
+        occurredAt: {
           gte: start_occured_at,
           lte: end_occured_at,
         },

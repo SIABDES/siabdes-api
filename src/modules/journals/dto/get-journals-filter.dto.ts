@@ -7,8 +7,8 @@ export const GetJournalsFilterSchema = z.object({
     .enum([JournalCategory.ADJUSTMENT, JournalCategory.GENERAL])
     .optional(),
   description: z.string().optional(),
-  start_occured_at: z.coerce.date().optional(),
-  end_occured_at: z.coerce.date().optional(),
+  start_occurred_at: z.string().datetime().or(z.date().optional()).optional(),
+  end_occurred_at: z.string().datetime().or(z.date().optional()).optional(),
   min_amount: z
     .string()
     .transform((val) => parseFloat(val))

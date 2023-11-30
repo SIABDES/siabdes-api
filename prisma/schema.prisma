@@ -81,8 +81,6 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
-  // generalJournals    GeneralJournal[]
-  // adjustmentJournals AdjustmentJournal[]
   journals Journal[]
 
   createdAt DateTime  @default(now())
@@ -125,8 +123,6 @@ model Account {
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
-  // generalJournalItems    GeneralJournalItem[]
-  // adjustmentJournalItems AdjustmentJournalItem[]
   journalItems JournalItem[]
 
   businessTypes BumdesUnitBusinessType[]
@@ -139,7 +135,7 @@ model Journal {
   id String @id @default(cuid())
 
   description String
-  occuredAt   DateTime
+  occurredAt  DateTime
   category    JournalCategory
   evidence    String?
 

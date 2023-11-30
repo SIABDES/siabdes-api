@@ -4,15 +4,14 @@ import {
   HttpStatus,
   Param,
   Post,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { GeneralJournalsFilesService } from '../services';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/auth/decorators';
 import { JwtUserPayload } from '~modules/auth/types';
-import { ResponseBuilder } from '~common/response.builder';
+import { GeneralJournalsFilesService } from '../services';
 
 @Controller('files/general_journals')
 export class GeneralJournalsFilesController {

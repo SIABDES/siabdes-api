@@ -16,14 +16,15 @@ import {
 export interface IJournalsService {
   createJournal(
     unitId: string,
-    evidenceFile: Express.Multer.File,
     data: CreateJournalDto,
+    evidenceFile?: Express.Multer.File,
   ): Promise<CreateJournalResponse>;
 
   updateJournal(
     unitId: string,
     journalId: string,
     data: UpdateJournalDto,
+    evidenceFile?: Express.Multer.File,
   ): Promise<UpdateJournalReponse>;
 
   getJournals(

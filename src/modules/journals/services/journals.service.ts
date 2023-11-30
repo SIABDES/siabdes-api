@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -31,15 +32,10 @@ export class JournalsService implements IJournalsService {
 
   async createJournal(
     unitId: string,
-    evidenceFile: Express.Multer.File,
     data: CreateJournalDto,
+    evidenceFile?: Express.Multer.File,
   ): Promise<CreateJournalResponse> {
-    const {
-      category,
-      data_transactions,
-      description,
-      occurred_at: occured_at,
-    } = data;
+    const { category, data_transactions, description, occurred_at } = data;
 
     const unit = await this.prisma.bumdesUnit.findUnique({
       where: { id: unitId },
@@ -48,7 +44,10 @@ export class JournalsService implements IJournalsService {
 
     if (!unit) throw new ForbiddenException('Unit not found');
 
-    let evidenceKey =
+    if (category === 'GENERAL' && !evidenceFile)
+      throw new BadRequestException('Evidence file is required');
+
+    const evidenceKey =
       category === 'GENERAL'
         ? await this.generalJournalFiles.uploadEvidence(
             evidenceFile,
@@ -57,41 +56,51 @@ export class JournalsService implements IJournalsService {
           )
         : null;
 
-    const journal = await this.prisma.journal.create({
-      data: {
-        category,
-        description,
-        occuredAt: occured_at,
-        evidence: evidenceKey,
-        bumdesUnit: {
-          connect: { id: unitId },
-        },
-        items: {
-          createMany: {
-            data: data_transactions.map((item) => ({
-              accountId: item.account_id,
-              amount: item.amount,
-              isCredit: item.is_credit,
-            })),
+    try {
+      const journal = await this.prisma.journal.create({
+        data: {
+          category,
+          description,
+          occurredAt: occurred_at,
+          evidence: evidenceKey,
+          bumdesUnit: {
+            connect: { id: unitId },
+          },
+          items: {
+            createMany: {
+              data: data_transactions.map((item) => ({
+                accountId: item.account_id,
+                amount: item.amount,
+                isCredit: item.is_credit,
+              })),
+            },
           },
         },
-      },
-      select: {
-        id: true,
-        category: true,
-      },
-    });
+        select: {
+          id: true,
+          category: true,
+        },
+      });
 
-    return {
-      id: journal.id,
-      category: journal.category,
-    };
+      return {
+        id: journal.id,
+        category: journal.category,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException('Account not found');
+        }
+      }
+      throw error;
+    }
   }
 
   async updateJournal(
     unitId: string,
     journalId: string,
     data: UpdateJournalDto,
+    evidenceFile?: Express.Multer.File,
   ): Promise<UpdateJournalReponse> {
     try {
       const journal = await this.prisma.journal.findUnique({
@@ -109,11 +118,25 @@ export class JournalsService implements IJournalsService {
         };
       }
 
+      let evidenceKey: string | null = null;
+
+      if (evidenceFile) {
+        evidenceKey =
+          journal.category === 'GENERAL'
+            ? await this.generalJournalFiles.uploadEvidence(
+                evidenceFile,
+                unitId,
+                journalId,
+              )
+            : null;
+      }
+
       const updatedJournal = await this.prisma.journal.update({
         where: { id: journal.id },
         data: {
           description: data.description,
-          occuredAt: data.occurred_at,
+          occurredAt: data.occurred_at,
+          evidence: evidenceKey,
           items: {
             deleteMany: {},
             createMany: {
@@ -140,6 +163,9 @@ export class JournalsService implements IJournalsService {
         if (error.code === 'P2025') {
           throw new NotFoundException('Journal not found');
         }
+        if (error.code === 'P2002') {
+          throw new BadRequestException('Account not found');
+        }
       }
       throw error;
     }
@@ -160,8 +186,8 @@ export class JournalsService implements IJournalsService {
 
     const sortQuery: Prisma.JournalFindManyArgs = {
       orderBy: {
-        occuredAt:
-          sort?.sort_by === 'occured_at' ? sort.sort_direction : undefined,
+        occurredAt:
+          sort?.sort_by === 'occurred_at' ? sort.sort_direction : undefined,
         description:
           sort?.sort_by === 'description' ? sort.sort_direction : undefined,
       },
@@ -173,9 +199,9 @@ export class JournalsService implements IJournalsService {
       where: {
         bumdesUnitId: unitId,
         deletedAt: filter?.get_deleted ? undefined : null,
-        occuredAt: {
-          gte: filter?.start_occured_at,
-          lte: filter?.end_occured_at,
+        occurredAt: {
+          gte: filter?.start_occurred_at,
+          lte: filter?.end_occurred_at,
         },
         category: filter?.category,
         description: filter.description
@@ -204,7 +230,7 @@ export class JournalsService implements IJournalsService {
         id: journal.id,
         category: journal.category,
         description: journal.description,
-        occured_at: journal.occuredAt,
+        occured_at: journal.occurredAt,
         evidence: filter.is_detailed ? journal.evidence : undefined,
         data_transactions: filter.is_detailed
           ? journal.items.map((item) => ({
@@ -250,7 +276,7 @@ export class JournalsService implements IJournalsService {
       category: journal.category,
       description: journal.description,
       evidence: journal.evidence,
-      occured_at: journal.occuredAt,
+      occured_at: journal.occurredAt,
       data_transactions: journal.items.map((item) => ({
         account_id: item.accountId,
         account_name: accounts.find((acc) => acc.id === item.accountId).name,

@@ -8,10 +8,12 @@ import { GetLedgerResponse } from '../types/responses';
 
 export interface ILedgersService {
   getLedger(
-    unitId: string,
+    bumdesId: string,
+    accountId: number,
     payload: GetLedgerPayloadDto,
     sort: GetLedgerSortDto,
     filters: GetLedgerFiltersDto,
+    unitId?: string,
     pagination?: PaginationDto,
   ): Promise<GetLedgerResponse>;
 }

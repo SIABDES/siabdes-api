@@ -12,7 +12,11 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { JournalsService } from '../services';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthUserRole } from '@prisma/client';
+import { PaginationDto } from '~common/dto';
+import { buildValidationForEvidence } from '~common/pipes/helpers';
+import { ResponseBuilder } from '~common/response.builder';
 import { GetUser, HasRoles } from '~modules/auth/decorators';
 import {
   CreateJournalDto,
@@ -20,10 +24,7 @@ import {
   GetJournalsSortDto,
   UpdateJournalDto,
 } from '../dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ResponseBuilder } from '~common/response.builder';
-import { PaginationDto } from '~common/dto';
-import { AuthUserRole } from '@prisma/client';
+import { JournalsService } from '../services';
 
 @HasRoles(AuthUserRole.UNIT)
 @Controller('journals')
@@ -36,12 +37,13 @@ export class JournalsController {
   async createJournal(
     @GetUser('unitId') unitId: string,
     @Body() data: CreateJournalDto,
-    @UploadedFile() evidenceFile: Express.Multer.File,
+    @UploadedFile(buildValidationForEvidence())
+    evidenceFile?: Express.Multer.File,
   ) {
     const result = await this.journalsService.createJournal(
       unitId,
-      evidenceFile,
       data,
+      evidenceFile,
     );
 
     this.logger.log(`Jurnal berhasil dibuat dengan id: ${result.id}`);
@@ -67,7 +69,9 @@ export class JournalsController {
       pagination,
     );
 
-    this.logger.log(`Jurnal berhasil didapatkan`);
+    this.logger.log(`Jurnal untuk unit id '${unitId}' berhasil didapatkan`);
+    this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
+    this.logger.log(`Query Sort: ${JSON.stringify(sort)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
@@ -86,7 +90,7 @@ export class JournalsController {
       journalId,
     );
 
-    this.logger.log(`Detail jurnal berhasil didapatkan`);
+    this.logger.log(`Detail jurnal berhasil didapatkan pada id '${result.id}'`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
@@ -98,18 +102,20 @@ export class JournalsController {
   @Put(':journalId')
   @UseInterceptors(FileInterceptor('evidence'))
   async updateJournal(
-    @UploadedFile() evidenceFile: Express.Multer.File,
     @GetUser('unitId') unitId: string,
     @Param('journalId') journalId: string,
     @Body() data: UpdateJournalDto,
+    @UploadedFile(buildValidationForEvidence())
+    evidenceFile?: Express.Multer.File,
   ) {
     const result = await this.journalsService.updateJournal(
       unitId,
       journalId,
       data,
+      evidenceFile,
     );
 
-    this.logger.log(`Jurnal berhasil diupdate`);
+    this.logger.log(`Jurnal berhasil diupdate pada journal id '${result.id}'`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
@@ -125,7 +131,9 @@ export class JournalsController {
   ) {
     const result = await this.journalsService.deleteJournal(unitId, journalId);
 
-    this.logger.log(`Jurnal berhasil dihapus`);
+    this.logger.log(
+      `Jurnal berhasil soft delete pada journal id '${result.id}' `,
+    );
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
