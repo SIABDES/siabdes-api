@@ -38,8 +38,8 @@ export class JournalFilesService implements IJournalFilesService {
       foundBumdesId = unit.bumdesId;
     }
 
-    const extension = file.originalname.split('.').pop();
-    const name = `${nanoid(27)}${extension ? `.${extension}` : ''}`;
+    const extension = file.originalname.split('.').pop() ?? '';
+    const name = `${nanoid(27)}${extension}`;
 
     const key = generateJournalsKeyPath(
       name,
