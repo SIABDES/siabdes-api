@@ -6,10 +6,9 @@ import {
 import { MinioService } from '~lib/minio/minio.service';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { JOURNAL_EVIDENCE_EXPIRY } from '../constants';
-import { generateJournalsKeyPath } from '../helpers';
+import { generateFileName, generateJournalsKeyPath } from '../helpers';
 import { IJournalFilesService } from '../interfaces';
 import { JournalFileInputType } from '../types';
-import { nanoid } from 'nanoid';
 
 @Injectable()
 export class JournalFilesService implements IJournalFilesService {
@@ -38,8 +37,7 @@ export class JournalFilesService implements IJournalFilesService {
       foundBumdesId = unit.bumdesId;
     }
 
-    const extension = file.originalname.split('.').pop() ?? '';
-    const name = `${nanoid(27)}${extension}`;
+    const name = generateFileName(file);
 
     const key = generateJournalsKeyPath(
       name,

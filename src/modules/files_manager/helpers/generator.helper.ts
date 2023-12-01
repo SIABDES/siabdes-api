@@ -1,3 +1,4 @@
+import { FinancialStatementType } from '../types';
 import {
   generateBaseLocationForFinancialStatement,
   generateBaseLocationForJournal,
@@ -21,7 +22,7 @@ export function generateFinancialStatementKeyPath(
   name: string,
   bumdesId: string,
   unitId: string,
-  type: 'calk' | 'laba_rugi' | 'posisi_keuangan',
+  type: FinancialStatementType,
 ) {
   const basePath = generateBaseLocationForFinancialStatement(
     unitId,

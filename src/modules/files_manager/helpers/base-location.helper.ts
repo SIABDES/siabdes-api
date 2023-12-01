@@ -1,7 +1,9 @@
+import { FinancialStatementType } from '../types';
+
 export function generateBaseLocationForFinancialStatement(
   unitId: string,
   bumdesId: string,
-  type: 'calk' | 'laba_rugi' | 'posisi_keuangan',
+  type: FinancialStatementType,
 ): string {
   return `${bumdesId}/${unitId}/financial-statement/${type}`;
 }
