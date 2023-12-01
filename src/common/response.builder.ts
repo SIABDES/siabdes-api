@@ -1,7 +1,7 @@
-export class ResponseBuilder {
+export class ResponseBuilder<T extends object = any> {
   private statusCode: number;
   private message: string | string[];
-  private data: any;
+  private data: T;
 
   constructor() {
     this.statusCode = 200;
@@ -16,17 +16,17 @@ export class ResponseBuilder {
     };
   }
 
-  setStatusCode(status: number): ResponseBuilder {
+  setStatusCode(status: number): this {
     this.statusCode = status;
     return this;
   }
 
-  setMessage(message: string | string[]): ResponseBuilder {
+  setMessage(message: string | string[]): this {
     this.message = message;
     return this;
   }
 
-  setData(data: any): ResponseBuilder {
+  setData(data: any): this {
     this.data = data;
     return this;
   }

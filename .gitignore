@@ -1,3 +1,6 @@
+# local data
+.data
+
 # env
 .env
 .env.local
@@ -7,6 +10,7 @@
 # compiled output
 /dist
 /node_modules
+/documentation
 
 # Logs
 logs

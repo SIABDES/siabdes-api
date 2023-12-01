@@ -30,7 +30,7 @@ export class AuthRoleGuard implements CanActivate {
 
     // Get the user's role from the database
     const foundUser = await this.prisma.authUser.findUnique({
-      where: { id: user.sub },
+      where: { id: user.id },
       select: { role: true },
     });
 
