@@ -15,7 +15,7 @@ import { ResponseBuilder } from '~common/response.builder';
 
 @Controller('units')
 export class UnitsController {
-  private logger: Logger = new Logger('UnitsController');
+  private logger: Logger = new Logger(UnitsController.name);
 
   constructor(private readonly unitsService: UnitsService) {}
 

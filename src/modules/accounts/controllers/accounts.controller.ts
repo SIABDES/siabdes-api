@@ -24,6 +24,8 @@ export class AccountsController {
     );
 
     this.logger.log(`Get accounts for unit id success`);
+    this.logger.log(`Query Filter: ${JSON.stringify(filters)}`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)

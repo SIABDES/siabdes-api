@@ -72,6 +72,7 @@ export class JournalsController {
     this.logger.log(`Jurnal untuk unit id '${unitId}' berhasil didapatkan`);
     this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
     this.logger.log(`Query Sort: ${JSON.stringify(sort)}`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)

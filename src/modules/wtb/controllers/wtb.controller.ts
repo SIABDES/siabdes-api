@@ -30,6 +30,8 @@ export class WtbController {
     );
 
     this.logger.log(`Get WTB for unit ${unitId}`);
+    this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
@@ -46,6 +48,7 @@ export class WtbController {
     const result = await this.wtbService.getWtbSummary(unitId, filter);
 
     this.logger.log(`Get WTB summary for unit ${unitId}`);
+    this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
