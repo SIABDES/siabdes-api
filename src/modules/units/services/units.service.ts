@@ -23,7 +23,8 @@ export class UnitsService implements IUnitsService {
     data: CreateUnitDto,
     bumdesId: string,
   ): Promise<CreateUnitResponse> {
-    const { name, business_type, credentials } = data;
+    const { name, business_type, credentials, address, phone_number, leader } =
+      data;
 
     const hashedPassword = await argon2.hash(credentials.password);
 
@@ -32,6 +33,9 @@ export class UnitsService implements IUnitsService {
         data: {
           name,
           businessType: business_type,
+          address,
+          phoneNumber: phone_number,
+          leader,
           bumdes: {
             connect: {
               id: bumdesId,
