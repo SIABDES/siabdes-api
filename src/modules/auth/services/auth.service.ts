@@ -1,5 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AuthUserRole } from '@prisma/client';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { AuthUserRole, Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { AuthLoginDto, AuthRegisterDto } from '../dto';
 import { IAuthService } from '../interfaces';
@@ -51,10 +55,6 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async logout(request: Request): Promise<boolean> {
-    throw new Error('Method not implemented.');
-  }
-
   async login(data: AuthLoginDto): Promise<AuthLoginResponse> {
     const user = await this.prisma.authUser.findUnique({
       where: {
@@ -102,37 +102,51 @@ export class AuthService implements IAuthService {
 
     const hashedPassword = await argon2.hash(password);
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const user = await tx.authUser.create({
-        data: {
-          identifier,
-          role: AuthUserRole.BUMDES,
-          password: hashedPassword,
-        },
-      });
-
-      const bumdes = await tx.bumdes.create({
-        data: {
-          name,
-          phone,
-          province: address.province,
-          regency: address.regency,
-          district: address.district,
-          village: address.village,
-          postalCode: address.postal_code,
-          completeAddress: address.complete_address,
-          user: {
-            connect: { id: user.id },
+    try {
+      const result = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.authUser.create({
+          data: {
+            identifier,
+            role: AuthUserRole.BUMDES,
+            password: hashedPassword,
           },
-        },
+        });
+
+        const bumdes = await tx.bumdes.create({
+          data: {
+            name,
+            phone,
+            province: address.province,
+            regency: address.regency,
+            district: address.district,
+            village: address.village,
+            postalCode: address.postal_code,
+            completeAddress: address.complete_address,
+            users: {
+              connect: { id: user.id },
+            },
+          },
+        });
+
+        return { userId: user.id, bumdesId: bumdes.id };
       });
 
-      return { userId: user.id, bumdesId: bumdes.id };
-    });
-
-    return {
-      userId: result.userId,
-      bumdesId: result.bumdesId,
-    };
+      return {
+        userId: result.userId,
+        bumdesId: result.bumdesId,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Identifier already exists');
+        }
+        if (error.code === 'P2028') {
+          throw new InternalServerErrorException(
+            `Failed to create user or bumdes. Error: ${error.message}`,
+          );
+        }
+      }
+      throw error;
+    }
   }
 }
