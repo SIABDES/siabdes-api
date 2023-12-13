@@ -49,17 +49,49 @@ model Bumdes {
   name  String
   phone String
 
+  // Address
   completeAddress String?
-  province        String // Pronvisi
+  province        String // Provinsi
   regency         String // Kabupaten
   district        String // Kecamatan
   village         String // Desa
   postalCode      String // Kode Pos
 
-  users AuthUser[]
+  // Law and Rules  
+  villageRuleNumber     String? // no peraturan desa
+  skAdministratorNumber String? // no SK pengurus desa
+  skAdministratorDate   DateTime? // tanggal SK pengurus desa
+  skAssistantNumber     String? // no SK AD/ART desa
+  skAssistantDate       DateTime? // tanggal SK AD/ART desa
 
+  // Bank or Financial Institution
+  bankName    String? // Nama bank
+  bankAccount String? // No rekening
+
+  // NPWP or Taxes
+  npwpNumber String? // No NPWP
+
+  // Socials
+  website      String? // Link Website
+  facebook     String? // Link Facebook
+  twitter      String? // Link Twitter
+  instagram    String? // Link Instagram
+  otherSocials String? // Link Social Media Lainnya
+
+  // Initial finance capital data (pemodalan awal)
+  initialCapitalParticipation    Decimal? // Penyertaan modal awal
+  additionalCapitalParticipation Decimal? // Penambahan Penyertaan Modal
+
+  // Organizations
+  leader     String
+  consultant String?
+  secretary  String?
+  treasurer  String? // Bendahara
+
+  users AuthUser[]
   units BumdesUnit[]
 
+  foundedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -74,8 +106,12 @@ model BumdesUnit {
 
   name         String
   businessType BumdesUnitBusinessType
+  description  String?
 
-  leader      String
+  // Organizations
+  leader  String
+  members String[]
+
   phoneNumber String
   address     String
 
@@ -85,15 +121,75 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
-  journals Journal[]
-  ppnTaxes PPnTaxes[]
+  thirdPartyPartners String[] // Kerja sama pihak ketiga
 
+  journals                    Journal[]
+  ppnTaxes                    PPnTaxes[]
+  capitalsHistory             BumdesUnitCapitalHistory[] // Riwayat Permodalan
+  assetsAndTurnoversHistory   BumdesUnitAssetAndTurnoverHistory[] // Riwayat Aset dan Omzet
+  netProfitAndDividendHistory BumdesUnitNetProfitAndDividendHistory[] // Riwayat Keuntungan Bersih dan Dividen
+
+  foundedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@index([businessType, bumdesId], name: "bumdes_unit_business_type")
   @@map("bumdes_unit")
+  @@schema("bumdes")
+}
+
+model BumdesUnitCapitalHistory {
+  id String @id @default(cuid())
+
+  amount     Decimal
+  source     String
+  percentage Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_capital_history")
+  @@schema("bumdes")
+}
+
+model BumdesUnitAssetAndTurnoverHistory {
+  id String @id @default(cuid())
+
+  year     Int
+  asset    Decimal
+  turnover Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_asset_and_turnover_history")
+  @@schema("bumdes")
+}
+
+model BumdesUnitNetProfitAndDividendHistory {
+  id String @id @default(cuid())
+
+  year      Int
+  netProfit Decimal
+  dividend  Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_net_profit_and_dividend_history")
   @@schema("bumdes")
 }
 

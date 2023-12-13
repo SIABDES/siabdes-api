@@ -7,11 +7,13 @@ import {
   Logger,
   Param,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UnitsService } from '../services';
 import { CreateUnitDto } from '../dto';
 import { GetUser } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
+import { PaginationDto } from '~common/dto';
 
 @Controller('units')
 export class UnitsController {
@@ -54,10 +56,14 @@ export class UnitsController {
   }
 
   @Get()
-  async getBumdesUnits(@GetUser('bumdesId') bumdesId: string) {
-    const result = await this.unitsService.getUnits(bumdesId);
+  async getBumdesUnits(
+    @GetUser('bumdesId') bumdesId: string,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.unitsService.getUnits(bumdesId, pagination);
 
     this.logger.log(`Get units for bumdes '${bumdesId}'`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)

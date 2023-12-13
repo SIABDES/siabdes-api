@@ -62,10 +62,10 @@ export class AuthService implements IAuthService {
       },
       include: {
         bumdes: {
-          select: { id: true },
+          select: { id: true, name: true },
         },
         bumdesUnit: {
-          select: { id: true },
+          select: { id: true, name: true, businessType: true },
         },
       },
     });
@@ -87,7 +87,10 @@ export class AuthService implements IAuthService {
       user: {
         id: user.id,
         bumdesId: user.bumdes.id,
+        bumdesName: user.bumdes.name,
         unitId: user.bumdesUnit?.id,
+        unitName: user.bumdesUnit?.name,
+        unitBusinessType: user.bumdesUnit?.businessType,
         role: user.role,
       },
       backendTokens: tokens,
@@ -97,8 +100,9 @@ export class AuthService implements IAuthService {
   async register(
     data: AuthRegisterDto,
   ): Promise<{ userId: string; bumdesId: string }> {
-    const { identifier, password, bumdes } = data;
+    const { identifier, password, bumdes, organization } = data;
     const { name, phone, address } = bumdes;
+    const { leader, secretary, treasurer } = organization;
 
     const hashedPassword = await argon2.hash(password);
 
@@ -116,6 +120,9 @@ export class AuthService implements IAuthService {
           data: {
             name,
             phone,
+            leader,
+            secretary,
+            treasurer,
             province: address.province,
             regency: address.regency,
             district: address.district,

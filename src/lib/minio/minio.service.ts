@@ -16,29 +16,41 @@ export class MinioService implements IMinioService, OnModuleInit {
   }
 
   connect(config: ConfigService): Client {
+    const isUseSSL = config.get('MINIO_USE_SSL') === 'true';
+    const port = config.get<string>('MINIO_PORT');
+
     const client = new Client({
       secretKey: config.getOrThrow('MINIO_SECRET_KEY'),
       accessKey: config.getOrThrow('MINIO_ACCESS_KEY'),
       endPoint: config.getOrThrow('MINIO_ENDPOINT'),
-      useSSL: config.get('MINIO_USE_SSL') === 'true',
-      port: Number(config.get<string>('MINIO_PORT')),
+      useSSL: isUseSSL,
+      port: port ? parseInt(port) : undefined,
     });
 
     return client;
   }
 
   async onModuleInit() {
-    const isExists = await this.minioClient.bucketExists(this.bucket);
+    this.minioClient.bucketExists(this.bucket, async (err, exists) => {
+      if (err) {
+        this.logger.error(err.message);
+        throw err;
+      }
 
-    if (isExists) return;
+      this.logger.log('Successfully connected to MinIO Service');
 
-    try {
-      await this.minioClient.makeBucket(this.bucket);
-      this.logger.log(`Bucket ${this.bucket} created`);
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
+      if (!exists) {
+        try {
+          await this.minioClient.makeBucket(this.bucket);
+          this.logger.log(`Bucket ${this.bucket} created`);
+        } catch (error) {
+          this.logger.error(error);
+          throw error;
+        }
+      }
+
+      return exists;
+    });
   }
 
   get client(): Client {

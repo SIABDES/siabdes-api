@@ -14,6 +14,7 @@ import {
   DeleteUnitResponse,
   GetUnitsResponse,
 } from '../types/responses';
+import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitsService implements IUnitsService {
@@ -95,8 +96,18 @@ export class UnitsService implements IUnitsService {
     }
   }
 
-  async getUnits(bumdesId: string): Promise<GetUnitsResponse> {
+  async getUnits(
+    bumdesId: string,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitsResponse> {
+    const paginationQuery: Prisma.BumdesUnitFindManyArgs = {
+      cursor: pagination.cursor ? { id: String(pagination.cursor) } : undefined,
+      take: pagination?.limit,
+      skip: pagination?.cursor ? 1 : undefined,
+    };
+
     const units = await this.prisma.bumdesUnit.findMany({
+      ...paginationQuery,
       where: {
         bumdesId,
       },
@@ -105,15 +116,18 @@ export class UnitsService implements IUnitsService {
         id: true,
         businessType: true,
         name: true,
+        createdAt: true,
       },
     });
 
     return {
       _count: units.length,
+      next_cursor: units.length > 1 ? units[units.length - 1].id : undefined,
       units: units.map((unit) => ({
         id: unit.id,
         name: unit.name,
         business_type: unit.businessType,
+        created_at: unit.createdAt.toISOString(),
       })),
     };
   }
@@ -131,6 +145,7 @@ export class UnitsService implements IUnitsService {
         id: unit.id,
         name: unit.name,
         business_type: unit.businessType,
+        created_at: unit.createdAt.toISOString(),
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
