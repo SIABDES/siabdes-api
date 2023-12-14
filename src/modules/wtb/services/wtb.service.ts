@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
@@ -25,6 +25,14 @@ export class WtbService implements IWtbService {
   ): Promise<GetWtbResponse> {
     const { end_occurred_at, start_occurred_at } = filter;
 
+    const unit = await this.prisma.bumdesUnit.findUnique({
+      where: { id: unitId },
+    });
+
+    if (!unit) {
+      throw new NotFoundException('Unit not found.');
+    }
+
     const paginationQuery: Prisma.AccountFindManyArgs = {
       cursor: pagination?.cursor
         ? { id: Number(pagination.cursor) }
@@ -34,11 +42,15 @@ export class WtbService implements IWtbService {
 
     const accounts = await this.prisma.account.findMany({
       ...paginationQuery,
+      where: {
+        businessTypes: { has: unit.businessType },
+      },
     });
 
     const journals = await this.prisma.journal.findMany({
       where: {
         bumdesUnitId: unitId,
+        deletedAt: null,
         occurredAt: {
           gte: start_occurred_at,
           lte: end_occurred_at,
