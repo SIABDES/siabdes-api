@@ -25,8 +25,6 @@ export class AccountsService implements IAccountsService {
     unitId?: string,
     pagination?: PaginationDto,
   ): Promise<AccountsFindAllResponse> {
-    const { business_types, group_ref, name, ref } = filters;
-
     if (unitId) {
       const unit = await this.prisma.bumdesUnit.findUnique({
         where: { id: unitId },
@@ -36,6 +34,8 @@ export class AccountsService implements IAccountsService {
 
       filters.business_types = [unit.businessType];
     }
+
+    const { business_types, group_ref, name, ref } = filters;
 
     const paginationQuery: Prisma.AccountFindManyArgs = {
       cursor: pagination?.cursor
