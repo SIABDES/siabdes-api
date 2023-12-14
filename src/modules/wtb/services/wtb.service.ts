@@ -38,6 +38,7 @@ export class WtbService implements IWtbService {
         ? { id: Number(pagination.cursor) }
         : undefined,
       take: pagination?.limit ? Number(pagination.limit) : undefined,
+      skip: pagination?.cursor ? 1 : undefined,
     };
 
     const accounts = await this.prisma.account.findMany({
@@ -210,12 +211,12 @@ export class WtbService implements IWtbService {
 
     // Laba Rugi Bersih
     summaryResult.laba_rugi_bersih.laba_rugi.credit =
-      summaryResult.sum.laba_rugi.credit - summaryResult.sum.laba_rugi.debit;
+      summaryResult.sum.laba_rugi.debit - summaryResult.sum.laba_rugi.credit;
     switchSectionIfNegativeNumber(summaryResult.laba_rugi_bersih.laba_rugi);
 
     summaryResult.laba_rugi_bersih.posisi_keuangan.credit =
-      summaryResult.sum.posisi_keuangan.credit -
-      summaryResult.sum.posisi_keuangan.debit;
+      summaryResult.sum.posisi_keuangan.debit -
+      summaryResult.sum.posisi_keuangan.credit;
     switchSectionIfNegativeNumber(
       summaryResult.laba_rugi_bersih.posisi_keuangan,
     );
