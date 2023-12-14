@@ -6,6 +6,8 @@ export type JournalType = {
   category: JournalCategory;
   description: string;
   occured_at: Date;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type JournalDetailsType = JournalType & {
