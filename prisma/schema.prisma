@@ -123,11 +123,11 @@ model BumdesUnit {
 
   thirdPartyPartners String[] // Kerja sama pihak ketiga
 
-  journals                    Journal[]
-  ppnTaxes                    PPnTaxes[]
-  capitalsHistory             BumdesUnitCapitalHistory[] // Riwayat Permodalan
-  assetsAndTurnoversHistory   BumdesUnitAssetAndTurnoverHistory[] // Riwayat Aset dan Omzet
-  netProfitAndDividendHistory BumdesUnitNetProfitAndDividendHistory[] // Riwayat Keuntungan Bersih dan Dividen
+  journals          Journal[]
+  ppnTaxes          PPnTaxes[]
+  capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
+  incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
+  netProfitsHistory BumdesUnitNetProfitHistory[] // Riwayat Keuntungan Bersih dan Dividen
 
   foundedAt DateTime?
   createdAt DateTime  @default(now())
@@ -157,12 +157,12 @@ model BumdesUnitCapitalHistory {
   @@schema("bumdes")
 }
 
-model BumdesUnitAssetAndTurnoverHistory {
+model BumdesUnitIncomeHistory {
   id String @id @default(cuid())
 
-  year     Int
-  asset    Decimal
-  turnover Decimal
+  year    Int
+  asset   Decimal
+  revenue Decimal
 
   unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   unitId String
@@ -171,11 +171,11 @@ model BumdesUnitAssetAndTurnoverHistory {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("bumdes_unit_asset_and_turnover_history")
+  @@map("bumdes_unit_income_history")
   @@schema("bumdes")
 }
 
-model BumdesUnitNetProfitAndDividendHistory {
+model BumdesUnitNetProfitHistory {
   id String @id @default(cuid())
 
   year      Int
@@ -189,7 +189,7 @@ model BumdesUnitNetProfitAndDividendHistory {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("bumdes_unit_net_profit_and_dividend_history")
+  @@map("bumdes_unit_net_profit_history")
   @@schema("bumdes")
 }
 

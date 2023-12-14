@@ -7,7 +7,7 @@ import {
   Param,
   Put,
 } from '@nestjs/common';
-import { UnitProfileService } from '../services/unit-profile.service';
+import { UnitProfileService } from '../services';
 import { ResponseBuilder } from '~common/response.builder';
 import { UpdateUnitProfileDto } from '../dto';
 
