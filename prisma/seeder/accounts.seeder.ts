@@ -1210,7 +1210,7 @@ export async function seedAccounts(prisma: PrismaClient) {
       subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1003',
       isCredit: false,
-      businessTypes: ['SERVICES'],
+      businessTypes: ['COMMERCE', 'INDUSTRY'],
     },
     {
       name: 'Beban Denda',
