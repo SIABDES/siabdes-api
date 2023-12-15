@@ -88,6 +88,10 @@ model Bumdes {
   secretary  String?
   treasurer  String? // Bendahara
 
+  supervisor_leader    String?
+  supervisor_secretary String?
+  supervisor_treasurer String?
+
   users AuthUser[]
   units BumdesUnit[]
 
@@ -124,6 +128,7 @@ model BumdesUnit {
   thirdPartyPartners String[] // Kerja sama pihak ketiga
 
   journals          Journal[]
+  customJournals    CustomJournal[]
   ppnTaxes          PPnTaxes[]
   capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
   incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
@@ -208,9 +213,26 @@ model AccountGroup {
   name String
   slug String @unique
 
-  accounts Account[]
+  accounts       Account[]
+  customAccounts CustomAccount[]
+  subgroups      AccountSubgroup[]
 
   @@map("account_groups")
+  @@schema("journals")
+}
+
+model AccountSubgroup {
+  id       Int          @id @default(autoincrement())
+  ref      String       @unique // Misal: ref = 1-1, format: <account group ref>-<account subgroup ref>. src: COA
+  name     String
+  slug     String       @unique
+  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  groupRef String
+
+  accounts       Account[]
+  customAccounts CustomAccount[]
+
+  @@map("account_subgroups")
   @@schema("journals")
 }
 
@@ -224,11 +246,35 @@ model Account {
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
+  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  subgroupRef String
+
   journalItems JournalItem[]
 
   businessTypes BumdesUnitBusinessType[]
 
   @@map("accounts")
+  @@schema("journals")
+}
+
+model CustomAccount {
+  id       String  @id @default(cuid())
+  ref      String
+  name     String
+  slug     String  @unique
+  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
+
+  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  groupRef String
+
+  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  subgroupRef String
+
+  journalItems CustomJournalItem[]
+
+  businessTypes BumdesUnitBusinessType[]
+
+  @@map("custom_accounts")
   @@schema("journals")
 }
 
@@ -270,6 +316,47 @@ model JournalItem {
   deletedAt DateTime?
 
   @@map("journal_items")
+  @@schema("journals")
+}
+
+model CustomJournal {
+  id String @id @default(cuid())
+
+  description String
+  occurredAt  DateTime
+  category    JournalCategory
+  evidence    String?
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  items CustomJournalItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("custom_journals")
+  @@schema("journals")
+}
+
+model CustomJournalItem {
+  id String @id @default(cuid())
+
+  amount   Decimal
+  isCredit Boolean
+
+  account   CustomAccount @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  accountId String
+
+  journal   CustomJournal @relation(fields: [journalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  journalId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("custom_journal_items")
   @@schema("journals")
 }
 

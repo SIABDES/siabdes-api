@@ -74,6 +74,17 @@ export async function seedAccounts(prisma: PrismaClient) {
     ],
   });
 
+  await prisma.accountSubgroup.createMany({
+    data: [
+      {
+        groupRef: '1',
+        ref: '1-1',
+        name: 'Aset Lancar',
+        slug: 'aset-lancar',
+      },
+    ],
+  });
+
   await prismaAccountExtends.account.createBatch([
     {
       name: 'Kas',
