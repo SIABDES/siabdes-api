@@ -12,6 +12,7 @@ import { PrismaModule } from './lib/prisma/prisma.module';
 import { JournalsModule } from '~modules/journals/journals.module';
 import { LedgersModule } from '~modules/ledgers/ledgers.module';
 import { WtbModule } from '~modules/wtb/wtb.module';
+import { BumdesModule } from '~modules/bumdes/bumdes.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WtbModule } from '~modules/wtb/wtb.module';
     JournalsModule,
     LedgersModule,
     WtbModule,
+    BumdesModule,
   ],
   providers: [
     {
