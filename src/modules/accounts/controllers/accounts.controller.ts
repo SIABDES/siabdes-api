@@ -33,4 +33,17 @@ export class AccountsController {
       .setData(result)
       .build();
   }
+
+  @Get('subgroups')
+  async findAllSubgroups() {
+    const result = await this.accountsService.findAllSubgroups();
+
+    this.logger.log(`Get accounts subgroups success`);
+
+    return new ResponseBuilder()
+      .setStatusCode(HttpStatus.OK)
+      .setMessage('Sub-kelompok akun berhasil diambil')
+      .setData(result)
+      .build();
+  }
 }

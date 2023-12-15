@@ -4,7 +4,10 @@ import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { AccountsFiltersDto } from '../dto';
 import { IAccountsService } from '../interfaces';
-import { AccountsFindAllResponse } from '../types/responses';
+import {
+  AccountsFindAllResponse,
+  AccountsFindAllSubgroupsResponse,
+} from '../types/responses';
 
 @Injectable()
 export class AccountsService implements IAccountsService {
@@ -18,6 +21,25 @@ export class AccountsService implements IAccountsService {
     if (!account) throw new NotFoundException('Account not found');
 
     return account;
+  }
+
+  async findAllSubgroups(): Promise<AccountsFindAllSubgroupsResponse> {
+    const subgroups = await this.prisma.accountSubgroup.findMany({
+      include: {
+        group: true,
+      },
+    });
+
+    return {
+      _count: subgroups.length,
+      subgroups: subgroups.map((subgroup) => ({
+        id: subgroup.id,
+        name: subgroup.name,
+        slug: subgroup.slug,
+        group_ref: subgroup.groupRef,
+        ref: subgroup.ref,
+      })),
+    };
   }
 
   async findAll(
