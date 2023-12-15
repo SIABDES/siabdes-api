@@ -60,6 +60,7 @@ export class AccountsService implements IAccountsService {
       select: {
         id: true,
         groupRef: true,
+        subgroupRef: true,
         ref: true,
         businessTypes: true,
         isCredit: true,
@@ -73,6 +74,7 @@ export class AccountsService implements IAccountsService {
       accounts: results.map((result) => ({
         id: result.id,
         group_ref: result.groupRef,
+        subggroup_ref: result.subgroupRef,
         ref: result.ref,
         business_type: result.businessTypes,
         name: result.name,

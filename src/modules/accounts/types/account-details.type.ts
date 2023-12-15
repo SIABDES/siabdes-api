@@ -5,6 +5,7 @@ export type AccountDetails = {
   name: string;
   business_type: BumdesUnitBusinessType[];
   group_ref: string;
+  subggroup_ref: string;
   ref: string;
   is_credit: boolean;
   slug: string;

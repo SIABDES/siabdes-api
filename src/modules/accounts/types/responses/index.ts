@@ -1,1 +1,1 @@
-export * from './accounts-find-all-response.type';
+export * from './find-all.response.type';
