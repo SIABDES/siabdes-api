@@ -44,7 +44,9 @@ export class BumdesFundingsService implements IBumdesFundingsService {
           throw new BadRequestException('Duplicate entry');
         }
         if (error.code === 'P2025') {
-          throw new BadRequestException('Invalid foreign key');
+          throw new BadRequestException(
+            'Invalid foreign key. Bumdes not found',
+          );
         }
       }
       throw error;
@@ -66,7 +68,9 @@ export class BumdesFundingsService implements IBumdesFundingsService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new BadRequestException('Invalid foreign key');
+          throw new BadRequestException(
+            'Invalid foreign key. Bumdes not found',
+          );
         }
       }
       throw error;
@@ -101,7 +105,9 @@ export class BumdesFundingsService implements IBumdesFundingsService {
           throw new BadRequestException('Duplicate entry');
         }
         if (error.code === 'P2025') {
-          throw new BadRequestException('Invalid foreign key');
+          throw new BadRequestException(
+            'Invalid foreign key. Bumdes not found',
+          );
         }
       }
       throw error;
@@ -135,7 +141,9 @@ export class BumdesFundingsService implements IBumdesFundingsService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new BadRequestException('Invalid foreign key');
+          throw new BadRequestException(
+            'Invalid foreign key. Bumdes not found',
+          );
         }
       }
       throw error;
