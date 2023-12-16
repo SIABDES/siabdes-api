@@ -92,8 +92,10 @@ model Bumdes {
   supervisor_secretary String?
   supervisor_treasurer String?
 
-  users AuthUser[]
-  units BumdesUnit[]
+  users            AuthUser[]
+  units            BumdesUnit[]
+  fundingHistories BumdesFundingHistoryItem[]
+  incomeHistories  BumdesIncomeHistoryItem[]
 
   foundedAt DateTime?
   createdAt DateTime  @default(now())
@@ -102,6 +104,44 @@ model Bumdes {
 
   @@index([province, regency, district, village, postalCode], name: "bumdes_address")
   @@map("bumdes")
+  @@schema("bumdes")
+}
+
+model BumdesFundingHistoryItem {
+  id String @id @default(cuid())
+
+  year                   Int
+  rulesNumber            String
+  villageAmount          Decimal
+  villagePercentage      Decimal
+  otherPartiesAmount     Decimal
+  otherPartiesPercentage Decimal
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_funding_history_item")
+  @@schema("bumdes")
+}
+
+model BumdesIncomeHistoryItem {
+  id String @id @default(cuid())
+
+  year     Int
+  omzet    Decimal
+  profit   Decimal
+  dividend Decimal
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_income_history_item")
   @@schema("bumdes")
 }
 
