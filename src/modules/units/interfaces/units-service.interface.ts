@@ -3,6 +3,7 @@ import { CreateUnitDto } from '../dto';
 import {
   CreateUnitResponse,
   DeleteUnitResponse,
+  GetUnitMetadataResponse,
   GetUnitResponse,
   GetUnitsResponse,
 } from '../types/responses';
@@ -21,4 +22,6 @@ export interface IUnitsService {
   ): Promise<GetUnitsResponse>;
 
   getUnitById(bumdesId: string, unitId: string): Promise<GetUnitResponse>;
+
+  getUnitMetadata(unitId: string): Promise<GetUnitMetadataResponse>;
 }

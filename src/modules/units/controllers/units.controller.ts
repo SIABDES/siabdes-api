@@ -87,4 +87,17 @@ export class UnitsController {
       .setData(result)
       .build();
   }
+
+  @Get(':unitId/metadata')
+  async getUnitMetadata(@Param('unitId') unitId: string) {
+    const result = await this.unitsService.getUnitMetadata(unitId);
+
+    this.logger.log(`Get metadata for unit '${unitId}'`);
+
+    return new ResponseBuilder()
+      .setStatusCode(HttpStatus.OK)
+      .setMessage('Metadata berhasil ditemukan')
+      .setData(result)
+      .build();
+  }
 }

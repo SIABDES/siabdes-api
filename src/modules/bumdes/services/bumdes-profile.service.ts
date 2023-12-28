@@ -103,7 +103,7 @@ export class BumdesProfileService implements IBumdesProfileService {
         website: bumdes.website,
         other_socials: bumdes.otherSocials,
       },
-      npwpNumber: bumdes.npwpNumber,
+      npwp_number: bumdes.npwpNumber,
       village_rule_number: bumdes.villageRuleNumber,
       sk_administrator_number: bumdes.skAdministratorNumber,
       sk_administrator_date: bumdes.skAdministratorDate,

@@ -16,7 +16,7 @@ export type GetBumdesProfileResponse = {
     account_number: string;
   };
 
-  npwpNumber?: string;
+  npwp_number?: string;
 
   socials?: {
     facebook?: string;

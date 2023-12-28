@@ -12,6 +12,7 @@ import { GetUnit } from '../types';
 import {
   CreateUnitResponse,
   DeleteUnitResponse,
+  GetUnitMetadataResponse,
   GetUnitsResponse,
 } from '../types/responses';
 import { PaginationDto } from '~common/dto';
@@ -19,6 +20,44 @@ import { PaginationDto } from '~common/dto';
 @Injectable()
 export class UnitsService implements IUnitsService {
   constructor(private prisma: PrismaService) {}
+
+  async getUnitMetadata(unitId: string): Promise<GetUnitMetadataResponse> {
+    const unit = await this.prisma.bumdesUnit.findUnique({
+      where: { id: unitId },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    if (!unit) {
+      throw new NotFoundException('Unit tidak ditemukan');
+    }
+
+    const firstJournal = await this.prisma.journal.findFirst({
+      where: {
+        bumdesUnitId: unitId,
+      },
+      orderBy: { occurredAt: 'asc' },
+      select: {
+        id: true,
+        category: true,
+        occurredAt: true,
+        description: true,
+      },
+    });
+
+    return {
+      created_at: unit.createdAt,
+      journals: {
+        first_journal: firstJournal && {
+          id: firstJournal.id,
+          description: firstJournal.description,
+          category: firstJournal.category,
+          occurred_at: firstJournal.occurredAt,
+        },
+      },
+    };
+  }
 
   async createUnit(
     data: CreateUnitDto,
