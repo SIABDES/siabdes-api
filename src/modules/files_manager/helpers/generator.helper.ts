@@ -2,6 +2,7 @@ import { FinancialStatementType } from '../types';
 import {
   generateBaseLocationForFinancialStatement,
   generateBaseLocationForJournal,
+  generateBaseLocationForPpn,
 } from './base-location.helper';
 
 export function generateJournalsKeyPath(
@@ -29,6 +30,16 @@ export function generateFinancialStatementKeyPath(
     bumdesId,
     type,
   );
+
+  return `${basePath}/${name}`;
+}
+
+export function generatePpnKeyPath(
+  name: string,
+  bumdesId: string,
+  unitId: string,
+) {
+  const basePath = generateBaseLocationForPpn(unitId, bumdesId);
 
   return `${basePath}/${name}`;
 }

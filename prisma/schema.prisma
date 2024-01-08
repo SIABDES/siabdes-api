@@ -169,7 +169,7 @@ model BumdesUnit {
 
   journals          Journal[]
   customJournals    CustomJournal[]
-  ppnTaxes          PPnTaxes[]
+  ppnTaxes          PpnTax[]
   capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
   incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
   netProfitsHistory BumdesUnitNetProfitHistory[] // Riwayat Keuntungan Bersih dan Dividen
@@ -408,26 +408,67 @@ enum JournalCategory {
   @@schema("journals")
 }
 
+enum PpnTaxObject {
+  NO_TAXES // Tidak kena pajak
+  DOMESTIC_TAXES // Kena pajak - Dalam negeri
+  INTERNATIONAL_TAXES // Kena pajak - Luar negeri
+
+  @@schema("taxes")
+}
+
 // taxes schema
-model PPnTaxes {
+model PpnTax {
   id String @id @default(cuid())
 
-  proofNumber String @unique
+  givenTo String
 
-  targetCompany String
-  items         String[]
-  isItemService Boolean
-  dpp           Decimal
-  ppn           Decimal
+  transactionNumber      String
+  transactionDate        DateTime
+  transactionEvidenceKey String
 
-  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  unitId String
+  object      PpnTaxObject
+  objectItems PpnTaxObjectItem[]
 
-  occuredAt DateTime
+  bumdesUnit   BumdesUnit? @relation(fields: [bumdesUnitId], references: [id])
+  bumdesUnitId String?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@map("ppn_taxes")
+  @@schema("taxes")
+}
+
+enum PpnTaxItemType {
+  SERVICE // Jasa
+  GOODS // Barang
+
+  @@schema("taxes")
+}
+
+model PpnTaxObjectItem {
+  id String @id @default(cuid())
+
+  name String
+  type PpnTaxItemType
+
+  quantity      Int // Jumlah
+  pricePerUnit  Decimal // Harga satuan
+  discountPrice Decimal // Harga diskon
+  totalPrice    Decimal // Harga total
+
+  dpp Decimal // Dasar Pengenaan Pajak
+  ppn Decimal // Pajak Pertambahan Nilai
+  // tariff Decimal // Tarif Pajak
+
+  tax   PpnTax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("ppn_object_items")
   @@schema("taxes")
 }

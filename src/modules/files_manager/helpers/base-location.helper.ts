@@ -19,3 +19,10 @@ export function generateBaseLocationForJournal(
 
   return `${bumdesId}/${unitId}/${journalFolder}`;
 }
+
+export function generateBaseLocationForPpn(
+  unitId: string,
+  bumdesId: string,
+): string {
+  return `${bumdesId}/${unitId}/ppn`;
+}

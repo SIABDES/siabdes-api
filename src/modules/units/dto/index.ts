@@ -4,3 +4,4 @@ export * from './profits';
 export * from './capitals';
 export * from './profile';
 export * from './incomes';
+export * from './ppn';
