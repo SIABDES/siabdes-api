@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import {
   UnitCapitalsController,
+  UnitEmployeesController,
   UnitIncomesController,
   UnitProfileController,
   UnitProfitsController,
@@ -8,6 +9,7 @@ import {
 } from './controllers';
 import {
   UnitCapitalsService,
+  UnitEmployeesService,
   UnitIncomesService,
   UnitPpnService,
   UnitProfileService,
@@ -25,6 +27,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitIncomesService,
     UnitProfitsService,
     UnitPpnService,
+    UnitEmployeesService,
   ],
   controllers: [
     UnitsController,
@@ -33,6 +36,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitIncomesController,
     UnitProfitsController,
     UnitPpnController,
+    UnitEmployeesController,
   ],
   exports: [
     UnitProfileService,
@@ -40,6 +44,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitIncomesService,
     UnitProfitsService,
     UnitPpnService,
+    UnitEmployeesService,
   ],
   imports: [FilesManagerModule],
 })

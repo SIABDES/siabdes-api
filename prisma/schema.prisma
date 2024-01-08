@@ -173,6 +173,7 @@ model BumdesUnit {
   capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
   incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
   netProfitsHistory BumdesUnitNetProfitHistory[] // Riwayat Keuntungan Bersih dan Dividen
+  employees         UnitEmployee[]
 
   foundedAt DateTime?
   createdAt DateTime  @default(now())
@@ -470,5 +471,83 @@ model PpnTaxObjectItem {
   deletedAt DateTime?
 
   @@map("ppn_object_items")
+  @@schema("taxes")
+}
+
+enum UnitEmployeeStatus {
+  NEW
+  OLD
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeGender {
+  MALE
+  FEMALE
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeMarriageStatus {
+  NOT_MARRIED
+  MARRIED
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeChildrenAmount {
+  NONE
+  ONE
+  TWO
+  THREE
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeType {
+  PERMANENT_MONTHLY // Tetap Bulanan
+
+  NON_PERMANENT_WEEKLY // Tidak Tetap Mingguan
+  NON_PERMANENT_CONTRACT // Tidak Tetap Borongan
+  NON_PERMANENT_UNIT // Tidak Tetap Satuan
+
+  SEVERANCE_OUTRIGHT // Pesangon Sekaligus
+  SEVERANCE_PERIODICAL // Pesangon Berkala
+
+  ACTIVITY_MEMBER // Peserta Kegiatan
+  SUPERVISOR_NON_EMPLOYEE // Pengawas non pegawai
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeNpwpStatus {
+  MERGED_WITH_HUSBAND // Digabung dengan suami
+  SEPARATED_WITH_HUSBAND // Dipisah dengan suami
+
+  @@schema("taxes")
+}
+
+model UnitEmployee {
+  id String @id @default(cuid())
+
+  name           String
+  nik            String
+  npwp           String?
+  npwpStatus     UnitEmployeeNpwpStatus
+  gender         UnitEmployeeGender
+  employeeStatus UnitEmployeeStatus // Status Tenaga Kerja
+  employeeType   UnitEmployeeType // Jenis Tenaga Kerja 
+  startWorkingAt DateTime // Tanggal Mulai Bekerja
+  marriageStatus UnitEmployeeMarriageStatus
+  childrenAmount UnitEmployeeChildrenAmount
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("unit_employees")
   @@schema("taxes")
 }
