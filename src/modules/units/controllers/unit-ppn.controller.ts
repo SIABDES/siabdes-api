@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Logger,
+  Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -12,7 +15,11 @@ import {
 import { UnitPpnService } from '../services';
 import { GetUser } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
-import { AddPpnObjectDto, GetPpnTaxesFilterDto } from '../dto';
+import {
+  AddPpnObjectDto,
+  GetPpnTaxesFilterDto,
+  UpdatePpnObjectDto,
+} from '../dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { buildValidationForEvidence } from '~common/pipes/helpers';
 import { PaginationDto } from '~common/dto';
@@ -61,6 +68,55 @@ export class UnitPpnController {
       .setData(result)
       .setMessage('Berhasil menambahkan data pajak PPN')
       .setStatusCode(HttpStatus.CREATED)
+      .build();
+  }
+
+  @Get(':ppnId')
+  async getPpnTaxById(
+    @GetUser('unitId') unitId: string,
+    @Param('ppnId') ppnId: string,
+  ) {
+    const result = await this.ppnService.getPpnTaxById(unitId, ppnId);
+
+    this.logger.log(`Get ppn tax by id ${ppnId} for unit ${unitId}`);
+
+    return new ResponseBuilder()
+      .setData(result)
+      .setMessage('Berhasil memuat data pajak PPN')
+      .setStatusCode(HttpStatus.OK)
+      .build();
+  }
+
+  @Put(':ppnId')
+  async updatePpnTaxById(
+    @GetUser('unitId') unitId: string,
+    @Param('ppnId') ppnId: string,
+    @Body() dto: UpdatePpnObjectDto,
+  ) {
+    const result = await this.ppnService.updatePpnTaxById(unitId, ppnId, dto);
+
+    this.logger.log(`Update ppn tax by id ${ppnId} for unit ${unitId}`);
+
+    return new ResponseBuilder()
+      .setData(result)
+      .setMessage('Berhasil memperbarui data pajak PPN')
+      .setStatusCode(HttpStatus.OK)
+      .build();
+  }
+
+  @Delete(':ppnId')
+  async deletePpnTaxById(
+    @GetUser('unitId') unitId: string,
+    @Param('ppnId') ppnId: string,
+  ) {
+    const result = await this.ppnService.deletePpnTaxById(unitId, ppnId);
+
+    this.logger.log(`Delete ppn tax by id ${ppnId} for unit ${unitId}`);
+
+    return new ResponseBuilder()
+      .setData(result)
+      .setMessage('Berhasil menghapus data pajak PPN')
+      .setStatusCode(HttpStatus.OK)
       .build();
   }
 }

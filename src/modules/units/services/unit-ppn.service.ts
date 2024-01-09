@@ -1,11 +1,21 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { PpnFilesService } from '~modules/files_manager/services';
-import { AddPpnObjectDto, GetPpnTaxesFilterDto } from '../dto';
+import {
+  AddPpnObjectDto,
+  GetPpnTaxesFilterDto,
+  UpdatePpnObjectDto,
+} from '../dto';
 import { IUnitPpnService } from '../interfaces';
-import { AddPpnTaxResponse, GetPpnTaxesResponse } from '../types/responses';
-import { PaginationDto } from '~common/dto';
+import {
+  AddPpnTaxResponse,
+  DeletePpnTaxResponse,
+  GetPpnTaxDetailsResponse,
+  GetPpnTaxesResponse,
+  UpdatePpnTaxResponse,
+} from '../types/responses';
 
 @Injectable()
 export class UnitPpnService implements IUnitPpnService {
@@ -15,6 +25,110 @@ export class UnitPpnService implements IUnitPpnService {
     private prisma: PrismaService,
     private filesService: PpnFilesService,
   ) {}
+
+  async getPpnTaxById(
+    unitId: string,
+    ppnId: string,
+  ): Promise<GetPpnTaxDetailsResponse> {
+    try {
+      const ppn = await this.prisma.ppnTax.findUnique({
+        where: { bumdesUnitId: unitId, id: ppnId, deletedAt: { equals: null } },
+        include: { objectItems: true },
+      });
+
+      if (!ppn) throw new NotFoundException('Ppn tax not found');
+
+      return {
+        id: ppn.id,
+        given_to: ppn.givenTo,
+        item_type: ppn.itemType,
+        transaction_type: ppn.transactionType,
+        transaction_date: ppn.transactionDate,
+        transaction_number: ppn.transactionNumber,
+        tax_object: ppn.object,
+        objects: ppn.objectItems.map((obj) => ({
+          id: obj.id,
+          name: obj.name,
+          quantity: obj.quantity,
+          price: obj.pricePerUnit.toNumber(),
+          discount: obj.discountPrice.toNumber(),
+          total_price: obj.totalPrice.toNumber(),
+          dpp: obj.dpp.toNumber(),
+          ppn: obj.ppn.toNumber(),
+        })),
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        this.logger.error(error);
+        if (error.code === 'P2002') {
+          throw new NotFoundException('Unit not found');
+        }
+      }
+      throw error;
+    }
+  }
+
+  async updatePpnTaxById(
+    unitId: string,
+    ppnId: string,
+    dto: UpdatePpnObjectDto,
+  ): Promise<UpdatePpnTaxResponse> {
+    try {
+      const ppn = await this.prisma.ppnTax.update({
+        where: { id: ppnId, bumdesUnitId: unitId, deletedAt: { equals: null } },
+        data: {
+          itemType: dto.item_type,
+          transactionType: dto.transaction_type,
+          transactionDate: dto.transaction_date,
+          transactionNumber: dto.transaction_number,
+          givenTo: dto.given_to,
+          object: dto.tax_object,
+          objectItems: {
+            deleteMany: {},
+            createMany: {
+              data: dto.object_items.map((obj) => ({
+                name: obj.name,
+                quantity: obj.quantity,
+                pricePerUnit: obj.price,
+                discountPrice: obj.discount,
+                totalPrice: obj.total_price,
+                dpp: obj.dpp,
+                ppn: obj.ppn,
+              })),
+            },
+          },
+        },
+        select: { id: true, updatedAt: true },
+      });
+
+      return { id: ppn.id, updated_at: ppn.updatedAt };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deletePpnTaxById(
+    unitId: string,
+    ppnId: string,
+  ): Promise<DeletePpnTaxResponse> {
+    try {
+      const ppn = await this.prisma.ppnTax.update({
+        where: { bumdesUnitId: unitId, id: ppnId, deletedAt: { equals: null } },
+        data: { deletedAt: new Date() },
+        select: { id: true, deletedAt: true },
+      });
+
+      return { id: ppn.id, deleted_at: ppn.deletedAt };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        this.logger.error(error);
+        if (error.code === 'P2002') {
+          throw new NotFoundException('Unit not found');
+        }
+      }
+      throw error;
+    }
+  }
 
   async addPpnTax(
     unitId: string,
@@ -86,7 +200,7 @@ export class UnitPpnService implements IUnitPpnService {
   ): Promise<GetPpnTaxesResponse> {
     try {
       const unit = await this.prisma.bumdesUnit.findUnique({
-        where: { id: unitId },
+        where: { id: unitId, deletedAt: { equals: null } },
         select: { id: true, bumdesId: true },
       });
 
