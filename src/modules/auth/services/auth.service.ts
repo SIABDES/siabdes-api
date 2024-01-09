@@ -12,13 +12,14 @@ import { PrismaService } from '~lib/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthLoginResponse } from '../types/responses';
+import { Env } from '~common/types';
 
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-    private config: ConfigService,
+    private config: ConfigService<Env>,
   ) {}
 
   async refresh(payload: JwtUserPayload): Promise<JwtToken> {

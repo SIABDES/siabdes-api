@@ -5,15 +5,17 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { UnitPpnService } from '../services';
 import { GetUser } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
-import { AddPpnObjectDto } from '../dto';
+import { AddPpnObjectDto, GetPpnTaxesFilterDto } from '../dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { buildValidationForEvidence } from '~common/pipes/helpers';
+import { PaginationDto } from '~common/dto';
 
 @Controller('units/:unitId/ppn')
 export class UnitPpnController {
@@ -22,10 +24,20 @@ export class UnitPpnController {
   constructor(private ppnService: UnitPpnService) {}
 
   @Get()
-  async getPpnTaxes(@GetUser('unitId') unitId: string) {
-    const result = await this.ppnService.getPpnTaxes(unitId);
+  async getPpnTaxes(
+    @GetUser('unitId') unitId: string,
+    @Query() filter?: GetPpnTaxesFilterDto,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.ppnService.getPpnTaxes(
+      unitId,
+      pagination,
+      filter,
+    );
 
     this.logger.log(`Get ppn taxes for unit ${unitId}`);
+    this.logger.log(`Filter: ${JSON.stringify(filter)}`);
+    this.logger.log(`Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setData(result)

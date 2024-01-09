@@ -1,4 +1,5 @@
-import { AddPpnObjectDto } from '../dto';
+import { PaginationDto } from '~common/dto';
+import { AddPpnObjectDto, GetPpnTaxesFilterDto } from '../dto';
 import { AddPpnTaxResponse, GetPpnTaxesResponse } from '../types/responses';
 
 export interface IUnitPpnService {
@@ -8,5 +9,9 @@ export interface IUnitPpnService {
     dto: AddPpnObjectDto,
   ): Promise<AddPpnTaxResponse>;
 
-  getPpnTaxes(unitId: string): Promise<GetPpnTaxesResponse>;
+  getPpnTaxes(
+    unitId: string,
+    pagination?: PaginationDto,
+    filter?: GetPpnTaxesFilterDto,
+  ): Promise<GetPpnTaxesResponse>;
 }

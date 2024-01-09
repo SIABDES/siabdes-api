@@ -421,8 +421,10 @@ enum PpnTaxObject {
 model PpnTax {
   id String @id @default(cuid())
 
-  givenTo String
+  givenTo  String
+  itemType PpnTaxItemType
 
+  transactionType        PpnTransactionType
   transactionNumber      String
   transactionDate        DateTime
   transactionEvidenceKey String
@@ -448,11 +450,17 @@ enum PpnTaxItemType {
   @@schema("taxes")
 }
 
+enum PpnTransactionType {
+  SALES // Penjualan
+  PURCHASE // Pembelian
+
+  @@schema("taxes")
+}
+
 model PpnTaxObjectItem {
   id String @id @default(cuid())
 
   name String
-  type PpnTaxItemType
 
   quantity      Int // Jumlah
   pricePerUnit  Decimal // Harga satuan
@@ -461,7 +469,6 @@ model PpnTaxObjectItem {
 
   dpp Decimal // Dasar Pengenaan Pajak
   ppn Decimal // Pajak Pertambahan Nilai
-  // tariff Decimal // Tarif Pajak
 
   tax   PpnTax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   taxId String

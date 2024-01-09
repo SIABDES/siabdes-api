@@ -1,9 +1,12 @@
-import { PpnTaxItemType, PpnTaxObject } from '@prisma/client';
+import {
+  PpnTaxItemType,
+  PpnTaxObject,
+  PpnTransactionType,
+} from '@prisma/client';
 
 export type PpnObjectItem = {
   id: string;
   name: string;
-  type: PpnTaxItemType;
   quantity: number;
   price: number;
   discount: number;
@@ -16,6 +19,8 @@ export type PpnObjectItem = {
 export type PpnTax = {
   id: string;
   given_to: string;
+  item_type: PpnTaxItemType;
+  transaction_type: PpnTransactionType;
   transaction_date: Date;
   transaction_number: string;
   tax_object: PpnTaxObject;

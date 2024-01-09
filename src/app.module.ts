@@ -6,18 +6,29 @@ import { MinioModule } from '~lib/minio/minio.module';
 import { AccountsModule } from '~modules/accounts/accounts.module';
 import { AuthModule } from '~modules/auth/auth.module';
 import { AuthJwtGuard } from '~modules/auth/guards';
+import { BumdesModule } from '~modules/bumdes/bumdes.module';
 import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
-import { UnitsModule } from '~modules/units/units.module';
-import { PrismaModule } from './lib/prisma/prisma.module';
 import { JournalsModule } from '~modules/journals/journals.module';
 import { LedgersModule } from '~modules/ledgers/ledgers.module';
+import { UnitsModule } from '~modules/units/units.module';
 import { WtbModule } from '~modules/wtb/wtb.module';
-import { BumdesModule } from '~modules/bumdes/bumdes.module';
+import { PrismaModule } from './lib/prisma/prisma.module';
+import { EnvSchema } from '~common/types';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
+      validate(config) {
+        const result = EnvSchema.safeParse(config);
+
+        if (!result.success) {
+          return;
+        }
+
+        return result.data;
+      },
     }),
     PrismaModule,
     MinioModule,

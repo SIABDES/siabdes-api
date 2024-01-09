@@ -2,9 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { PpnFilesService } from '~modules/files_manager/services';
-import { AddPpnObjectDto } from '../dto';
+import { AddPpnObjectDto, GetPpnTaxesFilterDto } from '../dto';
 import { IUnitPpnService } from '../interfaces';
 import { AddPpnTaxResponse, GetPpnTaxesResponse } from '../types/responses';
+import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitPpnService implements IUnitPpnService {
@@ -42,6 +43,8 @@ export class UnitPpnService implements IUnitPpnService {
         data: {
           givenTo: dto.given_to,
           object: dto.tax_object,
+          itemType: dto.item_type,
+          transactionType: dto.transaction_type,
           transactionDate: dto.transaction_date,
           transactionNumber: dto.transaction_number,
           transactionEvidenceKey: evidenceKey,
@@ -52,10 +55,8 @@ export class UnitPpnService implements IUnitPpnService {
             createMany: {
               data: dto.object_items.map((obj) => ({
                 name: obj.name,
-                type: obj.type,
                 quantity: obj.quantity,
                 pricePerUnit: obj.price,
-                // tariff: obj.tariff,
                 discountPrice: obj.discount,
                 totalPrice: obj.total_price,
                 dpp: obj.dpp,
@@ -78,7 +79,11 @@ export class UnitPpnService implements IUnitPpnService {
     }
   }
 
-  async getPpnTaxes(unitId: string): Promise<GetPpnTaxesResponse> {
+  async getPpnTaxes(
+    unitId: string,
+    pagination?: PaginationDto,
+    filter?: GetPpnTaxesFilterDto,
+  ): Promise<GetPpnTaxesResponse> {
     try {
       const unit = await this.prisma.bumdesUnit.findUnique({
         where: { id: unitId },
@@ -87,9 +92,39 @@ export class UnitPpnService implements IUnitPpnService {
 
       if (!unit) throw new NotFoundException('Unit not found');
 
+      const paginationQuery: Prisma.PpnTaxFindManyArgs = {};
+      if (pagination) {
+        paginationQuery.take = pagination?.limit;
+        if (pagination.cursor) {
+          paginationQuery.cursor = { id: pagination.cursor as string };
+          paginationQuery.skip = 1;
+        }
+      }
+
+      const where: Prisma.PpnTaxWhereInput = {};
+
+      if (filter) {
+        where.transactionDate = filter.transaction_date
+          ? { equals: filter.transaction_date }
+          : undefined;
+        where.transactionNumber = filter.transaction_number
+          ? { contains: filter.transaction_number }
+          : undefined;
+        where.transactionType = filter.transaction_type
+          ? { equals: filter.transaction_type }
+          : undefined;
+        where.givenTo = filter.given_to
+          ? { contains: filter.given_to }
+          : undefined;
+        where.object = filter.tax_object
+          ? { equals: filter.tax_object }
+          : undefined;
+      }
+
       const taxes = await this.prisma.ppnTax.findMany({
-        where: { bumdesUnitId: unitId },
-        include: { objectItems: true },
+        ...paginationQuery,
+        where: { bumdesUnitId: unitId, ...where },
+        include: { objectItems: filter.is_detailed },
       });
 
       return {
@@ -97,21 +132,23 @@ export class UnitPpnService implements IUnitPpnService {
         taxes: taxes.map((tax) => ({
           id: tax.id,
           given_to: tax.givenTo,
+          item_type: tax.itemType,
+          transaction_type: tax.transactionType,
           transaction_date: tax.transactionDate,
           transaction_number: tax.transactionNumber,
           tax_object: tax.object,
-          objects: tax.objectItems.map((obj) => ({
-            id: obj.id,
-            name: obj.name,
-            type: obj.type,
-            quantity: obj.quantity,
-            price: obj.pricePerUnit.toNumber(),
-            // tariff: obj.tariff.toNumber(),
-            discount: obj.discountPrice.toNumber(),
-            total_price: obj.totalPrice.toNumber(),
-            dpp: obj.dpp.toNumber(),
-            ppn: obj.ppn.toNumber(),
-          })),
+          objects: !filter.is_detailed
+            ? undefined
+            : tax.objectItems.map((obj) => ({
+                id: obj.id,
+                name: obj.name,
+                quantity: obj.quantity,
+                price: obj.pricePerUnit.toNumber(),
+                discount: obj.discountPrice.toNumber(),
+                total_price: obj.totalPrice.toNumber(),
+                dpp: obj.dpp.toNumber(),
+                ppn: obj.ppn.toNumber(),
+              })),
         })),
       };
     } catch (error) {

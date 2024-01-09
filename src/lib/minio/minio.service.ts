@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IMinioService } from './interfaces';
 import { Client } from 'minio';
+import { Env } from '~common/types';
 
 @Injectable()
 export class MinioService implements IMinioService, OnModuleInit {
@@ -9,7 +10,7 @@ export class MinioService implements IMinioService, OnModuleInit {
   private bucket: string;
   private logger: Logger = new Logger(MinioService.name);
 
-  constructor(config: ConfigService) {
+  constructor(config: ConfigService<Env>) {
     this.bucket = config.get<string>('MINIO_BUCKET_NAME') || 'siabdes';
 
     this.minioClient = this.connect(config);
