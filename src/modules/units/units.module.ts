@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import {
   UnitCapitalsController,
   UnitEmployeesController,
+  UnitEmployeesPph21Controller,
   UnitIncomesController,
+  UnitPph21Controller,
+  UnitPpnController,
   UnitProfileController,
   UnitProfitsController,
   UnitsController,
@@ -11,12 +14,12 @@ import {
   UnitCapitalsService,
   UnitEmployeesService,
   UnitIncomesService,
+  UnitPph21Service,
   UnitPpnService,
   UnitProfileService,
   UnitProfitsService,
   UnitsService,
 } from './services';
-import { UnitPpnController } from './controllers/unit-ppn.controller';
 import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
 
 @Module({
@@ -28,6 +31,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitProfitsService,
     UnitPpnService,
     UnitEmployeesService,
+    UnitPph21Service,
   ],
   controllers: [
     UnitsController,
@@ -37,6 +41,8 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitProfitsController,
     UnitPpnController,
     UnitEmployeesController,
+    UnitPph21Controller,
+    UnitEmployeesPph21Controller,
   ],
   exports: [
     UnitProfileService,
@@ -45,6 +51,7 @@ import { FilesManagerModule } from '~modules/files_manager/files-manager.module'
     UnitProfitsService,
     UnitPpnService,
     UnitEmployeesService,
+    UnitPph21Service,
   ],
   imports: [FilesManagerModule],
 })

@@ -9,3 +9,4 @@ export * from './profile';
 export * from './profits';
 export * from './ppn';
 export * from './employees';
+export * from './pph21';

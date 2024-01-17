@@ -4,3 +4,6 @@ export * from './unit-capitals.controller';
 export * from './unit-incomes.controller';
 export * from './unit-profits.controller';
 export * from './unit-employees.controller';
+export * from './unit-ppn.controller';
+export * from './unit-pph21.controller';
+export * from './unit-employees-pph21.controller';

@@ -32,12 +32,13 @@ export const AddUnitEmployeeSchema = z.object({
   employee_status: z.enum([UnitEmployeeStatus.NEW, UnitEmployeeStatus.OLD]),
   employee_type: z.enum([
     UnitEmployeeType.PERMANENT_MONTHLY,
-    UnitEmployeeType.NON_PERMANENT_WEEKLY,
-    UnitEmployeeType.NON_PERMANENT_UNIT,
-    UnitEmployeeType.NON_PERMANENT_CONTRACT,
+    UnitEmployeeType.NON_PERMANENT_MONTHLY,
+    UnitEmployeeType.NON_PERMANENT_NOT_MONTHLY,
     UnitEmployeeType.SEVERANCE_OUTRIGHT,
     UnitEmployeeType.SEVERANCE_PERIODICAL,
-    UnitEmployeeType.SUPERVISOR_NON_EMPLOYEE,
+    UnitEmployeeType.OTHER_SUPERVISOR_NON_EMPLOYEE,
+    UnitEmployeeType.OTHER_ACTIVITY_MEMBER,
+    UnitEmployeeType.NON_EMPLOYEE,
   ]),
 });
 

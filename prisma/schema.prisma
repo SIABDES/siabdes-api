@@ -165,6 +165,8 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
+  pph21Taxes Pph21Tax[]
+
   thirdPartyPartners String[] // Kerja sama pihak ketiga
 
   journals          Journal[]
@@ -514,15 +516,16 @@ enum UnitEmployeeChildrenAmount {
 enum UnitEmployeeType {
   PERMANENT_MONTHLY // Tetap Bulanan
 
-  NON_PERMANENT_WEEKLY // Tidak Tetap Mingguan
-  NON_PERMANENT_CONTRACT // Tidak Tetap Borongan
-  NON_PERMANENT_UNIT // Tidak Tetap Satuan
+  NON_PERMANENT_MONTHLY // Tidak Tetap Bulanan
+  NON_PERMANENT_NOT_MONTHLY // Tidak Tetap Tidak Bulanan
 
   SEVERANCE_OUTRIGHT // Pesangon Sekaligus
   SEVERANCE_PERIODICAL // Pesangon Berkala
 
-  ACTIVITY_MEMBER // Peserta Kegiatan
-  SUPERVISOR_NON_EMPLOYEE // Pengawas non pegawai
+  OTHER_ACTIVITY_MEMBER // PPh21 Lainnya - Peserta Kegiatan
+  OTHER_SUPERVISOR_NON_EMPLOYEE // PPh21 Lainnya - Pengawas Bukan Pegawai
+
+  NON_EMPLOYEE // Bukan Pegawai
 
   @@schema("taxes")
 }
@@ -551,10 +554,87 @@ model UnitEmployee {
   bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   bumdesUnitId String
 
+  pph21Taxes Pph21Tax[]
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@unique([nik, bumdesUnitId])
   @@map("unit_employees")
+  @@schema("taxes")
+}
+
+enum Pph21PtkpStatus {
+  TK0 // Tidak Kawin - Tanpa tanggungan 
+  TK1 // Tidak Kawin - Tanggungan 1
+  TK2 // Tidak Kawin - Tanggungan 2
+  TK3 // Tidak Kawin - Tanggungan 3
+
+  K0 // Kawin - Tanpa tanggungan 
+  K1 // Kawin - Tanggungan 1
+  K2 // Kawin - Tanggungan 2
+  K3 // Kawin - Tanggungan 3
+
+  KI0 // Kawin dengan penghasilan istri digabung - Tanpa tanggungan
+  KI1 // Kawin dengan penghasilan istri digabung - Tanggungan 1
+  KI2 // Kawin dengan penghasilan istri digabung - Tanggungan 2
+  KI3 // Kawin dengan penghasilan istri digabung - Tanggungan 3
+
+  @@schema("taxes")
+}
+
+enum Pph21TerType {
+  A
+  B
+  C
+
+  @@schema("taxes")
+}
+
+model Pph21TerPercentage {
+  id Int @id @default(autoincrement())
+
+  type       Pph21TerType
+  rangeStart Decimal
+  rangeEnd   Decimal
+  percentage Decimal
+
+  @@map("pph21_ter_percentages")
+  @@schema("taxes")
+}
+
+model Pph21Tax {
+  id String @id @default(cuid())
+
+  periodMonth Int // Masa Pajak - Bulan
+  periodYear  Int // Masa Pajak - Tahun
+
+  salary         Decimal? // Gaji
+  allowance      Decimal? // Tunjangan
+  thr            Decimal? // Tunjangan Hari Raya
+  bonus          Decimal? // Bonus
+  overtimeSalary Decimal? // Upah Lembur
+  assurance      Decimal? // Premi dibayar oleh pemberi kerja
+  pkp            Decimal? // Penghasilan Kena Pajak (PKP)
+  dailySalary    Decimal? // Gaji Harian
+  monthlySalary  Decimal? // Gaji Bulanan
+  workingDays    Int? // Jumlah Hari Kerja
+
+  pphAmount   Decimal // Jumlah PPh
+  totalSalary Decimal // Total Penghasilan
+  netReceipts Decimal // Penerimaan bersih
+
+  employee   UnitEmployee @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employeeId String
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("pph21_taxes")
   @@schema("taxes")
 }
