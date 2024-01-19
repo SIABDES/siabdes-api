@@ -56,14 +56,20 @@ export class UnitEmployeesPph21Controller {
 
     return new ResponseBuilder()
       .setData(result)
-      .setMessage('PPh21 berhasil ditambahkan')
+      .setMessage('PPh21 berhasil ditemukan')
       .setStatusCode(HttpStatus.OK)
       .build();
   }
 
   @Get()
-  async getEmployeeTaxes(@Param('employeeId') employeeId: string) {
-    const result = await this.pph21Service.getTaxes(employeeId);
+  async getEmployeeTaxes(
+    @Param('employeeId') employeeId: string,
+    @Param('unitId') unitId: string,
+  ) {
+    const result = await this.pph21Service.getEmployeesTaxes(
+      unitId,
+      employeeId,
+    );
 
     this.logger.log(
       `Taxes for employee with id ${employeeId} successfully retrieved`,
@@ -71,7 +77,7 @@ export class UnitEmployeesPph21Controller {
 
     return new ResponseBuilder()
       .setData(result)
-      .setMessage('PPh21 berhasil ditambahkan')
+      .setMessage('PPh21 berhasil diambil')
       .setStatusCode(HttpStatus.OK)
       .build();
   }

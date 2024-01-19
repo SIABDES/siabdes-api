@@ -24,6 +24,7 @@ export type Pph21TaxDetails = {
 
 export type Pph21EmployeeOverview = {
   id: string;
+  employee_id: string;
   name: string;
   nik: string;
   npwp: string;

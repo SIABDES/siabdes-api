@@ -25,6 +25,11 @@ export interface IUnitPph21Service {
 
   getTaxes(unitId: string): Promise<GetUnitEmployeeTaxesResponse>;
 
+  getEmployeesTaxes(
+    unitId: string,
+    employeeId: string,
+  ): Promise<GetUnitEmployeeTaxesResponse>;
+
   updateTax(
     taxId: string,
     dto: UpdateUnitEmployeePph21Dto,

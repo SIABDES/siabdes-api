@@ -67,6 +67,42 @@ export class UnitPph21Service implements IUnitPph21Service {
       taxes: taxes.map((tax) => {
         return {
           id: tax.id,
+          employee_id: tax.employee.id,
+          employee_type: tax.employee.employeeType,
+          name: tax.employee.name,
+          nik: tax.employee.nik,
+          npwp: tax.employee.npwp,
+          status: tax.employee.employeeStatus,
+          gross_salary: tax.totalSalary.toNumber(),
+          pph21: tax.pphAmount.toNumber(),
+          period: {
+            month: tax.periodMonth,
+            years: tax.periodYear,
+          },
+        };
+      }),
+    };
+  }
+
+  async getEmployeesTaxes(
+    unitId: string,
+    employeeId: string,
+  ): Promise<GetUnitEmployeeTaxesResponse> {
+    const taxes = await this.prisma.pph21Tax.findMany({
+      where: {
+        bumdesUnitId: unitId,
+        employeeId: employeeId,
+        deletedAt: { equals: null },
+      },
+      include: { employee: true },
+    });
+
+    return {
+      _count: taxes.length,
+      taxes: taxes.map((tax) => {
+        return {
+          id: tax.id,
+          employee_id: tax.employee.id,
           employee_type: tax.employee.employeeType,
           name: tax.employee.name,
           nik: tax.employee.nik,
