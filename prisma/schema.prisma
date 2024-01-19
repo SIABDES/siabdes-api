@@ -592,6 +592,20 @@ enum Pph21TerType {
   @@schema("taxes")
 }
 
+model Pph21PtkpBoundary {
+  id Int @id @default(autoincrement())
+
+  status        Pph21PtkpStatus
+  minimumSalary Decimal
+
+  periodYear  Int
+  periodMonth Int
+
+  @@unique([status, periodYear, periodMonth])
+  @@map("pph21_ptkp_boundaries")
+  @@schema("taxes")
+}
+
 model Pph21TerPercentage {
   id Int @id @default(autoincrement())
 
@@ -599,6 +613,9 @@ model Pph21TerPercentage {
   rangeStart Decimal
   rangeEnd   Decimal
   percentage Decimal
+
+  periodYear  Int
+  periodMonth Int
 
   @@map("pph21_ter_percentages")
   @@schema("taxes")

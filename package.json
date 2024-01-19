@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "compodoc:start": "npx @compodoc/compodoc -p tsconfig.json -s",
     "db:push": "npx prisma db push && npx prisma db seed",
+    "db:refresh:pph21": "ts-node ./prisma/seeder/runner/pph21.runner.ts",
     "compose:refresh": "docker compose down && sleep 1 && docker compose up -d && sleep 1 && npm run db:push"
   },
   "dependencies": {
