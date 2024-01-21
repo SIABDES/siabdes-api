@@ -34,6 +34,7 @@ export interface IUnitPpnService {
     unitId: string,
     ppnId: string,
     dto: UpdatePpnObjectDto,
+    evidence?: Express.Multer.File,
   ): Promise<UpdatePpnTaxResponse>;
 
   deletePpnTaxById(

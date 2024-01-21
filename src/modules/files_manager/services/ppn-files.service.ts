@@ -8,6 +8,13 @@ import { PPN_TRANSACTION_EVIDENCE_EXPIRY } from '../constants';
 export class PpnFilesService implements IPpnFilesService {
   constructor(private minio: MinioService) {}
 
+  async deletePpnEvidence(evidenceKey: string): Promise<void> {
+    return await this.minio.client.removeObject(
+      this.minio.bucketName,
+      evidenceKey,
+    );
+  }
+
   async uploadPpnEvidence(
     unitId: string,
     bumdesId: string,

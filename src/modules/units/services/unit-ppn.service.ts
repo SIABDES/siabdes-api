@@ -38,6 +38,14 @@ export class UnitPpnService implements IUnitPpnService {
 
       if (!ppn) throw new NotFoundException('Ppn tax not found');
 
+      let evidence: string | undefined = undefined;
+
+      if (ppn.transactionEvidenceKey) {
+        evidence = await this.filesService.getPpnEvidenceUrl(
+          ppn.transactionEvidenceKey,
+        );
+      }
+
       return {
         id: ppn.id,
         given_to: ppn.givenTo,
@@ -45,6 +53,7 @@ export class UnitPpnService implements IUnitPpnService {
         transaction_type: ppn.transactionType,
         transaction_date: ppn.transactionDate,
         transaction_number: ppn.transactionNumber,
+        transaction_evidence: evidence,
         tax_object: ppn.object,
         objects: ppn.objectItems.map((obj) => ({
           id: obj.id,
@@ -72,39 +81,71 @@ export class UnitPpnService implements IUnitPpnService {
     unitId: string,
     ppnId: string,
     dto: UpdatePpnObjectDto,
+    evidence?: Express.Multer.File,
   ): Promise<UpdatePpnTaxResponse> {
-    try {
-      const ppn = await this.prisma.ppnTax.update({
-        where: { id: ppnId, bumdesUnitId: unitId, deletedAt: { equals: null } },
-        data: {
-          itemType: dto.item_type,
-          transactionType: dto.transaction_type,
-          transactionDate: dto.transaction_date,
-          transactionNumber: dto.transaction_number,
-          givenTo: dto.given_to,
-          object: dto.tax_object,
-          objectItems: {
-            deleteMany: {},
-            createMany: {
-              data: dto.object_items.map((obj) => ({
-                name: obj.name,
-                quantity: obj.quantity,
-                pricePerUnit: obj.price,
-                discountPrice: obj.discount,
-                totalPrice: obj.total_price,
-                dpp: obj.dpp,
-                ppn: obj.ppn,
-              })),
-            },
-          },
-        },
-        select: { id: true, updatedAt: true },
+    const ppn = await this.prisma.ppnTax.findUnique({
+      where: { id: ppnId },
+      select: { transactionEvidenceKey: true },
+    });
+
+    if (!ppn) throw new NotFoundException('Ppn tax not found');
+
+    let evidenceKey: string | undefined = undefined;
+
+    if (evidence) {
+      const unit = await this.prisma.bumdesUnit.findUnique({
+        where: { id: unitId },
+        select: { id: true, bumdesId: true },
       });
 
-      return { id: ppn.id, updated_at: ppn.updatedAt };
-    } catch (error) {
-      throw error;
+      if (!unit) throw new NotFoundException('Unit not found');
+
+      const [newEvidenceKey] = await Promise.all([
+        this.filesService.uploadPpnEvidence(unit.id, unit.bumdesId, evidence),
+        this.filesService.deletePpnEvidence(ppn.transactionEvidenceKey),
+      ]);
+
+      evidenceKey = newEvidenceKey;
     }
+
+    const updateData: Prisma.PpnTaxUpdateInput = {
+      itemType: dto.item_type,
+      transactionType: dto.transaction_type,
+      transactionDate: dto.transaction_date,
+      transactionNumber: dto.transaction_number,
+      givenTo: dto.given_to,
+      object: dto.tax_object,
+      objectItems: {
+        deleteMany: {},
+        createMany: {
+          data: dto.object_items.map((obj) => ({
+            name: obj.name,
+            quantity: obj.quantity,
+            pricePerUnit: obj.price,
+            discountPrice: obj.discount,
+            totalPrice: obj.total_price,
+            dpp: obj.dpp,
+            ppn: obj.ppn,
+          })),
+        },
+      },
+    };
+
+    if (evidenceKey) {
+      updateData.transactionEvidenceKey = evidenceKey;
+    }
+
+    const updatedPpn = await this.prisma.ppnTax.update({
+      where: { id: ppnId, bumdesUnitId: unitId, deletedAt: { equals: null } },
+      data: updateData,
+      select: { id: true, updatedAt: true },
+    });
+
+    return {
+      id: updatedPpn.id,
+      updated_at: updatedPpn.updatedAt,
+      is_evidence_updated: !!evidenceKey,
+    };
   }
 
   async deletePpnTaxById(

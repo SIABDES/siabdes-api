@@ -88,12 +88,19 @@ export class UnitPpnController {
   }
 
   @Put(':ppnId')
+  @UseInterceptors(FileInterceptor('transaction_evidence'))
   async updatePpnTaxById(
     @GetUser('unitId') unitId: string,
     @Param('ppnId') ppnId: string,
     @Body() dto: UpdatePpnObjectDto,
+    @UploadedFile(buildValidationForEvidence()) evidence?: Express.Multer.File,
   ) {
-    const result = await this.ppnService.updatePpnTaxById(unitId, ppnId, dto);
+    const result = await this.ppnService.updatePpnTaxById(
+      unitId,
+      ppnId,
+      dto,
+      evidence,
+    );
 
     this.logger.log(`Update ppn tax by id ${ppnId} for unit ${unitId}`);
 

@@ -6,4 +6,6 @@ export interface IPpnFilesService {
   ): Promise<string>;
 
   getPpnEvidenceUrl(evidenceKey: string): Promise<string>;
+
+  deletePpnEvidence(evidenceKey: string): Promise<void>;
 }

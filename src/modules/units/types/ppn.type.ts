@@ -12,7 +12,6 @@ export type PpnObjectItem = {
   discount: number;
   total_price: number;
   dpp: number;
-  // tariff: number;
   ppn: number;
 };
 
@@ -25,4 +24,8 @@ export type PpnTax = {
   transaction_number: string;
   tax_object: PpnTaxObject;
   objects: PpnObjectItem[];
+};
+
+export type PpnTaxWithEvidence = PpnTax & {
+  transaction_evidence: string;
 };
