@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MinioService } from '~lib/minio/minio.service';
 import { generateFileName, generatePpnKeyPath } from '../helpers';
 import { IPpnFilesService } from '../interfaces';
+import { PPN_TRANSACTION_EVIDENCE_EXPIRY } from '../constants';
 
 @Injectable()
 export class PpnFilesService implements IPpnFilesService {
@@ -20,6 +21,11 @@ export class PpnFilesService implements IPpnFilesService {
         this.minio.bucketName,
         key,
         evidence.buffer,
+        {
+          'Content-Type': evidence.mimetype,
+          'Content-Length': evidence.size,
+          // 'Content-Disposition': 'inline',
+        },
       );
       return key;
     } catch (error) {
@@ -32,6 +38,10 @@ export class PpnFilesService implements IPpnFilesService {
       return await this.minio.client.presignedGetObject(
         this.minio.bucketName,
         evidenceKey,
+        PPN_TRANSACTION_EVIDENCE_EXPIRY,
+        {
+          'response-content-disposition': 'inline',
+        },
       );
     } catch (error) {
       throw error;

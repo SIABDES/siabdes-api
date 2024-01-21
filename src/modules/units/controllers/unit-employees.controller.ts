@@ -8,21 +8,33 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { UnitEmployeesService } from '../services';
-import { AddUnitEmployeeDto, UpdateUnitEmployeeDto } from '../dto';
-import { GetUser } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
+import { GetUser } from '~modules/auth/decorators';
+import {
+  AddUnitEmployeeDto,
+  AddUnitEmployeeSchema,
+  OptionalTaxesPeriodDto,
+  UpdateUnitEmployeeDto,
+  UpdateUnitEmployeeSchema,
+} from '../dto';
+import { UnitEmployeesService } from '../services';
+import { UnitsConfig } from '../units.config';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Controller('units/:unitId/employees')
 export class UnitEmployeesController {
   private readonly logger: Logger = new Logger(UnitEmployeesController.name);
 
-  constructor(private readonly employeesService: UnitEmployeesService) {}
+  constructor(
+    private readonly employeesService: UnitEmployeesService,
+    private unitsConfig: UnitsConfig,
+  ) {}
 
   @Post()
   async create(
-    @Body() dto: AddUnitEmployeeDto,
+    @Body(new ZodValidationPipe(AddUnitEmployeeSchema)) dto: AddUnitEmployeeDto,
     @GetUser('unitId') unitId: string,
   ) {
     const result = await this.employeesService.addEmployee(unitId, dto);
@@ -57,10 +69,17 @@ export class UnitEmployeesController {
   async getEmployeeById(
     @GetUser('unitId') unitId: string,
     @Param('employeeId') employeeId: string,
+    @Query() taxPeriod?: OptionalTaxesPeriodDto,
   ) {
+    const period = taxPeriod || {
+      period_month: this.unitsConfig.periodMonth,
+      period_years: this.unitsConfig.periodYear,
+    };
+
     const result = await this.employeesService.getEmployeeById(
       unitId,
       employeeId,
+      period,
     );
 
     this.logger.log(
@@ -78,7 +97,8 @@ export class UnitEmployeesController {
   async updateEmployeeById(
     @GetUser('unitId') unitId: string,
     @Param('employeeId') employeeId: string,
-    @Body() dto: UpdateUnitEmployeeDto,
+    @Body(new ZodValidationPipe(UpdateUnitEmployeeSchema))
+    dto: UpdateUnitEmployeeDto,
   ) {
     const result = await this.employeesService.updateEmployee(
       unitId,

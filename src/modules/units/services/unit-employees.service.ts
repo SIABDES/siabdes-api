@@ -1,21 +1,93 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Pph21TerPercentage, Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
+import {
+  AddUnitEmployeeDto,
+  TaxesPeriodDto,
+  UpdateUnitEmployeeDto,
+} from '../dto';
+import { isFemale } from '../dto/employees/guards';
+import { mapPtkpStatus } from '../helpers';
 import { IUnitEmployeesService } from '../interfaces';
 import {
   AddUnitEmployeeResponse,
   DeleteUnitEmployeeResponse,
+  GetUnitEmployeePtkpResponse,
   GetUnitEmployeeResponse,
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
 } from '../types/responses';
-import { AddUnitEmployeeDto, UpdateUnitEmployeeDto } from '../dto';
 
 @Injectable()
 export class UnitEmployeesService implements IUnitEmployeesService {
   private readonly logger: Logger = new Logger(UnitEmployeesService.name);
 
   constructor(private prisma: PrismaService) {}
+
+  async getEmployeeTaxInfo(
+    unitId: string,
+    employeeId: string,
+    taxPeriod: TaxesPeriodDto,
+  ): Promise<GetUnitEmployeePtkpResponse> {
+    try {
+      const employee = await this.prisma.unitEmployee.findUnique({
+        where: { id: employeeId, bumdesUnitId: unitId },
+        select: {
+          gender: true,
+          npwpStatus: true,
+          employeeType: true,
+          childrenAmount: true,
+          marriageStatus: true,
+        },
+      });
+
+      const ptkpStatus = mapPtkpStatus(
+        employee.marriageStatus,
+        employee.npwpStatus,
+        employee.childrenAmount,
+      );
+
+      const ptkp = await this.prisma.pph21PtkpBoundary.findUnique({
+        where: {
+          status_periodYear_periodMonth: {
+            periodMonth: taxPeriod.period_month,
+            periodYear: taxPeriod.period_years,
+            status: ptkpStatus,
+          },
+        },
+        select: { minimumSalary: true, terType: true, status: true },
+      });
+
+      if (!ptkp) throw new NotFoundException('PTKP not found');
+
+      let terData: Pph21TerPercentage | null = null;
+
+      if (ptkp.terType) {
+        terData = await this.prisma.pph21TerPercentage.findFirst({
+          where: {
+            periodYear: taxPeriod.period_years,
+            periodMonth: taxPeriod.period_month,
+            type: {
+              equals: ptkp.terType,
+            },
+          },
+        });
+      }
+
+      return {
+        ptkp: {
+          status: ptkpStatus,
+          boundary_salary: ptkp.minimumSalary.toNumber(),
+        },
+        ter: terData && {
+          type: ptkp.terType,
+          percentage: terData.percentage.toNumber(),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async addEmployee(
     unitId: string,
@@ -31,20 +103,25 @@ export class UnitEmployeesService implements IUnitEmployeesService {
         throw new NotFoundException('Unit not found');
       }
 
+      const createData: Prisma.UnitEmployeeCreateInput = {
+        bumdesUnit: { connect: { id: unit.id } },
+        name: dto.name,
+        gender: dto.gender,
+        nik: dto.nik,
+        npwp: dto.npwp,
+        marriageStatus: dto.marriage_status,
+        childrenAmount: dto.children_amount,
+        employeeStatus: dto.employee_status,
+        employeeType: dto.employee_type,
+        startWorkingAt: dto.start_working_at,
+      };
+
+      if (isFemale(dto)) {
+        createData.npwpStatus = dto.npwp_status;
+      }
+
       const employee = await this.prisma.unitEmployee.create({
-        data: {
-          bumdesUnit: { connect: { id: unit.id } },
-          name: dto.name,
-          gender: dto.gender,
-          nik: dto.nik,
-          npwp: dto.npwp,
-          npwpStatus: dto.npwp_status,
-          marriageStatus: dto.marriage_status,
-          childrenAmount: dto.children_amount,
-          employeeStatus: dto.employee_status,
-          employeeType: dto.employee_type,
-          startWorkingAt: dto.start_working_at,
-        },
+        data: createData,
         select: { id: true, createdAt: true },
       });
 
@@ -73,6 +150,13 @@ export class UnitEmployeesService implements IUnitEmployeesService {
 
       const employees = await this.prisma.unitEmployee.findMany({
         where: { bumdesUnitId: unit.id, deletedAt: { equals: null } },
+        select: {
+          id: true,
+          name: true,
+          nik: true,
+          npwp: true,
+          employeeType: true,
+        },
       });
 
       return {
@@ -81,6 +165,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
           id: employee.id,
           name: employee.name,
           nik: employee.nik,
+          npwp: employee.npwp,
           employee_type: employee.employeeType,
         })),
       };
@@ -98,6 +183,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   async getEmployeeById(
     unitId: string,
     employeeId: string,
+    taxPeriod: TaxesPeriodDto,
   ): Promise<GetUnitEmployeeResponse> {
     const employee = await this.prisma.unitEmployee.findUnique({
       where: {
@@ -108,6 +194,12 @@ export class UnitEmployeesService implements IUnitEmployeesService {
     });
 
     if (!employee) throw new NotFoundException('Employee not found');
+
+    const taxInfo = await this.getEmployeeTaxInfo(
+      unitId,
+      employeeId,
+      taxPeriod,
+    );
 
     return {
       id: employee.id,
@@ -120,6 +212,8 @@ export class UnitEmployeesService implements IUnitEmployeesService {
       children_amount: employee.childrenAmount,
       employee_status: employee.employeeStatus,
       employee_type: employee.employeeType,
+      ptkp: taxInfo.ptkp,
+      ter: taxInfo.ter,
       start_working_at: employee.startWorkingAt,
     };
   }
@@ -130,6 +224,22 @@ export class UnitEmployeesService implements IUnitEmployeesService {
     dto: UpdateUnitEmployeeDto,
   ): Promise<UpdateUnitEmployeeResponse> {
     try {
+      const updateData: Prisma.UnitEmployeeUpdateInput = {
+        name: dto.name,
+        gender: dto.gender,
+        nik: dto.nik,
+        npwp: dto.npwp,
+        marriageStatus: dto.marriage_status,
+        childrenAmount: dto.children_amount,
+        employeeStatus: dto.employee_status,
+        employeeType: dto.employee_type,
+        startWorkingAt: dto.start_working_at,
+      };
+
+      if (isFemale(dto)) {
+        updateData.npwpStatus = dto.npwp_status;
+      }
+
       const employee = await this.prisma.unitEmployee.update({
         where: {
           id: employeeId,
@@ -137,18 +247,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
           deletedAt: { equals: null },
         },
         select: { id: true, updatedAt: true },
-        data: {
-          name: dto.name,
-          gender: dto.gender,
-          nik: dto.nik,
-          npwp: dto.npwp,
-          npwpStatus: dto.npwp_status,
-          marriageStatus: dto.marriage_status,
-          childrenAmount: dto.children_amount,
-          employeeStatus: dto.employee_status,
-          employeeType: dto.employee_type,
-          startWorkingAt: dto.start_working_at,
-        },
+        data: updateData,
       });
 
       return {

@@ -66,6 +66,9 @@ export class JournalFilesService implements IJournalFilesService {
       this.minio.bucketName,
       evidence,
       JOURNAL_EVIDENCE_EXPIRY,
+      {
+        'response-content-disposition': 'inline',
+      },
     );
 
     return url;

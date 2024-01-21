@@ -1,3 +1,3 @@
-import { PpnTax } from '../..';
+import { PpnTaxWithEvidence } from '../..';
 
-export type GetPpnTaxDetailsResponse = PpnTax;
+export type GetPpnTaxDetailsResponse = PpnTaxWithEvidence;

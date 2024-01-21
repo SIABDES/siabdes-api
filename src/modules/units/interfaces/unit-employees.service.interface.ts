@@ -1,7 +1,12 @@
-import { AddUnitEmployeeDto, UpdateUnitEmployeeDto } from '../dto';
+import {
+  AddUnitEmployeeDto,
+  TaxesPeriodDto,
+  UpdateUnitEmployeeDto,
+} from '../dto';
 import {
   AddUnitEmployeeResponse,
   DeleteUnitEmployeeResponse,
+  GetUnitEmployeePtkpResponse,
   GetUnitEmployeeResponse,
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
@@ -18,6 +23,7 @@ export interface IUnitEmployeesService {
   getEmployeeById(
     unitId: string,
     employeeId: string,
+    taxPeriod: TaxesPeriodDto,
   ): Promise<GetUnitEmployeeResponse>;
 
   updateEmployee(
@@ -30,4 +36,10 @@ export interface IUnitEmployeesService {
     unitId: string,
     employeeId: string,
   ): Promise<DeleteUnitEmployeeResponse>;
+
+  getEmployeeTaxInfo(
+    unitId: string,
+    employeeId: string,
+    taxPeriod: TaxesPeriodDto,
+  ): Promise<GetUnitEmployeePtkpResponse>;
 }

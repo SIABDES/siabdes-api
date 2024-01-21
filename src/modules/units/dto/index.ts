@@ -1,4 +1,5 @@
 export * from './create-unit.dto';
+export * from './taxes-period.dto';
 
 export * from './profits';
 export * from './capitals';

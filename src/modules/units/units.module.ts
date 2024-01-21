@@ -21,9 +21,11 @@ import {
   UnitsService,
 } from './services';
 import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
+import { UnitsConfig } from './units.config';
 
 @Module({
   providers: [
+    UnitsConfig,
     UnitsService,
     UnitProfileService,
     UnitCapitalsService,
