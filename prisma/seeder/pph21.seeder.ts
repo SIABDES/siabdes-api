@@ -48,18 +48,21 @@ export async function seedPph21(prisma: PrismaClient) {
         periodMonth: 1,
         status: Pph21PtkpStatus.TK0,
         minimumSalary: 54_000_000,
+        terType: Pph21TerType.A,
       },
       {
         periodYear: 2024,
         periodMonth: 1,
         status: Pph21PtkpStatus.TK1,
         minimumSalary: 58_500_000,
+        terType: Pph21TerType.A,
       },
       {
         periodYear: 2024,
         periodMonth: 1,
         status: Pph21PtkpStatus.K0,
         minimumSalary: 58_500_000,
+        terType: Pph21TerType.A,
       },
       // TER B
       {
@@ -67,24 +70,28 @@ export async function seedPph21(prisma: PrismaClient) {
         periodMonth: 1,
         status: Pph21PtkpStatus.TK2,
         minimumSalary: 63_000_000,
+        terType: Pph21TerType.B,
       },
       {
         periodYear: 2024,
         periodMonth: 1,
         status: Pph21PtkpStatus.K1,
         minimumSalary: 63_000_000,
+        terType: Pph21TerType.B,
       },
       {
         periodYear: 2024,
         periodMonth: 1,
         status: Pph21PtkpStatus.TK3,
         minimumSalary: 67_500_000,
+        terType: Pph21TerType.B,
       },
       {
         periodYear: 2024,
         periodMonth: 1,
         status: Pph21PtkpStatus.K2,
         minimumSalary: 67_500_000,
+        terType: Pph21TerType.B,
       },
       // TER C
       {
@@ -92,9 +99,35 @@ export async function seedPph21(prisma: PrismaClient) {
         periodMonth: 1,
         status: Pph21PtkpStatus.K3,
         minimumSalary: 72_000_000,
+        terType: Pph21TerType.C,
       },
 
       // NOTE: K/I/xxx tidak pakai TER
+      // No Ter
+      {
+        periodYear: 2024,
+        periodMonth: 1,
+        status: Pph21PtkpStatus.KI0,
+        minimumSalary: 112_500_000,
+      },
+      {
+        periodYear: 2024,
+        periodMonth: 1,
+        status: Pph21PtkpStatus.KI1,
+        minimumSalary: 117_000_000,
+      },
+      {
+        periodYear: 2024,
+        periodMonth: 1,
+        status: Pph21PtkpStatus.KI2,
+        minimumSalary: 121_500_000,
+      },
+      {
+        periodYear: 2024,
+        periodMonth: 1,
+        status: Pph21PtkpStatus.KI3,
+        minimumSalary: 126_000_000,
+      },
     ],
   });
 

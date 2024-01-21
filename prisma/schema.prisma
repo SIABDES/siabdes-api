@@ -543,7 +543,7 @@ model UnitEmployee {
   name           String
   nik            String
   npwp           String?
-  npwpStatus     UnitEmployeeNpwpStatus
+  npwpStatus     UnitEmployeeNpwpStatus?
   gender         UnitEmployeeGender
   employeeStatus UnitEmployeeStatus // Status Tenaga Kerja
   employeeType   UnitEmployeeType // Jenis Tenaga Kerja 
@@ -597,6 +597,7 @@ model Pph21PtkpBoundary {
 
   status        Pph21PtkpStatus
   minimumSalary Decimal
+  terType       Pph21TerType?
 
   periodYear  Int
   periodMonth Int
