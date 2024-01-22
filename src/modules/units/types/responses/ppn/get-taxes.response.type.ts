@@ -1,6 +1,6 @@
-import { PpnTax } from '../..';
+import { PpnTaxWithTotalPpn } from '../..';
 
 export type GetPpnTaxesResponse = {
   _count: number;
-  taxes: PpnTax[];
+  taxes: PpnTaxWithTotalPpn[];
 };

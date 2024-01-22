@@ -278,8 +278,8 @@ export class UnitPpnService implements IUnitPpnService {
 
       const taxes = await this.prisma.ppnTax.findMany({
         ...paginationQuery,
-        where: { bumdesUnitId: unitId, ...where },
-        include: { objectItems: filter.is_detailed },
+        where: { bumdesUnitId: unitId, deletedAt: { equals: null }, ...where },
+        include: { objectItems: true },
       });
 
       return {
@@ -292,6 +292,10 @@ export class UnitPpnService implements IUnitPpnService {
           transaction_date: tax.transactionDate,
           transaction_number: tax.transactionNumber,
           tax_object: tax.object,
+          total_ppn: tax.objectItems.reduce(
+            (acc, curr) => acc + curr.ppn.toNumber(),
+            0,
+          ),
           objects: !filter.is_detailed
             ? undefined
             : tax.objectItems.map((obj) => ({

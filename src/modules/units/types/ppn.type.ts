@@ -29,3 +29,7 @@ export type PpnTax = {
 export type PpnTaxWithEvidence = PpnTax & {
   transaction_evidence: string;
 };
+
+export type PpnTaxWithTotalPpn = PpnTax & {
+  total_ppn: number;
+};
