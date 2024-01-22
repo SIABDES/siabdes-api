@@ -109,6 +109,28 @@ export type Pph21NonPermanentNotMonthlyType = z.infer<
   typeof Pph21NonPermanentNotMonthlySchema
 >;
 
+export const Pph21OtherSupervisorNonEmployeeSchema = z.object({
+  employee_type: z.literal(UnitEmployeeType.OTHER_SUPERVISOR_NON_EMPLOYEE),
+  gross_salary: z.object({
+    salary: z.number().positive(),
+  }),
+});
+
+export type Pph21OtherSupervisorNonEmployeeType = z.infer<
+  typeof Pph21OtherSupervisorNonEmployeeSchema
+>;
+
+export const Pph21OtherActivityMemberSchema = z.object({
+  employee_type: z.literal(UnitEmployeeType.OTHER_ACTIVITY_MEMBER),
+  gross_salary: z.object({
+    salary: z.number().positive(),
+  }),
+});
+
+export type Pph21OtherActivityMemberType = z.infer<
+  typeof Pph21OtherActivityMemberSchema
+>;
+
 export const Pph21UnionSchema = z.discriminatedUnion('employee_type', [
   Pph21PermanentEmployeeSchema,
   Pph21NonEmployeeSchema,
@@ -118,6 +140,9 @@ export const Pph21UnionSchema = z.discriminatedUnion('employee_type', [
 
   Pph21NonPermanentMonthlySchema,
   Pph21NonPermanentNotMonthlySchema,
+
+  Pph21OtherActivityMemberSchema,
+  Pph21OtherSupervisorNonEmployeeSchema,
 ]);
 
 export type GrossSalaryUnusedType = Pick<
