@@ -3,6 +3,7 @@ import { Pph21TerPercentage, Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
   AddUnitEmployeeDto,
+  GetEmployeesFilterDto,
   TaxesPeriodDto,
   UpdateUnitEmployeeDto,
 } from '../dto';
@@ -17,6 +18,7 @@ import {
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
 } from '../types/responses';
+import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitEmployeesService implements IUnitEmployeesService {
@@ -137,7 +139,11 @@ export class UnitEmployeesService implements IUnitEmployeesService {
     }
   }
 
-  async getEmployees(unitId: string): Promise<GetUnitEmployeesResponse> {
+  async getEmployees(
+    unitId: string,
+    filter?: GetEmployeesFilterDto,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitEmployeesResponse> {
     try {
       const unit = await this.prisma.bumdesUnit.findUnique({
         where: { id: unitId },
@@ -148,8 +154,33 @@ export class UnitEmployeesService implements IUnitEmployeesService {
         throw new NotFoundException('Unit not found');
       }
 
+      const whereData: Prisma.UnitEmployeeWhereInput = {
+        bumdesUnitId: unit.id,
+        deletedAt: { equals: null },
+        name: filter?.name
+          ? { contains: filter.name, mode: 'insensitive' }
+          : undefined,
+        nik: filter?.nik ? { contains: filter.nik } : undefined,
+        npwp: filter?.npwp ? { contains: filter.npwp } : undefined,
+        gender: filter.gender ? { equals: filter.gender } : undefined,
+        employeeType: filter.employee_type
+          ? { equals: filter.employee_type }
+          : undefined,
+      };
+
+      const paginationQuery: Prisma.UnitEmployeeFindManyArgs = {
+        take: pagination?.limit ?? undefined,
+        cursor: pagination?.cursor
+          ? {
+              id: pagination.cursor as string,
+            }
+          : undefined,
+        skip: pagination.cursor ? 1 : undefined,
+      };
+
       const employees = await this.prisma.unitEmployee.findMany({
-        where: { bumdesUnitId: unit.id, deletedAt: { equals: null } },
+        ...paginationQuery,
+        where: whereData,
         select: {
           id: true,
           name: true,

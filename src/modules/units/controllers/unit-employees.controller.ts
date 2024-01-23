@@ -15,6 +15,7 @@ import { GetUser } from '~modules/auth/decorators';
 import {
   AddUnitEmployeeDto,
   AddUnitEmployeeSchema,
+  GetEmployeesFilterDto,
   OptionalTaxesPeriodDto,
   UpdateUnitEmployeeDto,
   UpdateUnitEmployeeSchema,
@@ -22,6 +23,7 @@ import {
 import { UnitEmployeesService } from '../services';
 import { UnitsConfig } from '../units.config';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PaginationDto } from '~common/dto';
 
 @Controller('units/:unitId/employees')
 export class UnitEmployeesController {
@@ -51,8 +53,16 @@ export class UnitEmployeesController {
   }
 
   @Get()
-  async getEmployees(@GetUser('unitId') unitId: string) {
-    const result = await this.employeesService.getEmployees(unitId);
+  async getEmployees(
+    @GetUser('unitId') unitId: string,
+    @Query() filter?: GetEmployeesFilterDto,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.employeesService.getEmployees(
+      unitId,
+      filter,
+      pagination,
+    );
 
     this.logger.log(
       `Unit '${unitId}' fetched employees with ${result._count} employees`,

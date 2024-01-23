@@ -1,5 +1,7 @@
+import { PaginationDto } from '~common/dto';
 import {
   AddUnitEmployeeDto,
+  GetEmployeesFilterDto,
   TaxesPeriodDto,
   UpdateUnitEmployeeDto,
 } from '../dto';
@@ -18,7 +20,11 @@ export interface IUnitEmployeesService {
     dto: AddUnitEmployeeDto,
   ): Promise<AddUnitEmployeeResponse>;
 
-  getEmployees(unitId: string): Promise<GetUnitEmployeesResponse>;
+  getEmployees(
+    unitId: string,
+    filter?: GetEmployeesFilterDto,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitEmployeesResponse>;
 
   getEmployeeById(
     unitId: string,

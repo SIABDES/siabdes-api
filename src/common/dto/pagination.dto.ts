@@ -11,6 +11,8 @@ export const PaginationSchema = z
     limit: z
       .string()
       .transform((val) => parseInt(val))
+      .pipe(z.number().int().positive())
+      .or(z.number())
       .optional(),
   })
   .optional();
