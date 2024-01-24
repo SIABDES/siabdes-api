@@ -9,7 +9,7 @@ export class UnitPph21Controller {
   constructor(private readonly pph21Service: UnitPph21Service) {}
 
   @Get()
-  async getUnitPph21Taxes(@Param(':unitId') unitId: string) {
+  async getUnitPph21Taxes(@Param('unitId') unitId: string) {
     const result = await this.pph21Service.getTaxes(unitId);
 
     this.logger.log(
