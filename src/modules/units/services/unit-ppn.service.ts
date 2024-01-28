@@ -296,6 +296,10 @@ export class UnitPpnService implements IUnitPpnService {
             (acc, curr) => acc + curr.ppn.toNumber(),
             0,
           ),
+          total_dpp: tax.objectItems.reduce(
+            (acc, curr) => acc + curr.dpp.toNumber(),
+            0,
+          ),
           objects: !filter.is_detailed
             ? undefined
             : tax.objectItems.map((obj) => ({
