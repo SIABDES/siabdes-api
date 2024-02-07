@@ -5,9 +5,9 @@ import { z } from 'nestjs-zod/z';
 export const GetPpnTaxesFilterSchema = z.object({
   is_detailed: z
     .string()
+    .default('false')
     .transform((val) => val.toLowerCase() === 'true')
     .pipe(z.boolean())
-    .default('false')
     .optional(),
   transaction_number: z.string().optional(),
   transaction_date: z.dateString().optional(),

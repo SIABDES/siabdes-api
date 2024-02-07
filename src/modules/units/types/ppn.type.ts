@@ -23,14 +23,18 @@ export type PpnTax = {
   transaction_date: Date;
   transaction_number: string;
   tax_object: PpnTaxObject;
-  objects: PpnObjectItem[];
 };
 
 export type PpnTaxWithEvidence = PpnTax & {
   transaction_evidence: string;
 };
 
-export type PpnTaxWithTotalPpnAndDpp = PpnTax & {
+export type PpnTaxForGetMany = PpnTax & {
   total_ppn: number;
   total_dpp: number;
+  object_names: string[];
+};
+
+export type PpnTaxDetailed = PpnTax & {
+  objects: PpnObjectItem[];
 };

@@ -282,7 +282,7 @@ export class UnitPpnService implements IUnitPpnService {
         include: { objectItems: true },
       });
 
-      return {
+      const result: GetPpnTaxesResponse = {
         _count: taxes.length,
         taxes: taxes.map((tax) => ({
           id: tax.id,
@@ -300,6 +300,9 @@ export class UnitPpnService implements IUnitPpnService {
             (acc, curr) => acc + curr.dpp.toNumber(),
             0,
           ),
+          object_names: !filter.is_detailed
+            ? tax.objectItems.map((obj) => obj.name)
+            : undefined,
           objects: !filter.is_detailed
             ? undefined
             : tax.objectItems.map((obj) => ({
@@ -314,6 +317,8 @@ export class UnitPpnService implements IUnitPpnService {
               })),
         })),
       };
+
+      return result;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         this.logger.error(error);
