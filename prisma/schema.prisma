@@ -625,8 +625,10 @@ model Pph21TerPercentage {
 model Pph21Tax {
   id String @id @default(cuid())
 
-  periodMonth Int // Masa Pajak - Bulan
-  periodYear  Int // Masa Pajak - Tahun
+  employeeType UnitEmployeeType // Jenis Tenaga Kerja
+  hasNpwp      Boolean
+  periodMonth  Int // Masa Pajak - Bulan
+  periodYear   Int // Masa Pajak - Tahun
 
   salary         Decimal? // Gaji
   allowance      Decimal? // Tunjangan
@@ -634,10 +636,16 @@ model Pph21Tax {
   bonus          Decimal? // Bonus
   overtimeSalary Decimal? // Upah Lembur
   assurance      Decimal? // Premi dibayar oleh pemberi kerja
-  pkp            Decimal? // Penghasilan Kena Pajak (PKP)
-  dailySalary    Decimal? // Gaji Harian
-  monthlySalary  Decimal? // Gaji Bulanan
-  workingDays    Int? // Jumlah Hari Kerja
+
+  dailySalary   Decimal? // Gaji Harian
+  monthlySalary Decimal? // Gaji Bulanan
+  workingDays   Int? // Jumlah Hari Kerja
+
+  tariffs         Pph21Tariff[]
+  netCalculations Pph21NetCalculations?
+  taxable         Pph21Taxable? // Penghasilan Kena Pajak (PKP)
+
+  decemberResult Pph21DecemberResult? // Hasil PPh21 untuk Desember Pegawai Tetap
 
   pphAmount   Decimal // Jumlah PPh
   totalSalary Decimal // Total Penghasilan
@@ -654,5 +662,63 @@ model Pph21Tax {
   deletedAt DateTime?
 
   @@map("pph21_taxes")
+  @@schema("taxes")
+}
+
+model Pph21DecemberResult {
+  id String @id @default(cuid())
+
+  currentYear    Decimal
+  beforeDecember Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_december_results")
+  @@schema("taxes")
+}
+
+model Pph21NetCalculations {
+  id String @id @default(cuid())
+
+  positionDeduction  Decimal // Biaya Jabatan
+  annualContribution Decimal // Iuran Tahunan
+  annualAssurance    Decimal // Premi Tahunan
+  result             Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_net_calculations")
+  @@schema("taxes")
+}
+
+// Penghasilan Kena Pajak (PKP)
+model Pph21Taxable {
+  id String @id @default(cuid())
+
+  percentage Decimal?
+  ptkp       Decimal?
+  amount     Decimal
+  result     Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_taxables")
+  @@schema("taxes")
+}
+
+model Pph21Tariff {
+  id String @id @default(cuid())
+
+  percentage Decimal
+  amount     Decimal
+  result     Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String
+
+  @@map("pph21_tariffs")
   @@schema("taxes")
 }

@@ -1,6 +1,6 @@
-import { Pph21EmployeeOverview } from '../..';
+import { Pph21TaxOverview } from '../../pph21.type';
 
 export type GetUnitEmployeeTaxesResponse = {
   _count: number;
-  taxes: Pph21EmployeeOverview[];
+  taxes: Pph21TaxOverview[];
 };

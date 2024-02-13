@@ -20,6 +20,7 @@ export interface IUnitPph21Service {
 
   getTaxDetailsById(
     unitId: string,
+    employeeId: string,
     taxId: string,
   ): Promise<GetUnitEmployeeTaxResponse>;
 
@@ -31,6 +32,7 @@ export interface IUnitPph21Service {
   ): Promise<GetUnitEmployeeTaxesResponse>;
 
   updateTax(
+    employeeId: string,
     taxId: string,
     dto: UpdateUnitEmployeePph21Dto,
   ): Promise<UpdateUnitEmployeePph21Response>;

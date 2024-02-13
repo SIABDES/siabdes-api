@@ -22,22 +22,4 @@ export class UnitPph21Controller {
       .setStatusCode(HttpStatus.OK)
       .build();
   }
-
-  @Get(':taxId')
-  async getUnitPph21TaxDetails(
-    @Param('unitId') unitId: string,
-    @Param('taxId') taxId: string,
-  ) {
-    const result = await this.pph21Service.getTaxDetailsById(unitId, taxId);
-
-    this.logger.log(
-      `Unit '${unitId}' fetched pph21 tax details with id ${taxId}`,
-    );
-
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
-  }
 }

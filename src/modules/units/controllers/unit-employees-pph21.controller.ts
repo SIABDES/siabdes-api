@@ -48,9 +48,14 @@ export class UnitEmployeesPph21Controller {
   @Get(':taxId')
   async getTaxDetailsById(
     @Param('taxId') taxId: string,
+    @Param('employeeId') employeeId: string,
     @Param('unitId') unitId: string,
   ) {
-    const result = await this.pph21Service.getTaxDetailsById(unitId, taxId);
+    const result = await this.pph21Service.getTaxDetailsById(
+      unitId,
+      employeeId,
+      taxId,
+    );
 
     this.logger.log(`Tax with id ${taxId} successfully retrieved`);
 
@@ -84,11 +89,12 @@ export class UnitEmployeesPph21Controller {
 
   @Put(':taxId')
   async updateTax(
+    @Param('employeeId') employeeId: string,
     @Param('taxId') taxId: string,
     @Body(new ZodValidationPipe(UpdateUnitEmployeePph21Schema))
     dto: UpdateUnitEmployeePph21Dto,
   ) {
-    const result = await this.pph21Service.updateTax(taxId, dto);
+    const result = await this.pph21Service.updateTax(employeeId, taxId, dto);
 
     this.logger.log(`Tax with id ${taxId} successfully updated`);
 
