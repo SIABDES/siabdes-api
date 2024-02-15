@@ -56,23 +56,37 @@ export class UnitEmployeesService implements IUnitEmployeesService {
     const periodMonth = taxPeriod?.period_month || new Date().getMonth() + 1;
     const periodYear = taxPeriod?.period_years || new Date().getFullYear();
 
-    const ptkp = await this.prisma.pph21PtkpBoundary.findUnique({
+    const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
+      orderBy: {
+        periodYear: 'desc',
+      },
       where: {
-        status_periodYear_periodMonth: {
-          periodMonth: periodMonth,
-          periodYear: periodYear,
-          status: ptkpStatus,
+        status: ptkpStatus,
+        AND: {
+          periodMonth: { lte: periodMonth },
+          periodYear: { lte: periodYear },
         },
       },
-      select: { minimumSalary: true, terType: true, status: true },
+      select: {
+        periodMonth: true,
+        periodYear: true,
+        minimumSalary: true,
+        terType: true,
+        status: true,
+      },
     });
 
     if (!ptkp) throw new NotFoundException('PTKP not found');
 
     const terData = await this.prisma.pph21TerPercentage.findFirst({
+      orderBy: {
+        periodYear: 'desc',
+      },
       where: {
-        periodYear: periodYear,
-        periodMonth: periodMonth,
+        AND: {
+          periodYear: { lte: periodYear },
+          periodMonth: { lte: periodMonth },
+        },
         type: {
           equals: ptkp.terType,
         },
