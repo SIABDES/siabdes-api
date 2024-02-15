@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Pph21TerPercentage, Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
@@ -13,6 +18,7 @@ import { IUnitEmployeesService } from '../interfaces';
 import {
   AddUnitEmployeeResponse,
   DeleteUnitEmployeeResponse,
+  GetEmployeeTerResponse,
   GetUnitEmployeePtkpResponse,
   GetUnitEmployeeResponse,
   GetUnitEmployeesResponse,
@@ -25,6 +31,64 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   private readonly logger: Logger = new Logger(UnitEmployeesService.name);
 
   constructor(private prisma: PrismaService) {}
+
+  async getEmployeeTer(
+    employeeId: string,
+    grossSalary: number,
+    taxPeriod?: TaxesPeriodDto,
+  ): Promise<GetEmployeeTerResponse> {
+    if (isNaN(grossSalary))
+      throw new BadRequestException('Invalid gross salary');
+
+    const employee = await this.prisma.unitEmployee.findUnique({
+      where: { id: employeeId },
+      select: { marriageStatus: true, npwpStatus: true, childrenAmount: true },
+    });
+
+    if (!employee) throw new NotFoundException('Employee not found');
+
+    const ptkpStatus = mapPtkpStatus(
+      employee.marriageStatus,
+      employee.npwpStatus,
+      employee.childrenAmount,
+    );
+
+    const periodMonth = taxPeriod?.period_month || new Date().getMonth() + 1;
+    const periodYear = taxPeriod?.period_years || new Date().getFullYear();
+
+    const ptkp = await this.prisma.pph21PtkpBoundary.findUnique({
+      where: {
+        status_periodYear_periodMonth: {
+          periodMonth: periodMonth,
+          periodYear: periodYear,
+          status: ptkpStatus,
+        },
+      },
+      select: { minimumSalary: true, terType: true, status: true },
+    });
+
+    if (!ptkp) throw new NotFoundException('PTKP not found');
+
+    const terData = await this.prisma.pph21TerPercentage.findFirst({
+      where: {
+        periodYear: periodYear,
+        periodMonth: periodMonth,
+        type: {
+          equals: ptkp.terType,
+        },
+        rangeStart: { lte: grossSalary },
+        rangeEnd: { gte: grossSalary },
+      },
+      select: { percentage: true },
+    });
+
+    if (!terData) throw new NotFoundException('TER not found');
+
+    return {
+      type: ptkp.terType,
+      percentage: terData.percentage.toNumber(),
+    };
+  }
 
   async getEmployeeTaxInfo(
     unitId: string,

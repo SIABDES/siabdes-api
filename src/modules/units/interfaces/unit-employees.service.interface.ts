@@ -8,6 +8,7 @@ import {
 import {
   AddUnitEmployeeResponse,
   DeleteUnitEmployeeResponse,
+  GetEmployeeTerResponse,
   GetUnitEmployeePtkpResponse,
   GetUnitEmployeeResponse,
   GetUnitEmployeesResponse,
@@ -48,4 +49,10 @@ export interface IUnitEmployeesService {
     employeeId: string,
     taxPeriod: TaxesPeriodDto,
   ): Promise<GetUnitEmployeePtkpResponse>;
+
+  getEmployeeTer(
+    employeeId: string,
+    grossSalary: number,
+    taxPeriod?: TaxesPeriodDto,
+  ): Promise<GetEmployeeTerResponse>;
 }

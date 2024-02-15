@@ -17,6 +17,7 @@ import {
   AddUnitEmployeeSchema,
   GetEmployeesFilterDto,
   OptionalTaxesPeriodDto,
+  TaxesPeriodDto,
   UpdateUnitEmployeeDto,
   UpdateUnitEmployeeSchema,
 } from '../dto';
@@ -144,6 +145,25 @@ export class UnitEmployeesController {
     return new ResponseBuilder()
       .setData(result)
       .setMessage('Pegawai berhasil dihapus')
+      .setStatusCode(HttpStatus.OK)
+      .build();
+  }
+
+  @Get(':employeeId/ter')
+  async getEmployeeTer(
+    @Param('employeeId') employeeId: string,
+    @Query('gross_salary') grossSalary: string,
+    @Query() taxPeriod?: TaxesPeriodDto,
+  ) {
+    const result = await this.employeesService.getEmployeeTer(
+      employeeId,
+      Number(grossSalary),
+      taxPeriod,
+    );
+
+    return new ResponseBuilder()
+      .setData(result)
+      .setMessage('Data ter berhasil ditemukan')
       .setStatusCode(HttpStatus.OK)
       .build();
   }
