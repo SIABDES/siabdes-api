@@ -8,16 +8,18 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { UnitPph21Service } from '../services';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { ResponseBuilder } from '~common/response.builder';
 import {
   AddUnitEmployeePph21Dto,
   AddUnitEmployeePph21Schema,
+  OptionalTaxesPeriodDto,
   UpdateUnitEmployeePph21Dto,
   UpdateUnitEmployeePph21Schema,
 } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { UnitPph21Service } from '../services';
 
 @Controller('units/:unitId/employees/:employeeId/pph21')
 export class UnitEmployeesPph21Controller {
@@ -70,10 +72,12 @@ export class UnitEmployeesPph21Controller {
   async getEmployeeTaxes(
     @Param('employeeId') employeeId: string,
     @Param('unitId') unitId: string,
+    @Query() taxPeriodDto?: OptionalTaxesPeriodDto,
   ) {
     const result = await this.pph21Service.getEmployeesTaxes(
       unitId,
       employeeId,
+      taxPeriodDto,
     );
 
     this.logger.log(

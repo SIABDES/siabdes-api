@@ -1,6 +1,14 @@
-import { Controller, Get, HttpStatus, Logger, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ResponseBuilder } from '~common/response.builder';
 import { UnitPph21Service } from '../services';
+import { OptionalTaxesPeriodDto } from '../dto';
 
 @Controller('units/:unitId/pph21')
 export class UnitPph21Controller {
@@ -9,8 +17,11 @@ export class UnitPph21Controller {
   constructor(private readonly pph21Service: UnitPph21Service) {}
 
   @Get()
-  async getUnitPph21Taxes(@Param('unitId') unitId: string) {
-    const result = await this.pph21Service.getTaxes(unitId);
+  async getUnitPph21Taxes(
+    @Param('unitId') unitId: string,
+    @Query() taxPeriodDto: OptionalTaxesPeriodDto,
+  ) {
+    const result = await this.pph21Service.getTaxes(unitId, taxPeriodDto);
 
     this.logger.log(
       `Unit '${unitId}' fetched pph21 taxes with ${result._count} taxes`,

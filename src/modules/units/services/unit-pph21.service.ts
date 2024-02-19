@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '~lib/prisma/prisma.service';
+import { OptionalTaxesPeriodDto } from '../dto';
 import {
   AddUnitEmployeePph21Dto,
   UpdateUnitEmployeePph21Dto,
@@ -107,14 +108,50 @@ export class UnitPph21Service implements IUnitPph21Service {
     }
   }
 
-  async getTaxes(unitId: string): Promise<GetUnitEmployeeTaxesResponse> {
+  async getTaxes(
+    unitId: string,
+    taxPeriodDto?: OptionalTaxesPeriodDto,
+  ): Promise<GetUnitEmployeeTaxesResponse> {
+    const taxesOrderBy: Prisma.Pph21TaxOrderByWithRelationInput = {
+      periodYear: 'desc',
+    };
+
+    const taxesWhere: Prisma.Pph21TaxWhereInput = {
+      bumdesUnitId: unitId,
+      deletedAt: { equals: null },
+      periodMonth: {
+        gte: taxPeriodDto?.min_period_month,
+        lte: taxPeriodDto?.max_period_month,
+      },
+      periodYear: {
+        gte: taxPeriodDto?.min_period_years,
+        lte: taxPeriodDto?.max_period_years,
+      },
+    };
+
     const taxes = await this.prisma.pph21Tax.findMany({
-      where: { bumdesUnitId: unitId, deletedAt: { equals: null } },
+      orderBy: taxesOrderBy,
+      where: taxesWhere,
       include: { employee: true },
     });
 
+    const totalGrossSalary = taxes.reduce((acc, tax) => {
+      return acc + tax.totalSalary.toNumber();
+    }, 0);
+    const totalPph21 = taxes.reduce((acc, tax) => {
+      return acc + tax.pphAmount.toNumber();
+    }, 0);
+    const totalNetSalary = taxes.reduce((acc, tax) => {
+      return acc + tax.netReceipts.toNumber();
+    }, 0);
+
     return {
       _count: taxes.length,
+      _total: {
+        gross_salary: totalGrossSalary,
+        pph1: totalPph21,
+        net_salary: totalNetSalary,
+      },
       taxes: taxes.map((tax) => {
         return {
           id: tax.id,
@@ -136,18 +173,50 @@ export class UnitPph21Service implements IUnitPph21Service {
   async getEmployeesTaxes(
     unitId: string,
     employeeId: string,
+    taxPeriodDto?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeeTaxesResponse> {
-    const taxes = await this.prisma.pph21Tax.findMany({
-      where: {
-        bumdesUnitId: unitId,
-        employeeId: employeeId,
-        deletedAt: { equals: null },
+    const taxesOrderBy: Prisma.Pph21TaxOrderByWithRelationInput = {
+      periodYear: 'desc',
+    };
+
+    const taxesWhere: Prisma.Pph21TaxWhereInput = {
+      bumdesUnitId: unitId,
+      employeeId: employeeId,
+      deletedAt: { equals: null },
+
+      periodMonth: {
+        gte: taxPeriodDto?.min_period_month,
+        lte: taxPeriodDto?.max_period_month,
       },
+      periodYear: {
+        gte: taxPeriodDto?.min_period_years,
+        lte: taxPeriodDto?.max_period_years,
+      },
+    };
+
+    const taxes = await this.prisma.pph21Tax.findMany({
+      where: taxesWhere,
+      orderBy: taxesOrderBy,
       include: { employee: true },
     });
 
+    const totalGrossSalary = taxes.reduce((acc, tax) => {
+      return acc + tax.totalSalary.toNumber();
+    }, 0);
+    const totalPph21 = taxes.reduce((acc, tax) => {
+      return acc + tax.pphAmount.toNumber();
+    }, 0);
+    const totalNetSalary = taxes.reduce((acc, tax) => {
+      return acc + tax.netReceipts.toNumber();
+    }, 0);
+
     return {
       _count: taxes.length,
+      _total: {
+        gross_salary: totalGrossSalary,
+        pph1: totalPph21,
+        net_salary: totalNetSalary,
+      },
       taxes: taxes.map((tax) => {
         return {
           id: tax.id,

@@ -1,3 +1,4 @@
+import { OptionalTaxesPeriodDto } from '../dto';
 import {
   AddUnitEmployeePph21Dto,
   UpdateUnitEmployeePph21Dto,
@@ -24,11 +25,15 @@ export interface IUnitPph21Service {
     taxId: string,
   ): Promise<GetUnitEmployeeTaxResponse>;
 
-  getTaxes(unitId: string): Promise<GetUnitEmployeeTaxesResponse>;
+  getTaxes(
+    unitId: string,
+    taxPeriodDto?: OptionalTaxesPeriodDto,
+  ): Promise<GetUnitEmployeeTaxesResponse>;
 
   getEmployeesTaxes(
     unitId: string,
     employeeId: string,
+    taxPeriodDto?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeeTaxesResponse>;
 
   updateTax(
