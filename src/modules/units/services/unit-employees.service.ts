@@ -5,11 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pph21TerPercentage, Prisma } from '@prisma/client';
+import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
   AddUnitEmployeeDto,
   GetEmployeesFilterDto,
-  TaxesPeriodDto,
+  OptionalTaxesPeriodDto,
   UpdateUnitEmployeeDto,
 } from '../dto';
 import { isFemale } from '../dto/employees/guards';
@@ -24,7 +25,6 @@ import {
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
 } from '../types/responses';
-import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitEmployeesService implements IUnitEmployeesService {
@@ -35,7 +35,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   async getEmployeeTer(
     employeeId: string,
     grossSalary: number,
-    taxPeriod?: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetEmployeeTerResponse> {
     if (isNaN(grossSalary))
       throw new BadRequestException('Invalid gross salary');
@@ -107,7 +107,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   async getEmployeeTaxInfo(
     unitId: string,
     employeeId: string,
-    taxPeriod: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeePtkpResponse> {
     try {
       const employee = await this.prisma.unitEmployee.findUnique({
@@ -127,13 +127,16 @@ export class UnitEmployeesService implements IUnitEmployeesService {
         employee.childrenAmount,
       );
 
-      const ptkp = await this.prisma.pph21PtkpBoundary.findUnique({
+      const periodMonth = taxPeriod?.period_month || new Date().getMonth() + 1;
+      const periodYear = taxPeriod?.period_years || new Date().getFullYear();
+
+      const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
         where: {
-          status_periodYear_periodMonth: {
-            periodMonth: taxPeriod.period_month,
-            periodYear: taxPeriod.period_years,
-            status: ptkpStatus,
+          AND: {
+            periodYear: { lte: periodYear },
+            periodMonth: { lte: periodMonth },
           },
+          status: ptkpStatus,
         },
         select: { minimumSalary: true, terType: true, status: true },
       });
@@ -292,7 +295,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   async getEmployeeById(
     unitId: string,
     employeeId: string,
-    taxPeriod: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeeResponse> {
     const employee = await this.prisma.unitEmployee.findUnique({
       where: {

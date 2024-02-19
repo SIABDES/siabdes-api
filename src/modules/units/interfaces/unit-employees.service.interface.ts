@@ -2,7 +2,7 @@ import { PaginationDto } from '~common/dto';
 import {
   AddUnitEmployeeDto,
   GetEmployeesFilterDto,
-  TaxesPeriodDto,
+  OptionalTaxesPeriodDto,
   UpdateUnitEmployeeDto,
 } from '../dto';
 import {
@@ -30,7 +30,7 @@ export interface IUnitEmployeesService {
   getEmployeeById(
     unitId: string,
     employeeId: string,
-    taxPeriod: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeeResponse>;
 
   updateEmployee(
@@ -47,12 +47,12 @@ export interface IUnitEmployeesService {
   getEmployeeTaxInfo(
     unitId: string,
     employeeId: string,
-    taxPeriod: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetUnitEmployeePtkpResponse>;
 
   getEmployeeTer(
     employeeId: string,
     grossSalary: number,
-    taxPeriod?: TaxesPeriodDto,
+    taxPeriod?: OptionalTaxesPeriodDto,
   ): Promise<GetEmployeeTerResponse>;
 }
