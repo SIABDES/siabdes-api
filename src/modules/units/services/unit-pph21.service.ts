@@ -81,7 +81,7 @@ export class UnitPph21Service implements IUnitPph21Service {
               result: tax.taxable.result.toNumber(),
             }
           : undefined,
-        pph21_december_taxable_result: {
+        pph21_december_taxable_result: tax.decemberResult && {
           current_year_amount: tax.decemberResult.currentYear.toNumber(),
           before_december_amount: tax.decemberResult.beforeDecember.toNumber(),
         },
