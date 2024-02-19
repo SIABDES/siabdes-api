@@ -21,7 +21,7 @@
     "compodoc:start": "npx @compodoc/compodoc -p tsconfig.json -s",
     "db:push": "npx prisma db push && npx prisma db seed",
     "db:refresh:pph21": "ts-node ./prisma/seeder/runner/pph21.runner.ts",
-    "compose:refresh": "docker compose down && docker compose up -d && npm run db:push"
+    "compose:refresh": "docker compose down && docker compose up -d && npm run migrate reset"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
