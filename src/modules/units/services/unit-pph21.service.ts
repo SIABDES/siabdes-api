@@ -259,6 +259,16 @@ export class UnitPph21Service implements IUnitPph21Service {
       periodMonth: dto.period_month,
       periodYear: dto.period_years,
 
+      salary: dto.gross_salary.salary,
+      allowance: dto.gross_salary.allowance,
+      thr: dto.gross_salary.thr,
+      bonus: dto.gross_salary.bonus,
+      overtimeSalary: dto.gross_salary.overtime_salary,
+      assurance: dto.gross_salary.assurance,
+      workingDays: dto.gross_salary.working_days,
+      monthlySalary: dto.gross_salary.monthly_salary,
+      dailySalary: dto.gross_salary.daily_salary,
+
       tariffs: {
         createMany: {
           data: dto.pph21_calculations.map((tariff) => ({
@@ -364,6 +374,16 @@ export class UnitPph21Service implements IUnitPph21Service {
           totalSalary: dto.result.total_salary,
           periodMonth: dto.period_month,
           periodYear: dto.period_years,
+
+          salary: dto.gross_salary.salary,
+          allowance: dto.gross_salary.allowance,
+          thr: dto.gross_salary.thr,
+          bonus: dto.gross_salary.bonus,
+          overtimeSalary: dto.gross_salary.overtime_salary,
+          assurance: dto.gross_salary.assurance,
+          workingDays: dto.gross_salary.working_days,
+          monthlySalary: dto.gross_salary.monthly_salary,
+          dailySalary: dto.gross_salary.daily_salary,
 
           tariffs: {
             createMany: {
