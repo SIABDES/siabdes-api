@@ -21,7 +21,6 @@ export interface IUnitPph21Service {
 
   getTaxDetailsById(
     unitId: string,
-    employeeId: string,
     taxId: string,
   ): Promise<GetUnitEmployeeTaxResponse>;
 

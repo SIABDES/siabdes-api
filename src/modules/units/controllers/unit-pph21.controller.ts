@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -31,6 +32,35 @@ export class UnitPph21Controller {
       .setData(result)
       .setMessage('PPh21 berhasil ditemukan')
       .setStatusCode(HttpStatus.OK)
+      .build();
+  }
+
+  @Get(':taxId')
+  async getUnitPph21Tax(
+    @Param('unitId') unitId: string,
+    @Param('taxId') taxId: string,
+  ) {
+    const result = await this.pph21Service.getTaxDetailsById(unitId, taxId);
+
+    this.logger.log(`Unit '${unitId}' fetched pph21 tax '${taxId}'`);
+
+    return new ResponseBuilder()
+      .setData(result)
+      .setMessage('PPh21 berhasil ditemukan')
+      .setStatusCode(HttpStatus.OK)
+      .build();
+  }
+
+  @Delete(':taxId')
+  async deleteTax(@Param('taxId') taxId: string) {
+    const result = await this.pph21Service.deleteTax(taxId);
+
+    this.logger.log(`Tax with id ${taxId} successfully deleted`);
+
+    return new ResponseBuilder()
+      .setMessage('PPh21 berhasil dihapus')
+      .setStatusCode(HttpStatus.OK)
+      .setData(result)
       .build();
   }
 }

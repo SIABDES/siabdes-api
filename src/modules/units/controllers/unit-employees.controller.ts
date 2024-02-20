@@ -161,6 +161,8 @@ export class UnitEmployeesController {
       taxPeriod,
     );
 
+    this.logger.log(`Employee '${employeeId}' fetched ter data: ${result}`);
+
     return new ResponseBuilder()
       .setData(result)
       .setMessage('Data ter berhasil ditemukan')

@@ -21,24 +21,13 @@ export class UnitPph21Service implements IUnitPph21Service {
 
   async getTaxDetailsById(
     unitId: string,
-    employeeId: string,
     taxId: string,
   ): Promise<GetUnitEmployeeTaxResponse> {
     try {
-      const employee = await this.prisma.unitEmployee.findUnique({
-        where: {
-          id: employeeId,
-          bumdesUnitId: unitId,
-          deletedAt: { equals: null },
-        },
-        select: { employeeType: true },
-      });
-
-      if (!employee) throw new NotFoundException('Karyawan tidak ditemukan');
-
       const tax = await this.prisma.pph21Tax.findUnique({
         where: { bumdesUnitId: unitId, id: taxId, deletedAt: { equals: null } },
         include: {
+          employee: true,
           netCalculations: true,
           taxable: true,
           tariffs: true,
@@ -50,8 +39,8 @@ export class UnitPph21Service implements IUnitPph21Service {
 
       return {
         id: tax.id,
-        employee_id: employeeId,
-        employee_type: employee.employeeType,
+        employee_id: tax.employeeId,
+        employee_type: tax.employeeType,
         has_npwp: tax.hasNpwp,
         period_month: tax.periodMonth,
         period_years: tax.periodYear,
@@ -342,6 +331,11 @@ export class UnitPph21Service implements IUnitPph21Service {
         deleted_at: tax.deletedAt,
       };
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Data pajak PPh21 tidak ditemukan');
+        }
+      }
       throw error;
     }
   }

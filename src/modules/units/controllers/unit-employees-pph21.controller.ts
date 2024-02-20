@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -47,27 +46,6 @@ export class UnitEmployeesPph21Controller {
       .build();
   }
 
-  @Get(':taxId')
-  async getTaxDetailsById(
-    @Param('taxId') taxId: string,
-    @Param('employeeId') employeeId: string,
-    @Param('unitId') unitId: string,
-  ) {
-    const result = await this.pph21Service.getTaxDetailsById(
-      unitId,
-      employeeId,
-      taxId,
-    );
-
-    this.logger.log(`Tax with id ${taxId} successfully retrieved`);
-
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
-  }
-
   @Get()
   async getEmployeeTaxes(
     @Param('employeeId') employeeId: string,
@@ -104,19 +82,7 @@ export class UnitEmployeesPph21Controller {
 
     return new ResponseBuilder()
       .setData(result)
-      .setMessage('PPh21 berhasil ditambahkan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
-  }
-
-  @Delete(':taxId')
-  async deleteTax(@Param('taxId') taxId: string) {
-    await this.pph21Service.deleteTax(taxId);
-
-    this.logger.log(`Tax with id ${taxId} successfully deleted`);
-
-    return new ResponseBuilder()
-      .setMessage('PPh21 berhasil ditambahkan')
+      .setMessage('PPh21 berhasil diubah')
       .setStatusCode(HttpStatus.OK)
       .build();
   }
