@@ -95,6 +95,8 @@ export type Pph21TaxDetails = Pph21MutationType & {
   npwp?: string;
   gender: UnitEmployeeGender;
   created_at: Date;
+  ptkp_status: string;
+  ter_category: string | null;
 };
 
 export type Pph21TaxOverview = {

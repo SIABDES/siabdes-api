@@ -14,6 +14,7 @@ import {
   GetUnitEmployeeTaxesResponse,
   UpdateUnitEmployeePph21Response,
 } from '../types/responses';
+import { mapPtkpStatus } from '../helpers';
 
 @Injectable()
 export class UnitPph21Service implements IUnitPph21Service {
@@ -37,6 +38,23 @@ export class UnitPph21Service implements IUnitPph21Service {
 
       if (!tax) throw new NotFoundException('PPh21 tidak ditemukan');
 
+      const ptkpStatus = mapPtkpStatus(
+        tax.employee.marriageStatus,
+        tax.employee.npwpStatus,
+        tax.employee.childrenAmount,
+      );
+
+      const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
+        where: {
+          AND: {
+            periodYear: { lte: tax.periodYear },
+            periodMonth: { lte: tax.periodMonth },
+          },
+          status: ptkpStatus,
+        },
+        select: { minimumSalary: true, terType: true, status: true },
+      });
+
       return {
         id: tax.id,
         employee_id: tax.employeeId,
@@ -49,6 +67,8 @@ export class UnitPph21Service implements IUnitPph21Service {
         period_month: tax.periodMonth,
         period_years: tax.periodYear,
         created_at: tax.createdAt,
+        ptkp_status: ptkpStatus,
+        ter_category: ptkp.terType || null,
         gross_salary: {
           salary: tax.salary?.toNumber(),
           allowance: tax.allowance?.toNumber(),
