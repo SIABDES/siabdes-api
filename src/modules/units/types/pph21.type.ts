@@ -1,4 +1,4 @@
-import { UnitEmployeeType } from '@prisma/client';
+import { UnitEmployeeGender, UnitEmployeeType } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
 
 export const Pph21BasicSalarySchema = z.object({
@@ -90,6 +90,10 @@ export type Pph21TaxDetails = Pph21MutationType & {
   id: string;
   has_npwp: boolean;
   employee_id: string;
+  name: string;
+  nik: string;
+  npwp?: string;
+  gender: UnitEmployeeGender;
   created_at: Date;
 };
 

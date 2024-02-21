@@ -41,7 +41,11 @@ export class UnitPph21Service implements IUnitPph21Service {
         id: tax.id,
         employee_id: tax.employeeId,
         employee_type: tax.employeeType,
+        name: tax.employee.name,
+        gender: tax.employee.gender,
+        nik: tax.employee.nik,
         has_npwp: tax.hasNpwp,
+        npwp: tax.hasNpwp ? tax.employee.npwp : undefined,
         period_month: tax.periodMonth,
         period_years: tax.periodYear,
         created_at: tax.createdAt,
@@ -71,10 +75,13 @@ export class UnitPph21Service implements IUnitPph21Service {
               result: tax.taxable.result.toNumber(),
             }
           : undefined,
-        pph21_december_taxable_result: tax.decemberResult && {
-          current_year_amount: tax.decemberResult.currentYear.toNumber(),
-          before_december_amount: tax.decemberResult.beforeDecember.toNumber(),
-        },
+        pph21_december_taxable_result:
+          (tax.decemberResult && {
+            current_year_amount: tax.decemberResult.currentYear.toNumber(),
+            before_december_amount:
+              tax.decemberResult.beforeDecember.toNumber(),
+          }) ??
+          undefined,
         pph21_calculations:
           tax.tariffs.map((t) => ({
             tariff_percentage: t.percentage.toNumber(),
@@ -425,6 +432,11 @@ export class UnitPph21Service implements IUnitPph21Service {
         created_at: tax.createdAt,
       };
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2016') {
+          throw new NotFoundException('Data pajak PPh21 tidak ditemukan');
+        }
+      }
       throw error;
     }
   }
