@@ -1,19 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { EnvSchema } from '~common/types';
 import { MinioModule } from '~lib/minio/minio.module';
-import { AccountsModule } from '~modules/accounts/accounts.module';
-import { AuthModule } from '~modules/auth/auth.module';
-import { AuthJwtGuard } from '~modules/auth/guards';
-import { BumdesModule } from '~modules/bumdes/bumdes.module';
-import { FilesManagerModule } from '~modules/files_manager/files-manager.module';
-import { JournalsModule } from '~modules/journals/journals.module';
-import { LedgersModule } from '~modules/ledgers/ledgers.module';
-import { UnitsModule } from '~modules/units/units.module';
-import { WtbModule } from '~modules/wtb/wtb.module';
+import { V1Module } from '~modules/v1/v1.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
+import { V2Module } from '~modules/v2/v2.module';
 
 @Module({
   imports: [
@@ -32,23 +25,13 @@ import { PrismaModule } from './lib/prisma/prisma.module';
     }),
     PrismaModule,
     MinioModule,
-    AccountsModule,
-    AuthModule,
-    UnitsModule,
-    FilesManagerModule,
-    JournalsModule,
-    LedgersModule,
-    WtbModule,
-    BumdesModule,
+    V1Module,
+    V2Module,
   ],
   providers: [
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: AuthJwtGuard,
     },
   ],
 })

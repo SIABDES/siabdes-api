@@ -31,6 +31,7 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/platform-fastify": "^10.3.3",
     "@nestjs/terminus": "^10.2.0",
     "@prisma/client": "^5.9.1",
     "argon2": "^0.31.2",
