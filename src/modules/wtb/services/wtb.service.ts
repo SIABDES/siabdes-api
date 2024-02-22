@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
@@ -25,20 +25,33 @@ export class WtbService implements IWtbService {
   ): Promise<GetWtbResponse> {
     const { end_occurred_at, start_occurred_at } = filter;
 
+    const unit = await this.prisma.bumdesUnit.findUnique({
+      where: { id: unitId },
+    });
+
+    if (!unit) {
+      throw new NotFoundException('Unit not found.');
+    }
+
     const paginationQuery: Prisma.AccountFindManyArgs = {
       cursor: pagination?.cursor
         ? { id: Number(pagination.cursor) }
         : undefined,
       take: pagination?.limit ? Number(pagination.limit) : undefined,
+      skip: pagination?.cursor ? 1 : undefined,
     };
 
     const accounts = await this.prisma.account.findMany({
       ...paginationQuery,
+      where: {
+        businessTypes: { has: unit.businessType },
+      },
     });
 
     const journals = await this.prisma.journal.findMany({
       where: {
         bumdesUnitId: unitId,
+        deletedAt: null,
         occurredAt: {
           gte: start_occurred_at,
           lte: end_occurred_at,
@@ -198,12 +211,12 @@ export class WtbService implements IWtbService {
 
     // Laba Rugi Bersih
     summaryResult.laba_rugi_bersih.laba_rugi.credit =
-      summaryResult.sum.laba_rugi.credit - summaryResult.sum.laba_rugi.debit;
+      summaryResult.sum.laba_rugi.debit - summaryResult.sum.laba_rugi.credit;
     switchSectionIfNegativeNumber(summaryResult.laba_rugi_bersih.laba_rugi);
 
     summaryResult.laba_rugi_bersih.posisi_keuangan.credit =
-      summaryResult.sum.posisi_keuangan.credit -
-      summaryResult.sum.posisi_keuangan.debit;
+      summaryResult.sum.posisi_keuangan.debit -
+      summaryResult.sum.posisi_keuangan.credit;
     switchSectionIfNegativeNumber(
       summaryResult.laba_rugi_bersih.posisi_keuangan,
     );

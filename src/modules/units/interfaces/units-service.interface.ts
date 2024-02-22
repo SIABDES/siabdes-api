@@ -1,7 +1,9 @@
+import { PaginationDto } from '~common/dto';
 import { CreateUnitDto } from '../dto';
 import {
   CreateUnitResponse,
   DeleteUnitResponse,
+  GetUnitMetadataResponse,
   GetUnitResponse,
   GetUnitsResponse,
 } from '../types/responses';
@@ -14,7 +16,12 @@ export interface IUnitsService {
 
   deleteUnitById(bumdesId: string, unitId: string): Promise<DeleteUnitResponse>;
 
-  getUnits(bumdesId: string): Promise<GetUnitsResponse>;
+  getUnits(
+    bumdesId: string,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitsResponse>;
 
   getUnitById(bumdesId: string, unitId: string): Promise<GetUnitResponse>;
+
+  getUnitMetadata(unitId: string): Promise<GetUnitMetadataResponse>;
 }

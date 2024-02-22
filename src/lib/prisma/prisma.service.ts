@@ -6,6 +6,7 @@ export class PrismaService extends PrismaClient {
   constructor() {
     super({
       errorFormat: 'pretty',
+      log: ['info'],
     });
   }
 }

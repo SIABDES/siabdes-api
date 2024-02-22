@@ -4,4 +4,5 @@ export type GetUnit = {
   id: string;
   name: string;
   business_type: BumdesUnitBusinessType;
+  created_at: string;
 };

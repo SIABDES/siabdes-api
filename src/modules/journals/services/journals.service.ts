@@ -226,6 +226,8 @@ export class JournalsService implements IJournalsService {
         category: journal.category,
         description: journal.description,
         occured_at: journal.occurredAt,
+        created_at: journal.createdAt,
+        updated_at: journal.updatedAt,
         evidence: filter.is_detailed ? journal.evidence : undefined,
         data_transactions: filter.is_detailed
           ? journal.items.map((item) => ({
@@ -272,6 +274,8 @@ export class JournalsService implements IJournalsService {
       description: journal.description,
       evidence: journal.evidence,
       occured_at: journal.occurredAt,
+      created_at: journal.createdAt,
+      updated_at: journal.updatedAt,
       data_transactions: journal.items.map((item) => ({
         account_id: item.accountId,
         account_name: accounts.find((acc) => acc.id === item.accountId).name,

@@ -7,15 +7,17 @@ import {
   Logger,
   Param,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UnitsService } from '../services';
 import { CreateUnitDto } from '../dto';
 import { GetUser } from '~modules/auth/decorators';
 import { ResponseBuilder } from '~common/response.builder';
+import { PaginationDto } from '~common/dto';
 
 @Controller('units')
 export class UnitsController {
-  private logger: Logger = new Logger('UnitsController');
+  private logger: Logger = new Logger(UnitsController.name);
 
   constructor(private readonly unitsService: UnitsService) {}
 
@@ -54,10 +56,14 @@ export class UnitsController {
   }
 
   @Get()
-  async getBumdesUnits(@GetUser('bumdesId') bumdesId: string) {
-    const result = await this.unitsService.getUnits(bumdesId);
+  async getBumdesUnits(
+    @GetUser('bumdesId') bumdesId: string,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.unitsService.getUnits(bumdesId, pagination);
 
     this.logger.log(`Get units for bumdes '${bumdesId}'`);
+    this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
@@ -78,6 +84,19 @@ export class UnitsController {
     return new ResponseBuilder()
       .setStatusCode(HttpStatus.OK)
       .setMessage('Unit berhasil dihapus')
+      .setData(result)
+      .build();
+  }
+
+  @Get(':unitId/metadata')
+  async getUnitMetadata(@Param('unitId') unitId: string) {
+    const result = await this.unitsService.getUnitMetadata(unitId);
+
+    this.logger.log(`Get metadata for unit '${unitId}'`);
+
+    return new ResponseBuilder()
+      .setStatusCode(HttpStatus.OK)
+      .setMessage('Metadata berhasil ditemukan')
       .setData(result)
       .build();
   }

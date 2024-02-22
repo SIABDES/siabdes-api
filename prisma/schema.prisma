@@ -9,7 +9,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["auth", "bumdes", "journals"]
+  schemas  = ["auth", "bumdes", "journals", "taxes"]
 }
 
 // Auth Schema
@@ -20,12 +20,13 @@ model AuthUser {
   password   String
   role       AuthUserRole
 
-  bumdes     Bumdes?
+  bumdes     Bumdes?     @relation(fields: [bumdesId], references: [id])
   bumdesUnit BumdesUnit?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+  bumdesId  String?
 
   @@map("users")
   @@schema("auth")
@@ -48,18 +49,55 @@ model Bumdes {
   name  String
   phone String
 
+  // Address
   completeAddress String?
-  province        String // Pronvisi
+  province        String // Provinsi
   regency         String // Kabupaten
   district        String // Kecamatan
   village         String // Desa
   postalCode      String // Kode Pos
 
-  user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String   @unique
+  // Law and Rules  
+  villageRuleNumber     String? // no peraturan desa
+  skAdministratorNumber String? // no SK pengurus desa
+  skAdministratorDate   DateTime? // tanggal SK pengurus desa
+  skAssistantNumber     String? // no SK AD/ART desa
+  skAssistantDate       DateTime? // tanggal SK AD/ART desa
 
-  units BumdesUnit[]
+  // Bank or Financial Institution
+  bankName    String? // Nama bank
+  bankAccount String? // No rekening
 
+  // NPWP or Taxes
+  npwpNumber String? // No NPWP
+
+  // Socials
+  website      String? // Link Website
+  facebook     String? // Link Facebook
+  twitter      String? // Link Twitter
+  instagram    String? // Link Instagram
+  otherSocials String? // Link Social Media Lainnya
+
+  // Initial finance capital data (pemodalan awal)
+  initialCapitalParticipation    Decimal? // Penyertaan modal awal
+  additionalCapitalParticipation Decimal? // Penambahan Penyertaan Modal
+
+  // Organizations
+  leader     String
+  consultant String?
+  secretary  String?
+  treasurer  String? // Bendahara
+
+  supervisor_leader    String?
+  supervisor_secretary String?
+  supervisor_treasurer String?
+
+  users            AuthUser[]
+  units            BumdesUnit[]
+  fundingHistories BumdesFundingHistoryItem[]
+  incomeHistories  BumdesIncomeHistoryItem[]
+
+  foundedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -69,11 +107,57 @@ model Bumdes {
   @@schema("bumdes")
 }
 
+model BumdesFundingHistoryItem {
+  id String @id @default(cuid())
+
+  year                   Int
+  rulesNumber            String
+  villageAmount          Decimal
+  villagePercentage      Decimal
+  otherPartiesAmount     Decimal
+  otherPartiesPercentage Decimal
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_funding_history_item")
+  @@schema("bumdes")
+}
+
+model BumdesIncomeHistoryItem {
+  id String @id @default(cuid())
+
+  year     Int
+  omzet    Decimal
+  profit   Decimal
+  dividend Decimal
+
+  bumdes   Bumdes @relation(fields: [bumdesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bumdes_income_history_item")
+  @@schema("bumdes")
+}
+
 model BumdesUnit {
   id String @id @default(cuid())
 
   name         String
   businessType BumdesUnitBusinessType
+  description  String?
+
+  // Organizations
+  leader  String
+  members String[]
+
+  phoneNumber String
+  address     String
 
   bumdes   Bumdes? @relation(fields: [bumdesId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   bumdesId String?
@@ -81,14 +165,79 @@ model BumdesUnit {
   user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String   @unique
 
-  journals Journal[]
+  pph21Taxes Pph21Tax[]
 
+  thirdPartyPartners String[] // Kerja sama pihak ketiga
+
+  journals          Journal[]
+  customJournals    CustomJournal[]
+  ppnTaxes          PpnTax[]
+  capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
+  incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
+  netProfitsHistory BumdesUnitNetProfitHistory[] // Riwayat Keuntungan Bersih dan Dividen
+  employees         UnitEmployee[]
+
+  foundedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@index([businessType, bumdesId], name: "bumdes_unit_business_type")
   @@map("bumdes_unit")
+  @@schema("bumdes")
+}
+
+model BumdesUnitCapitalHistory {
+  id String @id @default(cuid())
+
+  amount     Decimal
+  source     String
+  percentage Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_capital_history")
+  @@schema("bumdes")
+}
+
+model BumdesUnitIncomeHistory {
+  id String @id @default(cuid())
+
+  year    Int
+  asset   Decimal
+  revenue Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_income_history")
+  @@schema("bumdes")
+}
+
+model BumdesUnitNetProfitHistory {
+  id String @id @default(cuid())
+
+  year      Int
+  netProfit Decimal
+  dividend  Decimal
+
+  unit   BumdesUnit @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  unitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("bumdes_unit_net_profit_history")
   @@schema("bumdes")
 }
 
@@ -107,9 +256,26 @@ model AccountGroup {
   name String
   slug String @unique
 
-  accounts Account[]
+  accounts       Account[]
+  customAccounts CustomAccount[]
+  subgroups      AccountSubgroup[]
 
   @@map("account_groups")
+  @@schema("journals")
+}
+
+model AccountSubgroup {
+  id       Int          @id @default(autoincrement())
+  ref      String       @unique // Misal: ref = 1-1, format: <account group ref>-<account subgroup ref>. src: COA
+  name     String
+  slug     String       @unique
+  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  groupRef String
+
+  accounts       Account[]
+  customAccounts CustomAccount[]
+
+  @@map("account_subgroups")
   @@schema("journals")
 }
 
@@ -123,11 +289,35 @@ model Account {
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
+  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  subgroupRef String
+
   journalItems JournalItem[]
 
   businessTypes BumdesUnitBusinessType[]
 
   @@map("accounts")
+  @@schema("journals")
+}
+
+model CustomAccount {
+  id       String  @id @default(cuid())
+  ref      String
+  name     String
+  slug     String  @unique
+  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
+
+  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  groupRef String
+
+  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  subgroupRef String
+
+  journalItems CustomJournalItem[]
+
+  businessTypes BumdesUnitBusinessType[]
+
+  @@map("custom_accounts")
   @@schema("journals")
 }
 
@@ -172,10 +362,363 @@ model JournalItem {
   @@schema("journals")
 }
 
+model CustomJournal {
+  id String @id @default(cuid())
+
+  description String
+  occurredAt  DateTime
+  category    JournalCategory
+  evidence    String?
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  items CustomJournalItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("custom_journals")
+  @@schema("journals")
+}
+
+model CustomJournalItem {
+  id String @id @default(cuid())
+
+  amount   Decimal
+  isCredit Boolean
+
+  account   CustomAccount @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  accountId String
+
+  journal   CustomJournal @relation(fields: [journalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  journalId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("custom_journal_items")
+  @@schema("journals")
+}
+
 enum JournalCategory {
   GENERAL
   ADJUSTMENT
 
   @@map("journal_categories")
   @@schema("journals")
+}
+
+enum PpnTaxObject {
+  NO_TAXES // Tidak kena pajak
+  DOMESTIC_TAXES // Kena pajak - Dalam negeri
+  INTERNATIONAL_TAXES // Kena pajak - Luar negeri
+
+  @@schema("taxes")
+}
+
+// taxes schema
+model PpnTax {
+  id String @id @default(cuid())
+
+  givenTo  String
+  itemType PpnTaxItemType
+
+  transactionType        PpnTransactionType
+  transactionNumber      String
+  transactionDate        DateTime
+  transactionEvidenceKey String
+
+  object      PpnTaxObject
+  objectItems PpnTaxObjectItem[]
+
+  bumdesUnit   BumdesUnit? @relation(fields: [bumdesUnitId], references: [id])
+  bumdesUnitId String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("ppn_taxes")
+  @@schema("taxes")
+}
+
+enum PpnTaxItemType {
+  SERVICE // Jasa
+  GOODS // Barang
+
+  @@schema("taxes")
+}
+
+enum PpnTransactionType {
+  SALES // Penjualan
+  PURCHASE // Pembelian
+
+  @@schema("taxes")
+}
+
+model PpnTaxObjectItem {
+  id String @id @default(cuid())
+
+  name String
+
+  quantity      Int // Jumlah
+  pricePerUnit  Decimal // Harga satuan
+  discountPrice Decimal // Harga diskon
+  totalPrice    Decimal // Harga total
+
+  dpp Decimal // Dasar Pengenaan Pajak
+  ppn Decimal // Pajak Pertambahan Nilai
+
+  tax   PpnTax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("ppn_object_items")
+  @@schema("taxes")
+}
+
+enum UnitEmployeeStatus {
+  NEW
+  OLD
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeGender {
+  MALE
+  FEMALE
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeMarriageStatus {
+  NOT_MARRIED
+  MARRIED
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeChildrenAmount {
+  NONE
+  ONE
+  TWO
+  THREE
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeType {
+  PERMANENT_MONTHLY // Tetap Bulanan
+
+  NON_PERMANENT_MONTHLY // Tidak Tetap Bulanan
+  NON_PERMANENT_NOT_MONTHLY // Tidak Tetap Tidak Bulanan
+
+  SEVERANCE_OUTRIGHT // Pesangon Sekaligus
+  SEVERANCE_PERIODICAL // Pesangon Berkala
+
+  OTHER_ACTIVITY_MEMBER // PPh21 Lainnya - Peserta Kegiatan
+  OTHER_SUPERVISOR_NON_EMPLOYEE // PPh21 Lainnya - Pengawas Bukan Pegawai
+
+  NON_EMPLOYEE // Bukan Pegawai
+
+  @@schema("taxes")
+}
+
+enum UnitEmployeeNpwpStatus {
+  MERGED_WITH_HUSBAND // Digabung dengan suami
+  SEPARATED_WITH_HUSBAND // Dipisah dengan suami
+
+  @@schema("taxes")
+}
+
+model UnitEmployee {
+  id String @id @default(cuid())
+
+  name           String
+  nik            String
+  npwp           String?
+  npwpStatus     UnitEmployeeNpwpStatus?
+  gender         UnitEmployeeGender
+  employeeStatus UnitEmployeeStatus // Status Tenaga Kerja
+  employeeType   UnitEmployeeType // Jenis Tenaga Kerja 
+  startWorkingAt DateTime // Tanggal Mulai Bekerja
+  marriageStatus UnitEmployeeMarriageStatus
+  childrenAmount UnitEmployeeChildrenAmount
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  pph21Taxes Pph21Tax[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([nik, bumdesUnitId])
+  @@map("unit_employees")
+  @@schema("taxes")
+}
+
+enum Pph21PtkpStatus {
+  TK0 // Tidak Kawin - Tanpa tanggungan 
+  TK1 // Tidak Kawin - Tanggungan 1
+  TK2 // Tidak Kawin - Tanggungan 2
+  TK3 // Tidak Kawin - Tanggungan 3
+
+  K0 // Kawin - Tanpa tanggungan 
+  K1 // Kawin - Tanggungan 1
+  K2 // Kawin - Tanggungan 2
+  K3 // Kawin - Tanggungan 3
+
+  KI0 // Kawin dengan penghasilan istri digabung - Tanpa tanggungan
+  KI1 // Kawin dengan penghasilan istri digabung - Tanggungan 1
+  KI2 // Kawin dengan penghasilan istri digabung - Tanggungan 2
+  KI3 // Kawin dengan penghasilan istri digabung - Tanggungan 3
+
+  @@schema("taxes")
+}
+
+enum Pph21TerType {
+  A
+  B
+  C
+
+  @@schema("taxes")
+}
+
+model Pph21PtkpBoundary {
+  id Int @id @default(autoincrement())
+
+  status        Pph21PtkpStatus
+  minimumSalary Decimal
+  terType       Pph21TerType?
+
+  periodYear  Int
+  periodMonth Int
+
+  @@unique([status, periodYear, periodMonth])
+  @@map("pph21_ptkp_boundaries")
+  @@schema("taxes")
+}
+
+model Pph21TerPercentage {
+  id Int @id @default(autoincrement())
+
+  type       Pph21TerType
+  rangeStart Decimal
+  rangeEnd   Decimal
+  percentage Decimal
+
+  periodYear  Int
+  periodMonth Int
+
+  @@map("pph21_ter_percentages")
+  @@schema("taxes")
+}
+
+model Pph21Tax {
+  id String @id @default(cuid())
+
+  employeeType UnitEmployeeType // Jenis Tenaga Kerja
+  hasNpwp      Boolean
+  periodMonth  Int // Masa Pajak - Bulan
+  periodYear   Int // Masa Pajak - Tahun
+
+  salary         Decimal? // Gaji
+  allowance      Decimal? // Tunjangan
+  thr            Decimal? // Tunjangan Hari Raya
+  bonus          Decimal? // Bonus
+  overtimeSalary Decimal? // Upah Lembur
+  assurance      Decimal? // Premi dibayar oleh pemberi kerja
+
+  dailySalary   Decimal? // Gaji Harian
+  monthlySalary Decimal? // Gaji Bulanan
+  workingDays   Int? // Jumlah Hari Kerja
+
+  tariffs         Pph21Tariff[]
+  netCalculations Pph21NetCalculations?
+  taxable         Pph21Taxable? // Penghasilan Kena Pajak (PKP)
+
+  decemberResult Pph21DecemberResult? // Hasil PPh21 untuk Desember Pegawai Tetap
+
+  pphAmount   Decimal // Jumlah PPh
+  totalSalary Decimal // Total Penghasilan
+  netReceipts Decimal // Penerimaan bersih
+
+  employee   UnitEmployee @relation(fields: [employeeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employeeId String
+
+  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bumdesUnitId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("pph21_taxes")
+  @@schema("taxes")
+}
+
+model Pph21DecemberResult {
+  id String @id @default(cuid())
+
+  currentYear    Decimal
+  beforeDecember Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_december_results")
+  @@schema("taxes")
+}
+
+model Pph21NetCalculations {
+  id String @id @default(cuid())
+
+  positionDeduction  Decimal // Biaya Jabatan
+  annualContribution Decimal // Iuran Tahunan
+  annualAssurance    Decimal // Premi Tahunan
+  result             Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_net_calculations")
+  @@schema("taxes")
+}
+
+// Penghasilan Kena Pajak (PKP)
+model Pph21Taxable {
+  id String @id @default(cuid())
+
+  percentage Decimal?
+  ptkp       Decimal?
+  amount     Decimal
+  result     Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String   @unique
+
+  @@map("pph21_taxables")
+  @@schema("taxes")
+}
+
+model Pph21Tariff {
+  id String @id @default(cuid())
+
+  percentage Decimal
+  amount     Decimal
+  result     Decimal
+
+  tax   Pph21Tax @relation(fields: [taxId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taxId String
+
+  @@map("pph21_tariffs")
+  @@schema("taxes")
 }

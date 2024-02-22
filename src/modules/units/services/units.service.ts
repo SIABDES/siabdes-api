@@ -12,18 +12,59 @@ import { GetUnit } from '../types';
 import {
   CreateUnitResponse,
   DeleteUnitResponse,
+  GetUnitMetadataResponse,
   GetUnitsResponse,
 } from '../types/responses';
+import { PaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitsService implements IUnitsService {
   constructor(private prisma: PrismaService) {}
 
+  async getUnitMetadata(unitId: string): Promise<GetUnitMetadataResponse> {
+    const unit = await this.prisma.bumdesUnit.findUnique({
+      where: { id: unitId },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    if (!unit) {
+      throw new NotFoundException('Unit tidak ditemukan');
+    }
+
+    const firstJournal = await this.prisma.journal.findFirst({
+      where: {
+        bumdesUnitId: unitId,
+      },
+      orderBy: { occurredAt: 'asc' },
+      select: {
+        id: true,
+        category: true,
+        occurredAt: true,
+        description: true,
+      },
+    });
+
+    return {
+      created_at: unit.createdAt,
+      journals: {
+        first_journal: firstJournal && {
+          id: firstJournal.id,
+          description: firstJournal.description,
+          category: firstJournal.category,
+          occurred_at: firstJournal.occurredAt,
+        },
+      },
+    };
+  }
+
   async createUnit(
     data: CreateUnitDto,
     bumdesId: string,
   ): Promise<CreateUnitResponse> {
-    const { name, business_type, credentials } = data;
+    const { name, business_type, credentials, address, phone_number, leader } =
+      data;
 
     const hashedPassword = await argon2.hash(credentials.password);
 
@@ -32,6 +73,9 @@ export class UnitsService implements IUnitsService {
         data: {
           name,
           businessType: business_type,
+          address,
+          phoneNumber: phone_number,
+          leader,
           bumdes: {
             connect: {
               id: bumdesId,
@@ -91,8 +135,18 @@ export class UnitsService implements IUnitsService {
     }
   }
 
-  async getUnits(bumdesId: string): Promise<GetUnitsResponse> {
+  async getUnits(
+    bumdesId: string,
+    pagination?: PaginationDto,
+  ): Promise<GetUnitsResponse> {
+    const paginationQuery: Prisma.BumdesUnitFindManyArgs = {
+      cursor: pagination.cursor ? { id: String(pagination.cursor) } : undefined,
+      take: pagination?.limit,
+      skip: pagination?.cursor ? 1 : undefined,
+    };
+
     const units = await this.prisma.bumdesUnit.findMany({
+      ...paginationQuery,
       where: {
         bumdesId,
       },
@@ -101,15 +155,18 @@ export class UnitsService implements IUnitsService {
         id: true,
         businessType: true,
         name: true,
+        createdAt: true,
       },
     });
 
     return {
       _count: units.length,
+      next_cursor: units.length > 1 ? units[units.length - 1].id : undefined,
       units: units.map((unit) => ({
         id: unit.id,
         name: unit.name,
         business_type: unit.businessType,
+        created_at: unit.createdAt.toISOString(),
       })),
     };
   }
@@ -127,6 +184,7 @@ export class UnitsService implements IUnitsService {
         id: unit.id,
         name: unit.name,
         business_type: unit.businessType,
+        created_at: unit.createdAt.toISOString(),
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

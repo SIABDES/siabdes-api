@@ -1,4 +1,4 @@
-import { BumdesUnitBusinessType, PrismaClient } from '@prisma/client';
+import { BumdesUnitBusinessType, Prisma, PrismaClient } from '@prisma/client';
 
 export async function seedAccounts(prisma: PrismaClient) {
   const prismaAccountExtends = prisma.$extends({
@@ -7,6 +7,7 @@ export async function seedAccounts(prisma: PrismaClient) {
         async createBatch(
           data: {
             groupRef: string;
+            subgroupRef: string;
             name: string;
             ref: string;
             isCredit: boolean;
@@ -16,6 +17,7 @@ export async function seedAccounts(prisma: PrismaClient) {
           return await prisma.account.createMany({
             data: data.map((item) => ({
               name: item.name,
+              subgroupRef: item.subgroupRef,
               ref: `${item.groupRef}-${item.ref}`,
               groupRef: item.groupRef,
               isCredit: item.isCredit,
@@ -74,10 +76,138 @@ export async function seedAccounts(prisma: PrismaClient) {
     ],
   });
 
+  const asetLancarSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '1',
+    ref: '1-1',
+    name: 'Aset Lancar',
+    slug: 'aset-lancar',
+  };
+
+  const asetTetapSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '1',
+    ref: '1-2',
+    name: 'Aset Tetap',
+    slug: 'aset-tetap',
+  };
+
+  const asetTidakBerwujudSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '1',
+    ref: '1-3',
+    name: 'Aset Tidak Berwujud',
+    slug: 'aset-tidak-berwujud',
+  };
+
+  const asetLainnyaSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '1',
+    ref: '1-4',
+    name: 'Aset Lainnya',
+    slug: 'aset-lainnya',
+  };
+
+  const liabilitasJangkaPendekSubGroup: Prisma.AccountSubgroupCreateManyInput =
+    {
+      groupRef: '2',
+      ref: '2-1',
+      name: 'Liabilitas Jangka Pendek',
+      slug: 'liabilitas-jangka-pendek',
+    };
+
+  const liabilitasJangkaPanjangSubGroup: Prisma.AccountSubgroupCreateManyInput =
+    {
+      groupRef: '2',
+      ref: '2-2',
+      name: 'Liabilitas Jangka Panjang',
+      slug: 'liabilitas-jangka-panjang',
+    };
+
+  const ekuitasSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '3',
+    ref: '3-1',
+    name: 'Ekuitas',
+    slug: 'ekuitas',
+  };
+
+  const pendapatanOperasionalSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '4',
+    ref: '4-1',
+    name: 'Pendapatan Operasional',
+    slug: 'pendapatan-operasional',
+  };
+
+  const pendapatanRupaRupaSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '4',
+    ref: '4-2',
+    name: 'Pendapatan Rupa-rupa',
+    slug: 'pendapatan-rupa-rupa',
+  };
+
+  const bebanPokokPenjualanSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '5',
+    ref: '5-1',
+    name: 'Beban Pokok Penjualan',
+    slug: 'beban-pokok-penjualan',
+  };
+
+  const bebanOperasionalSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '6',
+    ref: '6-1',
+    name: 'Beban Operasional',
+    slug: 'beban-operasional',
+  };
+
+  const bebanUmumDanAdministratifSubGroup: Prisma.AccountSubgroupCreateManyInput =
+    {
+      groupRef: '6',
+      ref: '6-2',
+      name: 'Beban Umum dan Administratif',
+      slug: 'beban-umum-dan-administratif',
+    };
+
+  const pendapatanNonOperasionalSubGroup: Prisma.AccountSubgroupCreateManyInput =
+    {
+      groupRef: '7',
+      ref: '7-1',
+      name: 'Pendapatan Non Operasional',
+      slug: 'pendapatan-non-operasional',
+    };
+
+  const bebanNonOperasionalSubGroup: Prisma.AccountSubgroupCreateManyInput = {
+    groupRef: '8',
+    ref: '8-1',
+    name: 'Beban Non Operasional',
+    slug: 'beban-non-operasional',
+  };
+
+  await prisma.accountSubgroup.createMany({
+    data: [
+      asetLancarSubGroup,
+      asetTetapSubGroup,
+      asetTidakBerwujudSubGroup,
+      asetLainnyaSubGroup,
+
+      liabilitasJangkaPendekSubGroup,
+      liabilitasJangkaPanjangSubGroup,
+
+      ekuitasSubGroup,
+
+      pendapatanOperasionalSubGroup,
+      pendapatanRupaRupaSubGroup,
+
+      bebanPokokPenjualanSubGroup,
+
+      bebanOperasionalSubGroup,
+      bebanUmumDanAdministratifSubGroup,
+
+      pendapatanNonOperasionalSubGroup,
+      bebanNonOperasionalSubGroup,
+    ],
+  });
+
   await prismaAccountExtends.account.createBatch([
     {
       name: 'Kas',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -85,6 +215,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Rekening Bank',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -92,6 +223,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Giro',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1003',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -99,6 +231,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Piutang Usaha',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -106,6 +239,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Cadangan Kerugian Piutang',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1005',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -113,6 +247,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Persediaan Barang',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1006',
       isCredit: false,
       businessTypes: ['COMMERCE'],
@@ -120,6 +255,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Persediaan Barang Mentah',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1006',
       isCredit: false,
       businessTypes: ['INDUSTRY'],
@@ -127,6 +263,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Persediaan Barang Setengah Jadi',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1007',
       isCredit: false,
       businessTypes: ['INDUSTRY'],
@@ -134,6 +271,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Persediaan Barang Jadi',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1008',
       isCredit: false,
       businessTypes: ['INDUSTRY'],
@@ -141,6 +279,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Piutang Karyawan',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1009',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -148,6 +287,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Perlengkapan',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1010',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -155,6 +295,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Asuransi Dibayar di Muka',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1011',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -162,6 +303,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Sewa Dibayar di Muka',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1012',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -169,6 +311,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'PPN Masukan',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1013',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -176,6 +319,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pajak Dibayar Di Muka - PPh 23',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1014',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -183,6 +327,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pajak Dibayar Di Muka - PPh 25',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1015',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -190,6 +335,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Lancar Lainnya',
       groupRef: '1',
+      subgroupRef: asetLancarSubGroup.ref,
       ref: '1016',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -197,6 +343,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Tanah',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -204,6 +351,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Bangunan',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -211,6 +359,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Penyusutan - Bangunan',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2012',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -218,6 +367,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Kendaraan',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2003',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -225,6 +375,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Penyusutan - Kendaraan',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2013',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -232,6 +383,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Mesin',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -239,6 +391,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Penyusutan - Mesin',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2014',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -246,6 +399,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Peralatan Kantor',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2005',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -253,6 +407,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Penyusutan - Peralatan Kantor',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2015',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -260,6 +415,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Aset Tetap - Aset Sewa Guna Usaha',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2006',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -267,6 +423,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Penyusutan - Aset Sewa Guna Usaha',
       groupRef: '1',
+      subgroupRef: asetTetapSubGroup.ref,
       ref: '2016',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -274,6 +431,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Hak Merek Dagang',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -281,6 +439,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Amortisasi : Hak Merek Dagang',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3011',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -288,6 +447,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Hak Cipta',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -295,6 +455,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Amortisasi : Hak Cipta',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3012',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -302,6 +463,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Good Will',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3003',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -309,6 +471,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Akumulasi Amortisasi : Good Will',
       groupRef: '1',
+      subgroupRef: asetTidakBerwujudSubGroup.ref,
       ref: '3013',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -317,12 +480,14 @@ export async function seedAccounts(prisma: PrismaClient) {
       name: 'Investasi',
       groupRef: '1',
       ref: '4000',
+      subgroupRef: asetLainnyaSubGroup.ref,
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
     },
     {
       name: 'Utang Usaha',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1001',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -330,6 +495,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Lain Lain',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1002',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -337,6 +503,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Gaji',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1003',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -344,6 +511,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Diterima Di Muka',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1004',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -351,6 +519,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Konsinyasi',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1005',
       isCredit: true,
       businessTypes: ['COMMERCE'],
@@ -358,6 +527,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'PPN Keluaran',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1006',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -365,6 +535,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Pajak - PPh 21',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1007',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -372,6 +543,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Pajak - PPh 23',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1008',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -379,6 +551,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Pajak - PPh 29',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1009',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -386,6 +559,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Pajak Lainnya',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1010',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -393,6 +567,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Kewajiban Lancar Lainnya',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1011',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -400,6 +575,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Kewajiban Manfaat Karyawan',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPendekSubGroup.ref,
       ref: '1012',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -407,6 +583,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Utang Bank',
       groupRef: '2',
+      subgroupRef: liabilitasJangkaPanjangSubGroup.ref,
       ref: '2400',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -414,6 +591,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Penyertaan Modal Desa',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1001',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -421,6 +599,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Cadangan  ',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1002',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -428,6 +607,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Bagi Hasil PADes',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1012',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -435,6 +615,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Dana Bantuan/Sumbangan/Hibah',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1003',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -442,6 +623,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Ikhtisar Laba Rugi Periode Berjalan',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1004',
       isCredit: true,
       businessTypes: ['SERVICES'],
@@ -449,6 +631,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Ikhtisar Laba Rugi',
       groupRef: '3',
+      subgroupRef: ekuitasSubGroup.ref,
       ref: '1004',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -456,6 +639,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Jasa',
       groupRef: '4',
+      subgroupRef: pendapatanOperasionalSubGroup.ref,
       ref: '1001',
       isCredit: true,
       businessTypes: ['SERVICES'],
@@ -463,6 +647,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Penjualan',
       groupRef: '4',
+      subgroupRef: pendapatanOperasionalSubGroup.ref,
       ref: '1001',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -470,6 +655,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Diskon Penjualan',
       groupRef: '4',
+      subgroupRef: pendapatanOperasionalSubGroup.ref,
       ref: '1011',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -477,6 +663,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Retur Penjualan',
       groupRef: '4',
+      subgroupRef: pendapatanOperasionalSubGroup.ref,
       ref: '1012',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -484,6 +671,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Tiket',
       groupRef: '4',
+      subgroupRef: pendapatanOperasionalSubGroup.ref,
       ref: '1002',
       isCredit: true,
       businessTypes: ['SERVICES'],
@@ -491,6 +679,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Parkir',
       groupRef: '4',
+      subgroupRef: pendapatanRupaRupaSubGroup.ref,
       ref: '2001',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -498,6 +687,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Toilet',
       groupRef: '4',
+      subgroupRef: pendapatanRupaRupaSubGroup.ref,
       ref: '2002',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -505,6 +695,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Sewa',
       groupRef: '4',
+      subgroupRef: pendapatanRupaRupaSubGroup.ref,
       ref: '2003',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -512,6 +703,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Komisi',
       groupRef: '4',
+      subgroupRef: pendapatanRupaRupaSubGroup.ref,
       ref: '2004',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -519,6 +711,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pokok Penjualan',
       groupRef: '5',
+      subgroupRef: bebanPokokPenjualanSubGroup.ref,
       ref: '1001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -526,6 +719,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Diskon Pembelian',
       groupRef: '5',
+      subgroupRef: bebanPokokPenjualanSubGroup.ref,
       ref: '1101',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -533,6 +727,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Retur Pembelian',
       groupRef: '5',
+      subgroupRef: bebanPokokPenjualanSubGroup.ref,
       ref: '1003',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -540,6 +735,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pengiriman & Pengangkutan',
       groupRef: '5',
+      subgroupRef: bebanPokokPenjualanSubGroup.ref,
       ref: '1004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -547,6 +743,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Iklan & Promosi',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -554,6 +751,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Komisi & Fee',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -561,6 +759,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Bensin, Tol dan Parkir - Penjualan',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1003',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -568,6 +767,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Perjalanan Dinas - Penjualan',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -575,6 +775,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Komunikasi - Penjualan',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1005',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -582,6 +783,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Marketing Lainnya',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1006',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -589,6 +791,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Seragam Pegawai',
       groupRef: '6',
+      subgroupRef: bebanOperasionalSubGroup.ref,
       ref: '1007',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -596,6 +799,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Gaji',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -603,6 +807,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Upah',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -610,6 +815,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Makanan & Transportasi',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2003',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -617,6 +823,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Lembur',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -624,6 +831,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pengobatan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2005',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -631,6 +839,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban THR & Bonus',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2006',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -638,6 +847,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban BPJS - Kesehatan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2007',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -645,6 +855,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban BPJS - Ketenagakerjaan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2008',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -652,6 +863,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Insentif',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2009',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -659,6 +871,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pesangon',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2010',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -666,6 +879,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Manfaat dan Tunjangan Lain',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2011',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -673,6 +887,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Bensin, Tol dan Parkir - Umum',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2012',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -680,6 +895,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Perbaikan & Pemeliharaan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2013',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -687,6 +903,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Perjalanan Dinas - Umum',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2014',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -694,6 +911,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Konsumsi',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2015',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -701,6 +919,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Komunikasi - Umum',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2016',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -708,6 +927,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Iuran & Langganan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2017',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -715,6 +935,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Asuransi',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2018',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -722,6 +943,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Legal & Profesional',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2019',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -729,6 +951,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Manfaat Karyawan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2020',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -736,6 +959,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Sarana Kantor',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2021',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -743,6 +967,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pelatihan & Pengembangan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2022',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -750,6 +975,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Piutang Tak Tertagih',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2023',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -757,6 +983,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pajak dan Perizinan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2024',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -764,6 +991,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Listrik',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2025',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -771,6 +999,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Air',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2026',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -778,6 +1007,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Langganan Software',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2027',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -785,6 +1015,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Kantor',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2028',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -792,6 +1023,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Alat Tulis Kantor & Printing',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2029',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -799,6 +1031,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Bea Materai',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2030',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -806,6 +1039,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Keamanan dan Kebersihan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2031',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -813,6 +1047,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Supplies dan Material',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2032',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -820,6 +1055,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Sewa - Bangunan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2033',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -827,6 +1063,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Sewa - Kendaraan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2034',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -834,6 +1071,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Sewa - Operasional',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2035',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -841,6 +1079,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Sewa - Lain - lain',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2036',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -848,6 +1087,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Penyusutan - Bangunan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2037',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -855,6 +1095,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Penyusutan - Kendaraan',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2038',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -862,6 +1103,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Penyusutan - Mesin',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2039',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -869,6 +1111,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Penyusutan - Peralatan Kantor',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2040',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -876,6 +1119,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Penyusutan - Aset Sewa Guna Usaha',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2041',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -883,6 +1127,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Amortisasi : Hak Merek Dagang',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2042',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -890,6 +1135,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Amortisasi : Hak Cipta',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2043',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -897,6 +1143,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Amortisasi : Good Will',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2044',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -904,6 +1151,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pengeluaran Barang Rusak',
       groupRef: '6',
+      subgroupRef: bebanUmumDanAdministratifSubGroup.ref,
       ref: '2045',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY'],
@@ -911,6 +1159,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan dari Desa',
       groupRef: '7',
+      subgroupRef: pendapatanNonOperasionalSubGroup.ref,
       ref: '1001',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -918,6 +1167,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Bunga - Bank',
       groupRef: '7',
+      subgroupRef: pendapatanNonOperasionalSubGroup.ref,
       ref: '1005',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -925,6 +1175,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Bunga - Deposito',
       groupRef: '7',
+      subgroupRef: pendapatanNonOperasionalSubGroup.ref,
       ref: '1006',
       isCredit: true,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -932,6 +1183,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Pendapatan Komisi - Barang Konsinyasi',
       groupRef: '7',
+      subgroupRef: pendapatanNonOperasionalSubGroup.ref,
       ref: '1007',
       isCredit: true,
       businessTypes: ['COMMERCE'],
@@ -939,6 +1191,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Bunga',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1001',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -946,6 +1199,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: '(Laba)/Rugi Pelepasan Aset Tetap',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1002',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -953,13 +1207,15 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Penyesuaian Persediaan',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1003',
       isCredit: false,
-      businessTypes: ['SERVICES'],
+      businessTypes: ['COMMERCE', 'INDUSTRY'],
     },
     {
       name: 'Beban Denda',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1004',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -967,6 +1223,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pajak - Kini',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1005',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],
@@ -974,6 +1231,7 @@ export async function seedAccounts(prisma: PrismaClient) {
     {
       name: 'Beban Pajak - Tangguhan',
       groupRef: '8',
+      subgroupRef: bebanNonOperasionalSubGroup.ref,
       ref: '1006',
       isCredit: false,
       businessTypes: ['COMMERCE', 'INDUSTRY', 'SERVICES'],

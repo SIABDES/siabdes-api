@@ -9,8 +9,6 @@ export interface IAuthService {
     data: AuthRegisterDto,
   ): Promise<{ userId: string; bumdesId: string }>;
 
-  logout(request: Request): Promise<boolean>;
-
   refresh(payload: JwtUserPayload): Promise<JwtToken>;
 
   generateTokens(payload: JwtUserPayload): Promise<JwtToken>;

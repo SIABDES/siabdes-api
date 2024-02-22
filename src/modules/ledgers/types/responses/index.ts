@@ -1,1 +1,1 @@
-export * from './get-ledger-response.type';
+export * from './get.response.type';
