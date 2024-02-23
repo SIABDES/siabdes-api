@@ -1,11 +1,18 @@
+type ResponseConstructorType = {
+  statusCode?: number;
+  message?: string | string[];
+  data?: any;
+};
+
 export class ResponseBuilder<T extends object = any> {
   private statusCode: number;
   private message: string | string[];
   private data: T;
 
-  constructor() {
-    this.statusCode = 200;
-    this.message = 'Success';
+  constructor(args?: ResponseConstructorType) {
+    this.statusCode = args?.statusCode || 200;
+    this.message = args?.message || 'Success';
+    this.data = args?.data;
   }
 
   build() {
