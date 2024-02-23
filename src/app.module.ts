@@ -4,9 +4,9 @@ import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { EnvSchema } from '~common/types';
 import { MinioModule } from '~lib/minio/minio.module';
-import { V1Module } from '~modules/v1/v1.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
-import { V2Module } from '~modules/v2/v2.module';
+import { V1Module } from '~v1/v1.module';
+import { V2Module } from '~v2/v2.module';
 
 @Module({
   imports: [
