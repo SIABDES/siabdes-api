@@ -1,19 +1,14 @@
-import fastifyMultipart from '@fastify/multipart';
-import { Logger, VersioningType } from '@nestjs/common';
+import { INestApplication, Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import * as cookieParser from 'cookie-parser';
-import { AppModule } from './app.module';
-import { patchNestJsSwagger } from 'nestjs-zod';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
+import { patchNestJsSwagger } from 'nestjs-zod';
 import { V1Module } from '~modules/v1/v1.module';
 import { V2Module } from '~modules/v2/v2.module';
+import { AppModule } from './app.module';
 
-function initSwagger(app: NestFastifyApplication) {
+function initSwagger(app: INestApplication) {
   // Open API (Swagger)
   patchNestJsSwagger();
   const swaggerV1Options = new DocumentBuilder()
@@ -48,10 +43,7 @@ function initSwagger(app: NestFastifyApplication) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
+  const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
 
@@ -59,9 +51,6 @@ async function bootstrap() {
     credentials: true,
     origin: '*',
   });
-
-  // Register Fastify Multipart
-  await app.register(fastifyMultipart);
 
   // API Versioning
   app.setGlobalPrefix('/api');

@@ -47,11 +47,7 @@ export class CalkFilesService implements ICalkFilesService {
 
     return new Promise(async (resolve, reject) => {
       try {
-        await this.minio.client.putObject(
-          this.minio.bucketName,
-          key,
-          file.buffer,
-        );
+        await this.minio.putObject(this.minio.bucketName, key, file.buffer);
 
         resolve(key);
       } catch (error) {
@@ -79,7 +75,7 @@ export class CalkFilesService implements ICalkFilesService {
     const delimiter = '/';
 
     return new Promise((resolve, reject) => {
-      const stream = this.minio.client.listObjectsV2(
+      const stream = this.minio.listObjectsV2(
         this.minio.bucketName,
         basePath,
         true,
@@ -93,7 +89,7 @@ export class CalkFilesService implements ICalkFilesService {
         const nameWithoutBasePath = name.replace(basePath, '');
 
         try {
-          const url = await this.minio.client.presignedGetObject(
+          const url = await this.minio.presignedGetObject(
             this.minio.bucketName,
             name,
           );
@@ -120,7 +116,7 @@ export class CalkFilesService implements ICalkFilesService {
   async deleteFile(key: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        await this.minio.client.removeObject(this.minio.bucketName, key);
+        await this.minio.removeObject(this.minio.bucketName, key);
 
         resolve();
       } catch (error) {

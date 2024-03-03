@@ -9,10 +9,7 @@ export class PpnFilesService implements IPpnFilesService {
   constructor(private minio: MinioService) {}
 
   async deletePpnEvidence(evidenceKey: string): Promise<void> {
-    return await this.minio.client.removeObject(
-      this.minio.bucketName,
-      evidenceKey,
-    );
+    return await this.minio.removeObject(this.minio.bucketName, evidenceKey);
   }
 
   async uploadPpnEvidence(
@@ -24,16 +21,11 @@ export class PpnFilesService implements IPpnFilesService {
     const key = generatePpnKeyPath(fileName, unitId, bumdesId);
 
     try {
-      await this.minio.client.putObject(
-        this.minio.bucketName,
-        key,
-        evidence.buffer,
-        {
-          'Content-Type': evidence.mimetype,
-          'Content-Length': evidence.size,
-          // 'Content-Disposition': 'inline',
-        },
-      );
+      await this.minio.putObject(this.minio.bucketName, key, evidence.buffer, {
+        'Content-Type': evidence.mimetype,
+        'Content-Length': evidence.size,
+        // 'Content-Disposition': 'inline',
+      });
       return key;
     } catch (error) {
       throw error;
@@ -42,7 +34,7 @@ export class PpnFilesService implements IPpnFilesService {
 
   async getPpnEvidenceUrl(evidenceKey: string): Promise<string> {
     try {
-      return await this.minio.client.presignedGetObject(
+      return await this.minio.presignedGetObject(
         this.minio.bucketName,
         evidenceKey,
         PPN_TRANSACTION_EVIDENCE_EXPIRY,

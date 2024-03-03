@@ -46,7 +46,7 @@ export class JournalFilesService implements IJournalFilesService {
       category === 'ADJUSTMENT',
     );
 
-    await this.minio.client.putObject(this.minio.bucketName, key, file.buffer);
+    await this.minio.putObject(this.minio.bucketName, key, file.buffer);
 
     return key;
   }
@@ -62,7 +62,7 @@ export class JournalFilesService implements IJournalFilesService {
 
     if (!evidence) throw new NotFoundException('Bukti jurnal tidak ditemukan');
 
-    const url = await this.minio.client.presignedGetObject(
+    const url = await this.minio.presignedGetObject(
       this.minio.bucketName,
       evidence,
       JOURNAL_EVIDENCE_EXPIRY,

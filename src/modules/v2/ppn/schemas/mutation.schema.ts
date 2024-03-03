@@ -1,21 +1,26 @@
-import { PpnTransactionType, PpnTaxObject } from '@prisma/client';
+import {
+  PpnTransactionType,
+  PpnTaxObject,
+  PpnTaxItemType,
+} from '@prisma/client';
 import { z } from 'nestjs-zod/z';
 
-const PpnObjectItemSchema = z.object({
+const PpnObjectItemV2Schema = z.object({
   name: z.string().min(1, 'Nama item tidak boleh kosong!'),
-  quantity: z.number().int().nonnegative(),
-  price: z.number().nonnegative(),
-  discount: z.number().nonnegative(),
-  total_price: z.number().nonnegative(),
-  dpp: z.number().nonnegative(),
-  ppn: z.number().nonnegative(),
+  quantity: z.coerce.number().int().nonnegative(),
+  price: z.coerce.number().nonnegative(),
+  discount: z.coerce.number().nonnegative(),
+  total_price: z.coerce.number().nonnegative(),
+  dpp: z.coerce.number().nonnegative(),
+  ppn: z.coerce.number().nonnegative(),
 });
 
 const MutationPpnV2Schema = z.object({
   transaction_date: z
     .dateString()
     .minYear(1900, 'Tanggal transaksi tidak valid!')
-    .maxYear(new Date().getFullYear(), 'Tanggal transaksi tidak valid!'),
+    .maxYear(new Date().getFullYear(), 'Tanggal transaksi tidak valid!')
+    .or(z.date()),
   transaction_number: z
     .string()
     .min(1, { message: 'Nomor transaksi tidak boleh kosong!' }),
@@ -41,9 +46,21 @@ const MutationPpnV2Schema = z.object({
       required_error: 'Objek pajak tidak boleh kosong',
     },
   ),
-  object_items: z.array(PpnObjectItemSchema).min(1, {
+  item_type: z.enum([PpnTaxItemType.GOODS, PpnTaxItemType.SERVICE], {
+    invalid_type_error: 'Jenis item pajak hanya bisa "GOODS" atau "SERVICE"',
+    required_error: 'Jenis item pajak tidak boleh kosong',
+  }),
+  object_items: z.array(PpnObjectItemV2Schema).min(1, {
     message: 'Item objek pajak tidak boleh kosong!',
   }),
 });
 
-export { MutationPpnV2Schema, PpnObjectItemSchema };
+type MutationPpnV2Type = z.infer<typeof MutationPpnV2Schema>;
+type PpnObjectItemType = z.infer<typeof PpnObjectItemV2Schema>;
+
+export {
+  MutationPpnV2Schema,
+  PpnObjectItemV2Schema,
+  PpnObjectItemType,
+  MutationPpnV2Type,
+};

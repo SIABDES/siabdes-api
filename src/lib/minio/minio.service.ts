@@ -1,40 +1,35 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IMinioService } from './interfaces';
 import { Client } from 'minio';
 import { Env } from '~common/types';
 
 @Injectable()
-export class MinioService implements IMinioService, OnModuleInit {
-  private minioClient: Client;
-  private bucket: string;
-  private logger: Logger = new Logger(MinioService.name);
+export class MinioService extends Client implements OnModuleInit {
+  private logger = new Logger(MinioService.name);
+  private configBucketName: string;
 
-  constructor(private config: ConfigService<Env>) {
-    this.bucket = config.get<string>('MINIO_BUCKET_NAME') || 'siabdes';
-  }
-
-  connect(): Client {
-    const useSSL = this.config.get<boolean>('MINIO_USE_SSL');
-    const secretKey = this.config.get('MINIO_SECRET_KEY');
-    const accessKey = this.config.get('MINIO_ACCESS_KEY');
-    const endPoint = this.config.get('MINIO_ENDPOINT');
-    const port = this.config.get('MINIO_PORT');
-
-    const client = new Client({
-      secretKey,
-      accessKey,
-      endPoint,
-      useSSL,
-      port: port ? parseInt(port) : undefined,
+  constructor(config: ConfigService<Env>) {
+    super({
+      accessKey: config.get('MINIO_ACCESS_KEY'),
+      secretKey: config.get('MINIO_SECRET_KEY'),
+      endPoint: config.get('MINIO_ENDPOINT'),
+      port: parseInt(config.get('MINIO_PORT')) || undefined,
+      useSSL: config.get('MINIO_USE_SSL') === 'true' ? true : false,
     });
 
-    return client;
+    this.configBucketName = config.get('MINIO_BUCKET_NAME');
+  }
+
+  get bucketName() {
+    return this.configBucketName;
   }
 
   async checkBucketExists() {
-    this.minioClient.bucketExists(this.bucket, async (err, exists) => {
+    this.logger.log(`Checking default bucket '${this.bucketName}' exists`);
+
+    this.bucketExists(this.bucketName, async (err, exists) => {
       if (err) {
+        this.logger.error('Failed to check bucket exists');
         this.logger.error(err.message);
         throw err;
       }
@@ -43,31 +38,22 @@ export class MinioService implements IMinioService, OnModuleInit {
 
       if (!exists) {
         try {
-          await this.minioClient.makeBucket(this.bucket);
-          this.logger.log(`Bucket ${this.bucket} created`);
+          await this.makeBucket(this.bucketName);
+          this.logger.log(`Bucket '${this.bucketName}' created`);
         } catch (error) {
+          this.logger.error(`Failed to create bucket '${this.bucketName}'`);
           this.logger.error(error);
           throw error;
         }
       }
 
-      this.logger.log('Bucket check completed');
+      this.logger.log(`Bucket '${this.bucketName}' check completed`);
 
       return exists;
     });
   }
 
   async onModuleInit() {
-    this.minioClient = this.connect();
-
     await this.checkBucketExists();
-  }
-
-  get client(): Client {
-    return this.minioClient;
-  }
-
-  get bucketName(): string {
-    return this.bucket;
   }
 }
