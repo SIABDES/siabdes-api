@@ -2,8 +2,26 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CommonDeleteSchema = z.object({
-  hard_delete: z.boolean().default(false).optional(),
-  force: z.boolean().default(false).optional(),
+  hard_delete: z
+    .boolean()
+    .or(
+      z
+        .string()
+        .transform((v) => v.toLowerCase() === 'true')
+        .pipe(z.boolean()),
+    )
+    .default(false)
+    .optional(),
+  force: z
+    .boolean()
+    .or(
+      z
+        .string()
+        .transform((v) => v.toLowerCase() === 'true')
+        .pipe(z.boolean()),
+    )
+    .default(false)
+    .optional(),
 });
 
 export class CommonDeleteDto extends createZodDto(CommonDeleteSchema) {}
