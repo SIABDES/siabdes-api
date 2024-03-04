@@ -11,10 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
-import {
-  CommonDeleteDto,
-  OptionalCommonDeleteDto,
-} from '~common/dto/delete.dto';
+import { OptionalCommonDeleteDto } from '~common/dto/delete.dto';
 import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/v1/auth/decorators';
 import {
