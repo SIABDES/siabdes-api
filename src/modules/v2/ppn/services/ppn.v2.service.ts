@@ -3,8 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { BumdesIdsDto } from '~common/dto';
+import { CommonDeleteDto } from '~common/dto/delete.dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
-import { AddPpnV2Dto, EditPpnV2Dto } from '../dto';
+import { AddPpnV2Dto, EditPpnV2Dto, OptionalGetManyPpnV2Dto } from '../dto';
 import {
   AddPpnV2Response,
   DeletePpnV2Response,
@@ -13,9 +16,6 @@ import {
   GetPpnListV2Response,
 } from '../responses';
 import { PpnFileV2Service } from './ppn-file.v2.service';
-import { Prisma } from '@prisma/client';
-import { BumdesIdsDto, CommonFilePathDto } from '~common/dto';
-import { CommonDeleteDto } from '~common/dto/delete.dto';
 
 @Injectable()
 export class PpnV2Service {
@@ -54,9 +54,20 @@ export class PpnV2Service {
     };
   }
 
-  async getListPpn(unitId: string): Promise<GetPpnListV2Response> {
+  async getListPpn(
+    dto?: OptionalGetManyPpnV2Dto,
+  ): Promise<GetPpnListV2Response> {
+    const { unit_id, bumdes_id } = dto;
+
+    const whereQuery: Prisma.PpnTaxWhereInput = {
+      deletedAt: { equals: null },
+    };
+
+    if (unit_id) whereQuery.bumdesUnitId = unit_id;
+    if (bumdes_id) whereQuery.bumdesUnit = { bumdesId: bumdes_id };
+
     const ppnList = await this.prisma.ppnTax.findMany({
-      where: { bumdesUnitId: unitId, deletedAt: { equals: null } },
+      where: whereQuery,
       include: { objectItems: true },
     });
 
@@ -181,7 +192,6 @@ export class PpnV2Service {
   async editPpnById(
     ppnId: string,
     dto: EditPpnV2Dto,
-    path?: CommonFilePathDto,
     evidence?: Express.Multer.File,
   ): Promise<EditPpnV2Response> {
     try {

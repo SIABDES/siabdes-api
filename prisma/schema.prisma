@@ -37,6 +37,7 @@ enum AuthUserRole {
   BUMDES
   KECAMATAN
   KABUPATEN
+  SUPER_ADMIN
 
   @@map("users_role")
   @@schema("auth")

@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthLoginResponse } from '../types/responses';
 import { Env } from '~common/types';
+import { PrismaClientExceptionCode } from '~common/exceptions';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -145,14 +146,15 @@ export class AuthService implements IAuthService {
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
+        if (error.code === PrismaClientExceptionCode.UNIQUE_CONSTRAINT_FAILED) {
           throw new ForbiddenException('Identifier already exists');
         }
-        if (error.code === 'P2028') {
+        if (error.code === PrismaClientExceptionCode.TRANSACTION_API_ERROR) {
           throw new InternalServerErrorException(
             `Failed to create user or bumdes. Error: ${error.message}`,
           );
         }
+        throw new InternalServerErrorException(error.message);
       }
       throw error;
     }
