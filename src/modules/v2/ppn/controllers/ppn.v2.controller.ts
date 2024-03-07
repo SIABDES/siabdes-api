@@ -7,17 +7,20 @@ import {
   Logger,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { PpnV2Service } from '../services/ppn.v2.service';
-import { AddPpnV2Dto } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GetUser } from '~modules/v1/auth/decorators';
+import { AuthUserRole } from '@prisma/client';
 import { CommonDeleteDto } from '~common/dto/delete.dto';
+import { ResponseBuilder } from '~common/response.builder';
+import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
+import { JwtUserPayload } from '~modules/v1/auth/types';
+import { AddPpnV2Dto, EditPpnV2Dto, OptionalGetManyPpnV2Dto } from '../dto';
 import { DeletePpnV2Response } from '../responses';
+import { PpnV2Service } from '../services/ppn.v2.service';
 
 @Controller({
   path: 'ppn',
@@ -30,18 +33,17 @@ export class PpnV2Controller {
 
   @Post()
   @UseInterceptors(FileInterceptor('transaction_evidence'))
+  @HasRoles(AuthUserRole.UNIT)
   async addPpn(
-    @GetUser('bumdesId') bumdesId: string,
-    @GetUser('unitId') unitId: string,
+    @Body() dto: AddPpnV2Dto,
     @UploadedFile() evidence: Express.Multer.File,
-    @Body()
-    dto: AddPpnV2Dto,
+    @GetUser() user: JwtUserPayload,
   ) {
     this.logger.log(`Adding PPN, body: ${JSON.stringify(dto)}`);
 
     const result = await this.ppnService.addPpn(
       evidence,
-      { bumdes_id: bumdesId, unit_id: unitId },
+      { bumdes_id: user.bumdesId, unit_id: user.unitId },
       dto,
     );
 
@@ -57,10 +59,10 @@ export class PpnV2Controller {
   }
 
   @Get()
-  async getListPpn(@GetUser('unitId') unitId: string) {
-    this.logger.log(`Getting list PPN for unit: ${unitId}`);
+  async getListPpn(@Query() dto?: OptionalGetManyPpnV2Dto) {
+    this.logger.log(`Getting list PPN for unit: ${dto.unit_id}`);
 
-    const result = await this.ppnService.getListPpn(unitId);
+    const result = await this.ppnService.getListPpn(dto);
 
     this.logger.log(`List PPN has been retrieved`);
 
@@ -87,6 +89,7 @@ export class PpnV2Controller {
   }
 
   @Delete(':id')
+  @HasRoles(AuthUserRole.UNIT)
   async deletePpn(
     @Param('id') ppnId: string,
     @Query() deleteDto?: CommonDeleteDto,
@@ -106,6 +109,27 @@ export class PpnV2Controller {
     return new ResponseBuilder({
       statusCode: HttpStatus.OK,
       message: 'PPN has been deleted',
+      data: result,
+    }).build();
+  }
+
+  @Put(':id')
+  @HasRoles(AuthUserRole.UNIT)
+  @UseInterceptors(FileInterceptor('transaction_evidence'))
+  async editPpn(
+    @Body() dto: EditPpnV2Dto,
+    @Param('id') id: string,
+    @UploadedFile() evidence?: Express.Multer.File,
+  ) {
+    this.logger.log(`Editing PPN by ID: ${id}`);
+
+    const result = await this.ppnService.editPpnById(id, dto, evidence);
+
+    this.logger.log(`PPN has been edited`);
+
+    return new ResponseBuilder({
+      statusCode: HttpStatus.OK,
+      message: 'PPN has been edited',
       data: result,
     }).build();
   }
