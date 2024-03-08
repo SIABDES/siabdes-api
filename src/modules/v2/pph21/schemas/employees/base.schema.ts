@@ -4,9 +4,9 @@ import {
   UnitEmployeeMarriageStatus,
   UnitEmployeeChildrenAmount,
   UnitEmployeeStatus,
-  UnitEmployeeType,
 } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
+import { AllEmployeeTypeEnumSchema } from '~common/dto';
 
 const BaseEmployeeV2Schema = z.object({
   name: z.string().min(1, 'Nama tidak boleh kosong'),
@@ -15,12 +15,7 @@ const BaseEmployeeV2Schema = z.object({
     required_error: 'Jenis kelamin tidak boleh kosong',
   }),
   nik: z.string().min(1, 'NIK tidak boleh kosong'),
-  start_working_at: z
-    .dateString({
-      invalid_type_error: 'Tanggal mulai bekerja tidak valid',
-      required_error: 'Tanggal mulai bekerja tidak boleh kosong',
-    })
-    .or(z.date()),
+  start_working_at: z.dateString().cast(),
   npwp: z.string().min(1, 'NPWP tidak boleh string kosong').optional(),
   npwp_status: z
     .enum(
@@ -62,22 +57,7 @@ const BaseEmployeeV2Schema = z.object({
     invalid_type_error: 'Status karyawan tidak valid',
     required_error: 'Status karyawan tidak boleh kosong',
   }),
-  employee_type: z.enum(
-    [
-      UnitEmployeeType.PERMANENT_MONTHLY,
-      UnitEmployeeType.NON_EMPLOYEE,
-      UnitEmployeeType.NON_PERMANENT_MONTHLY,
-      UnitEmployeeType.NON_PERMANENT_NOT_MONTHLY,
-      UnitEmployeeType.OTHER_ACTIVITY_MEMBER,
-      UnitEmployeeType.OTHER_SUPERVISOR_NON_EMPLOYEE,
-      UnitEmployeeType.SEVERANCE_OUTRIGHT,
-      UnitEmployeeType.SEVERANCE_PERIODICAL,
-    ],
-    {
-      invalid_type_error: 'Tipe karyawan tidak valid',
-      required_error: 'Tipe karyawan tidak boleh kosong',
-    },
-  ),
+  employee_type: AllEmployeeTypeEnumSchema,
 });
 
 const FemaleMarriedSchema = BaseEmployeeV2Schema.extend({

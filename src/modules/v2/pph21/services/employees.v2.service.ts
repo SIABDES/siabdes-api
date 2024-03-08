@@ -23,6 +23,17 @@ import {
 export class EmployeesV2Service {
   constructor(private prisma: PrismaService) {}
 
+  async getEmployeePtkpStatus(id: string) {
+    const employee = await this.prisma.unitEmployee.findUnique({
+      where: { id, deletedAt: { equals: null } },
+      select: { marriageStatus: true, childrenAmount: true },
+    });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+  }
+
   async addEmployee(
     unitId: string,
     dto: AddEmployeeV2Dto,
