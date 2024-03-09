@@ -14,7 +14,6 @@ import {
   UpdateUnitEmployeeDto,
 } from '../dto';
 import { isFemale } from '../dto/employees/guards';
-import { mapPtkpStatus } from '../helpers';
 import { IUnitEmployeesService } from '../interfaces';
 import {
   AddUnitEmployeeResponse,
@@ -25,6 +24,7 @@ import {
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
 } from '../types/responses';
+import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 
 @Injectable()
 export class UnitEmployeesService implements IUnitEmployeesService {
@@ -47,11 +47,11 @@ export class UnitEmployeesService implements IUnitEmployeesService {
 
     if (!employee) throw new NotFoundException('Employee not found');
 
-    const ptkpStatus = mapPtkpStatus(
-      employee.marriageStatus,
-      employee.npwpStatus,
-      employee.childrenAmount,
-    );
+    const ptkpStatus = mapPtkpStatus({
+      marriageStatus: employee.marriageStatus,
+      npwpStatus: employee.npwpStatus,
+      childrenAmount: employee.childrenAmount,
+    });
 
     const periodMonth = taxPeriod?.period_month || new Date().getMonth() + 1;
     const periodYear = taxPeriod?.period_years || new Date().getFullYear();
@@ -121,11 +121,11 @@ export class UnitEmployeesService implements IUnitEmployeesService {
         },
       });
 
-      const ptkpStatus = mapPtkpStatus(
-        employee.marriageStatus,
-        employee.npwpStatus,
-        employee.childrenAmount,
-      );
+      const ptkpStatus = mapPtkpStatus({
+        marriageStatus: employee.marriageStatus,
+        npwpStatus: employee.npwpStatus,
+        childrenAmount: employee.childrenAmount,
+      });
 
       const periodMonth = taxPeriod?.period_month || new Date().getMonth() + 1;
       const periodYear = taxPeriod?.period_years || new Date().getFullYear();

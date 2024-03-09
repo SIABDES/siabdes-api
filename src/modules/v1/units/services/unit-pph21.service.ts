@@ -14,7 +14,7 @@ import {
   GetUnitEmployeeTaxesResponse,
   UpdateUnitEmployeePph21Response,
 } from '../types/responses';
-import { mapPtkpStatus } from '../helpers';
+import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 
 @Injectable()
 export class UnitPph21Service implements IUnitPph21Service {
@@ -38,11 +38,11 @@ export class UnitPph21Service implements IUnitPph21Service {
 
       if (!tax) throw new NotFoundException('PPh21 tidak ditemukan');
 
-      const ptkpStatus = mapPtkpStatus(
-        tax.employee.marriageStatus,
-        tax.employee.npwpStatus,
-        tax.employee.childrenAmount,
-      );
+      const ptkpStatus = mapPtkpStatus({
+        marriageStatus: tax.employee.marriageStatus,
+        npwpStatus: tax.employee.npwpStatus,
+        childrenAmount: tax.employee.childrenAmount,
+      });
 
       const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
         where: {
