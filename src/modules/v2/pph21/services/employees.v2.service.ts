@@ -15,23 +15,50 @@ import {
   AddEmployeeV2Response,
   DeleteEmployeeV2Response,
   GetEmployeeByIdV2Response,
+  GetEmployeePtkpV2Response,
   GetManyEmployeesV2Response,
   UpdateEmployeeV2Response,
 } from '../responses';
+import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
+import { OptionalPeriodDto } from '~common/dto';
+import { TerV2Service } from './ter.v2.service';
 
 @Injectable()
 export class EmployeesV2Service {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly terService: TerV2Service,
+  ) {}
 
-  async getEmployeePtkpStatus(id: string) {
+  async getEmployeePtkpStatus(
+    employeeId: string,
+    dto?: OptionalPeriodDto,
+  ): Promise<GetEmployeePtkpV2Response> {
     const employee = await this.prisma.unitEmployee.findUnique({
-      where: { id, deletedAt: { equals: null } },
-      select: { marriageStatus: true, childrenAmount: true },
+      where: { id: employeeId, deletedAt: { equals: null } },
+      select: { marriageStatus: true, childrenAmount: true, npwpStatus: true },
     });
 
     if (!employee) {
       throw new NotFoundException('Employee not found');
     }
+
+    const status = mapPtkpStatus(employee);
+
+    const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
+      orderBy: { periodYear: 'desc' },
+      where: {
+        status: { equals: status },
+        periodYear: { lte: dto?.period_years || new Date().getFullYear() },
+        periodMonth: { lte: dto?.period_month || new Date().getMonth() + 1 },
+      },
+      select: { status: true, minimumSalary: true },
+    });
+
+    return {
+      status,
+      boundary_salary: ptkp.minimumSalary.toNumber(),
+    };
   }
 
   async addEmployee(
@@ -123,17 +150,41 @@ export class EmployeesV2Service {
       throw new NotFoundException('Employee not found');
     }
 
+    const ptkpStatus = mapPtkpStatus(employee);
+
+    const ptkp = await this.prisma.pph21PtkpBoundary.findFirst({
+      orderBy: { periodYear: 'desc' },
+      where: {
+        status: { equals: ptkpStatus },
+        periodYear: { lte: new Date().getFullYear() },
+        periodMonth: { lte: new Date().getMonth() + 1 },
+      },
+      select: { status: true, minimumSalary: true },
+    });
+
+    const ter = await this.terService.getTerByPtkpStatus({
+      ptkp_status: ptkpStatus,
+      period_month: new Date().getMonth() + 1,
+      period_years: new Date().getFullYear(),
+    });
+
     return {
       id: employee.id,
       name: employee.name,
       nik: employee.nik,
       npwp: employee.npwp,
       npwp_status: employee.npwpStatus,
+      gender: employee.gender,
       start_working_at: employee.startWorkingAt,
       employee_type: employee.employeeType,
       employee_status: employee.employeeStatus,
       marriage_status: employee.marriageStatus,
       children_amount: employee.childrenAmount,
+      ptkp: {
+        status: ptkp.status,
+        boundary_salary: ptkp.minimumSalary.toNumber(),
+      },
+      ter,
       created_at: employee.createdAt,
     };
   }

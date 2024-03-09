@@ -18,8 +18,10 @@ import {
   AddEmployeeV2Dto,
   AddEmployeeV2Schema,
   GetManyEmployeesV2Dto,
+  GetTerV2Dto,
 } from '../dto';
 import { EmployeesV2Service } from '../services/employees.v2.service';
+import { TerV2Service } from '../services/ter.v2.service';
 
 @Controller({
   path: 'employees',
@@ -28,7 +30,10 @@ import { EmployeesV2Service } from '../services/employees.v2.service';
 export class EmployeesV2Controller {
   private readonly logger: Logger = new Logger(EmployeesV2Controller.name);
 
-  constructor(private readonly service: EmployeesV2Service) {}
+  constructor(
+    private readonly service: EmployeesV2Service,
+    private readonly terService: TerV2Service,
+  ) {}
 
   @Post()
   async addEmployee(
@@ -109,6 +114,26 @@ export class EmployeesV2Controller {
     return new ResponseBuilder({
       data: result,
       message: 'Employee successfully deleted',
+    }).build();
+  }
+
+  @Get(':id/ter')
+  async getEmployeeTer(
+    @Param('id') employeeId: string,
+    @Query() dto: GetTerV2Dto,
+  ) {
+    this.logger.log(`Getting employee TER by ID '${employeeId}'`);
+
+    const result = await this.terService.getTerByEmployeeId({
+      ...dto,
+      employee_id: employeeId,
+    });
+
+    this.logger.log(`Success get employee TER by ID '${employeeId}'`);
+
+    return new ResponseBuilder({
+      data: result,
+      message: 'Employee TER successfully fetched',
     }).build();
   }
 }

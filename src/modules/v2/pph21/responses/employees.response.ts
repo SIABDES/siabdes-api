@@ -1,4 +1,8 @@
-import { EmployeeDetailsV2Type } from '../types';
+import {
+  EmployeeDetailsV2Type,
+  EmployeeOverviewV2Type,
+  EmployeePph21V2Ptkp,
+} from '../types';
 
 export type AddEmployeeV2Response = {
   id: string;
@@ -9,7 +13,7 @@ export type GetEmployeeByIdV2Response = EmployeeDetailsV2Type;
 
 export type GetManyEmployeesV2Response = {
   _count: number;
-  employees: EmployeeDetailsV2Type[];
+  employees: EmployeeOverviewV2Type[];
 };
 
 export type UpdateEmployeeV2Response = {
@@ -22,3 +26,5 @@ export type DeleteEmployeeV2Response = {
   hard_delete: boolean;
   deleted_at: Date;
 };
+
+export type GetEmployeePtkpV2Response = EmployeePph21V2Ptkp;

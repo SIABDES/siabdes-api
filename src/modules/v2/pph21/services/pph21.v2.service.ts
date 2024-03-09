@@ -11,7 +11,7 @@ import {
   GetManyPph21V2Response,
   GetPph21ByIdV2Response,
   UpdatePph21V2Response,
-} from '../responses/pph21.response';
+} from '../responses';
 import { Pph21OverviewV2Type } from '../types';
 
 @Injectable()

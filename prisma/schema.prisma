@@ -598,7 +598,7 @@ model Pph21PtkpBoundary {
 
   status        Pph21PtkpStatus
   minimumSalary Decimal
-  terType       Pph21TerType?
+  terType       Pph21TerType
 
   periodYear  Int
   periodMonth Int

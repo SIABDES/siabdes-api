@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const BumdesIdsSchema = z.object({
@@ -7,4 +8,4 @@ export const BumdesIdsSchema = z.object({
   kecamatan_id: z.string().optional(),
 });
 
-export type BumdesIdsDto = z.infer<typeof BumdesIdsSchema>;
+export class BumdesIdsDto extends createZodDto(BumdesIdsSchema) {}

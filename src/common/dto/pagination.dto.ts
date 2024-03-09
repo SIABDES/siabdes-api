@@ -7,12 +7,7 @@ export const PaginationSchema = z.object({
     .transform((val) => (val.trim() === '' ? undefined : val))
     .or(z.number())
     .optional(),
-  limit: z
-    .string()
-    .transform((val) => parseInt(val))
-    .pipe(z.number().int().positive())
-    .or(z.number())
-    .optional(),
+  limit: z.coerce.number().int().positive().optional(),
 });
 
 export class PaginationDto extends createZodDto(PaginationSchema.optional()) {}
