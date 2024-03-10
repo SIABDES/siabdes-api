@@ -7,7 +7,7 @@ export function buildValidationForEvidence() {
     })
     .addMaxSizeValidator({
       maxSize: 1 * 1024 * 1024,
-      message: 'File size must be less than or equals 1MB',
+      message: 'File harus berukuran maksimal 1 MB',
     })
     .build({
       fileIsRequired: false,
