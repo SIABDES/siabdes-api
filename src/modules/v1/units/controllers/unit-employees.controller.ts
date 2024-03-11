@@ -10,7 +10,6 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/v1/auth/decorators';
 import {
   AddUnitEmployeeDto,
@@ -46,11 +45,7 @@ export class UnitEmployeesController {
       `Unit '${unitId}' created employee #${result.id} at ${result.created_at}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Pegawai berhasil ditambahkan')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get()
@@ -69,11 +64,7 @@ export class UnitEmployeesController {
       `Unit '${unitId}' fetched employees with ${result._count} employees`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Pegawai berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Get(':employeeId')
@@ -97,11 +88,7 @@ export class UnitEmployeesController {
       `Unit '${unitId}' fetched employee with id '${employeeId}'`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Pegawai berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put(':employeeId')
@@ -121,11 +108,7 @@ export class UnitEmployeesController {
       `Unit '${unitId}' updated employee with id '${result.id}' at ${result.updated_at}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Pegawai berhasil diperbarui')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Delete(':employeeId')
@@ -142,11 +125,7 @@ export class UnitEmployeesController {
       `Unit '${unitId}' deleted employee with id '${employeeId}'`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Pegawai berhasil dihapus')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Get(':employeeId/ter')
@@ -163,10 +142,6 @@ export class UnitEmployeesController {
 
     this.logger.log(`Employee '${employeeId}' fetched ter data: ${result}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Data ter berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

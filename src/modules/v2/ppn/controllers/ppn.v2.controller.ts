@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -15,7 +14,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthUserRole } from '@prisma/client';
 import { CommonDeleteDto } from '~common/dto/delete.dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
 import { JwtUserPayload } from '~modules/v1/auth/types';
 import { AddPpnV2Dto, EditPpnV2Dto, OptionalGetManyPpnV2Dto } from '../dto';
@@ -51,11 +49,7 @@ export class PpnV2Controller {
       `PPN has been added, ID: ${result.id}, created_at: ${result.created_at}`,
     );
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.CREATED,
-      message: 'PPN has been added',
-      data: result,
-    }).build();
+    return result;
   }
 
   @Get()
@@ -66,11 +60,7 @@ export class PpnV2Controller {
 
     this.logger.log(`List PPN has been retrieved`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      message: 'List PPN has been retrieved',
-      data: result,
-    }).build();
+    return result;
   }
 
   @Get(':id')
@@ -81,11 +71,7 @@ export class PpnV2Controller {
 
     this.logger.log(`PPN has been retrieved`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      message: 'PPN has been retrieved',
-      data: result,
-    }).build();
+    return result;
   }
 
   @Delete(':id')
@@ -106,11 +92,7 @@ export class PpnV2Controller {
 
     this.logger.log(`PPN has been deleted`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      message: 'PPN has been deleted',
-      data: result,
-    }).build();
+    return result;
   }
 
   @Put(':id')
@@ -127,10 +109,6 @@ export class PpnV2Controller {
 
     this.logger.log(`PPN has been edited`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      message: 'PPN has been edited',
-      data: result,
-    }).build();
+    return result;
   }
 }

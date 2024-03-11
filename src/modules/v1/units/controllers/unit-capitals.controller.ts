@@ -3,15 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { UnitCapitalsService } from '../services';
 import { AddUnitCapitalHistoryDto, UpdateUnitCapitalHistoryDto } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { UnitCapitalsService } from '../services';
 
 @Controller('units/:unitId/capitals')
 export class UnitCapitalsController {
@@ -28,11 +26,7 @@ export class UnitCapitalsController {
 
     this.logger.log(`Added capital history for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil menambahkan riwayat pemodalan')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get()
@@ -41,10 +35,7 @@ export class UnitCapitalsController {
 
     this.logger.log(`Get capital histories for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil mendapatkan riwayat pemodalan')
-      .build();
+    return result;
   }
 
   @Delete(':capitalId')
@@ -59,10 +50,7 @@ export class UnitCapitalsController {
 
     this.logger.log(`Deleted capital history ${capitalId} for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setMessage('Berhasil menghapus riwayat pemodalan')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Put(':capitalId')
@@ -79,9 +67,6 @@ export class UnitCapitalsController {
 
     this.logger.log(`Updated capital history ${capitalId} for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setMessage('Berhasil mengubah riwayat pemodalan')
-      .setData(result)
-      .build();
+    return result;
   }
 }

@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -13,7 +12,6 @@ import {
 import { AuthUserRole } from '@prisma/client';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { OptionalCommonDeleteDto } from '~common/dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { HasRoles } from '~modules/v1/auth/decorators';
 import { AddPph21V2Dto, EditPph21V2Dto, GetManyPph21V2Dto } from '../dto';
 import { DeletePph21V2Response } from '../responses/pph21.response';
@@ -38,11 +36,7 @@ export class Pph21V2Controller {
 
     this.logger.log(`Pph21 data added successfully with ID ${result.id}`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.CREATED,
-      data: result,
-      message: 'Pph21 data added successfully',
-    }).build();
+    return result;
   }
 
   @Get(':id')
@@ -53,11 +47,7 @@ export class Pph21V2Controller {
 
     this.logger.log('Pph21 data retrieved successfully');
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      data: result,
-      message: 'Pph21 data retrieved successfully',
-    }).build();
+    return result;
   }
 
   @Get()
@@ -70,11 +60,7 @@ export class Pph21V2Controller {
       `Pph21 data retrieved successfully with total data ${result._count} `,
     );
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      data: result,
-      message: 'Pph21 data retrieved successfully',
-    }).build();
+    return result;
   }
 
   @Put(':id')
@@ -89,11 +75,7 @@ export class Pph21V2Controller {
 
     this.logger.log(`Pph21 with ID '${id}' data updated successfully`);
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      data: result,
-      message: 'Pph21 data updated successfully',
-    }).build();
+    return result;
   }
 
   @Delete(':id')
@@ -114,10 +96,6 @@ export class Pph21V2Controller {
 
     this.logger.log('Pph21 data deleted successfully');
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.OK,
-      data: result,
-      message: 'Pph21 data deleted successfully',
-    }).build();
+    return result;
   }
 }

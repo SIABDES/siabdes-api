@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -12,17 +11,16 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { UnitPpnService } from '../services';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { PaginationDto } from '~common/dto';
+import { buildValidationForEvidence } from '~common/pipes/helpers';
 import { GetUser } from '~modules/v1/auth/decorators';
-import { ResponseBuilder } from '~common/response.builder';
 import {
   AddPpnObjectDto,
   GetPpnTaxesFilterDto,
   UpdatePpnObjectDto,
 } from '../dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { buildValidationForEvidence } from '~common/pipes/helpers';
-import { PaginationDto } from '~common/dto';
+import { UnitPpnService } from '../services';
 
 @Controller('units/:unitId/ppn')
 export class UnitPpnController {
@@ -46,11 +44,7 @@ export class UnitPpnController {
     this.logger.log(`Filter: ${JSON.stringify(filter)}`);
     this.logger.log(`Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil memuat data pajak PPN')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Post()
@@ -64,11 +58,7 @@ export class UnitPpnController {
 
     this.logger.log(`Add ppn tax for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil menambahkan data pajak PPN')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get(':ppnId')
@@ -80,11 +70,7 @@ export class UnitPpnController {
 
     this.logger.log(`Get ppn tax by id ${ppnId} for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil memuat data pajak PPN')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put(':ppnId')
@@ -104,11 +90,7 @@ export class UnitPpnController {
 
     this.logger.log(`Update ppn tax by id ${ppnId} for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil memperbarui data pajak PPN')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Delete(':ppnId')
@@ -120,10 +102,6 @@ export class UnitPpnController {
 
     this.logger.log(`Delete ppn tax by id ${ppnId} for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil menghapus data pajak PPN')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

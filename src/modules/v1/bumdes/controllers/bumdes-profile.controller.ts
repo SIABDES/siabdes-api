@@ -1,15 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Logger,
-  Param,
-  Put,
-} from '@nestjs/common';
-import { BumdesProfileService } from '../services';
-import { ResponseBuilder } from '~common/response.builder';
+import { Body, Controller, Get, Logger, Param, Put } from '@nestjs/common';
 import { UpdateBumdesProfileDto } from '../dto';
+import { BumdesProfileService } from '../services';
 
 @Controller('bumdes/:bumdesId/profile')
 export class BumdesProfileController {
@@ -23,11 +14,7 @@ export class BumdesProfileController {
 
     this.logger.log(`Get profile for ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil mendapatkan data profil BUMDes')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Put()
@@ -39,10 +26,6 @@ export class BumdesProfileController {
 
     this.logger.log(`Update profile for ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil mengubah data profil BUMDes')
-      .setData(result)
-      .build();
+    return result;
   }
 }

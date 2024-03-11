@@ -1,13 +1,5 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Logger,
-  Param,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Logger, Param, Query } from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { WtbFilterDto } from '../dto';
 import { WtbService } from '../services/wtb.service';
 
@@ -33,11 +25,7 @@ export class WtbController {
     this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
     this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil mengambil data list akun WTB')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get(':unitId/summary')
@@ -50,10 +38,6 @@ export class WtbController {
     this.logger.log(`Get WTB summary for unit ${unitId}`);
     this.logger.log(`Query Filter: ${JSON.stringify(filter)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil mengambil data summary WTB')
-      .setData(result)
-      .build();
+    return result;
   }
 }

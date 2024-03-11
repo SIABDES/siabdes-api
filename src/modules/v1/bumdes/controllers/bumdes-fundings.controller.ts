@@ -3,18 +3,16 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { BumdesFundingsService } from '../services';
 import {
   AddBumdesFundingHistoryDto,
   UpdateBumdesFundingHistoryDto,
 } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { BumdesFundingsService } from '../services';
 
 @Controller('bumdes/:bumdesId/fundings')
 export class BumdesFundingsController {
@@ -31,11 +29,7 @@ export class BumdesFundingsController {
 
     this.logger.log(`Add funding history for bumdes ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil menambahkan data pemodalan')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get()
@@ -44,11 +38,7 @@ export class BumdesFundingsController {
 
     this.logger.log(`Get funding histories for bumdes ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil mendapatkan data pemodalan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put(':fundingId')
@@ -65,11 +55,7 @@ export class BumdesFundingsController {
 
     this.logger.log(`Update funding history for bumdes ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil mengubah data pemodalan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Delete(':fundingId')
@@ -84,10 +70,6 @@ export class BumdesFundingsController {
 
     this.logger.log(`Delete funding history for bumdes ${bumdesId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Berhasil menghapus data pemodalan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

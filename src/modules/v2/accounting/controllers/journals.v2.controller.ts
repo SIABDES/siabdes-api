@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -15,7 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthUserRole } from '@prisma/client';
 import { OptionalCommonDeleteDto } from '~common/dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { buildValidationForEvidence } from '~common/pipes/helpers';
 import { HasRoles } from '~modules/v1/auth/decorators';
 import {
   AddJournalV2Dto,
@@ -24,7 +23,6 @@ import {
 } from '../dto';
 import { DeleteJournalV2Response } from '../responses';
 import { JournalsV2Service } from '../services/journals.v2.service';
-import { buildValidationForEvidence } from '~common/pipes/helpers';
 
 @Controller({
   path: 'journals',
@@ -48,11 +46,7 @@ export class JournalsV2Controller {
 
     this.logger.log(`Jurnal berhasil ditambahkan dengan ID '${result.id}'`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Jurnal berhasil ditambahkan',
-      statusCode: HttpStatus.CREATED,
-    }).build();
+    return result;
   }
 
   @Get(':id')
@@ -63,11 +57,7 @@ export class JournalsV2Controller {
 
     this.logger.log(`Jurnal dengan ID '${id}' berhasil diambil`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Jurnal berhasil diambil',
-      statusCode: HttpStatus.OK,
-    }).build();
+    return result;
   }
 
   @Get()
@@ -78,11 +68,7 @@ export class JournalsV2Controller {
 
     this.logger.log(`Berhasil mengambil ${result._count} jurnal`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Daftar jurnal berhasil diambil',
-      statusCode: HttpStatus.OK,
-    }).build();
+    return result;
   }
 
   @Put(':id')
@@ -99,11 +85,7 @@ export class JournalsV2Controller {
 
     this.logger.log(`Data jurnal dengan ID '${id}' berhasil diperbarui`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Jurnal berhasil diubah',
-      statusCode: HttpStatus.OK,
-    }).build();
+    return result;
   }
 
   @Delete(':id')
@@ -124,10 +106,6 @@ export class JournalsV2Controller {
 
     this.logger.log(`Jurnal dengan ID '${id}' berhasil dihapus`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Jurnal berhasil dihapus',
-      statusCode: HttpStatus.OK,
-    }).build();
+    return result;
   }
 }

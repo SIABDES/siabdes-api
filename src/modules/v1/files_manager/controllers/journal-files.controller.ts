@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -10,7 +9,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ResponseBuilder } from '~common/response.builder';
 import { JournalFilesService } from '../services';
 import { JournalFileInputType } from '../types';
 
@@ -33,23 +31,15 @@ export class JournalFilesController {
 
     this.logger.log(`Uploaded file ${file.originalname} as ${key}`);
 
-    return new ResponseBuilder()
-      .setData(key)
-      .setMessage('File berhasil diupload')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return key;
   }
 
   @Get(':journalId/evidence')
   async getUrlEvidence(@Param('journalId') journalId: string) {
-    const url = await this.journalFilesService.getUrl(journalId);
+    const result = await this.journalFilesService.getUrl(journalId);
 
     this.logger.log(`Get url of evidence file ${journalId}`);
 
-    return new ResponseBuilder()
-      .setData(url)
-      .setMessage('Url berhasil didapatkan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

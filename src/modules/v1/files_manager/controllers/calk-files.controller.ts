@@ -1,14 +1,6 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  HttpStatus,
-  Logger,
-  Query,
-} from '@nestjs/common';
-import { CalkFilesService } from '../services';
+import { Controller, Delete, Get, Logger, Query } from '@nestjs/common';
 import { GetUser } from '~modules/v1/auth/decorators';
-import { ResponseBuilder } from '~common/response.builder';
+import { CalkFilesService } from '../services';
 
 @Controller('files/calk')
 export class CalkFilesController {
@@ -22,11 +14,7 @@ export class CalkFilesController {
 
     this.logger.log('Get list files keys');
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil mengambil list file')
-      .build();
+    return result;
   }
 
   @Delete()
@@ -34,10 +22,5 @@ export class CalkFilesController {
     await this.calkFilesService.deleteFile(key);
 
     this.logger.log(`Delete file with key ${key}`);
-
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Berhasil menghapus file')
-      .build();
   }
 }

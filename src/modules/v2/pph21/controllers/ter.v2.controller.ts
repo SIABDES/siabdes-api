@@ -2,7 +2,6 @@ import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { TerV2Service } from '../services/ter.v2.service';
 import { GetTerV2Dto } from '../dto';
 import { GetTerV2Response } from '../responses';
-import { ResponseBuilder } from '~common/response.builder';
 
 @Controller({
   path: 'pph21-ter',
@@ -27,9 +26,6 @@ export class TerV2Controller {
 
     this.logger.log(`Get Ter result: ${JSON.stringify(result)}`);
 
-    return new ResponseBuilder({
-      message: 'Get Ter successfully',
-      data: result,
-    }).build();
+    return result;
   }
 }

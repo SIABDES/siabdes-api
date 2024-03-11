@@ -1,15 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Logger,
-  Param,
-  Put,
-} from '@nestjs/common';
-import { UnitProfileService } from '../services';
-import { ResponseBuilder } from '~common/response.builder';
+import { Body, Controller, Get, Logger, Param, Put } from '@nestjs/common';
 import { UpdateUnitProfileDto } from '../dto';
+import { UnitProfileService } from '../services';
 
 @Controller('units/:unitId/profile')
 export class UnitProfileController {
@@ -23,11 +14,7 @@ export class UnitProfileController {
 
     this.logger.log(`Get unit profile with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully get unit profile')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put()
@@ -39,10 +26,6 @@ export class UnitProfileController {
 
     this.logger.log(`Updated unit profile with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully updated unit profile')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

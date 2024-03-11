@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -12,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { OptionalCommonDeleteDto } from '~common/dto/delete.dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/v1/auth/decorators';
 import {
   AddEmployeeV2Dto,
@@ -46,11 +44,7 @@ export class EmployeesV2Controller {
       `Add employee for unit '${unitId}' with employee ID '${result.id}'`,
     );
 
-    return new ResponseBuilder({
-      statusCode: HttpStatus.CREATED,
-      data: result,
-      message: 'Employee successfully added',
-    }).build();
+    return result;
   }
 
   @Get()
@@ -59,10 +53,7 @@ export class EmployeesV2Controller {
 
     this.logger.log(`Get many employees`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Employees successfully fetched',
-    }).build();
+    return result;
   }
 
   @Get(':id')
@@ -71,10 +62,7 @@ export class EmployeesV2Controller {
 
     this.logger.log(`Get employee by ID '${id}'`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Employee successfully fetched',
-    }).build();
+    return result;
   }
 
   @Put(':id')
@@ -86,10 +74,7 @@ export class EmployeesV2Controller {
 
     this.logger.log(`Update employee by ID '${id}'`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Employee successfully updated',
-    }).build();
+    return result;
   }
 
   @Delete(':id')
@@ -111,10 +96,7 @@ export class EmployeesV2Controller {
       } delete`,
     );
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Employee successfully deleted',
-    }).build();
+    return result;
   }
 
   @Get(':id/ter')
@@ -131,9 +113,6 @@ export class EmployeesV2Controller {
 
     this.logger.log(`Success get employee TER by ID '${employeeId}'`);
 
-    return new ResponseBuilder({
-      data: result,
-      message: 'Employee TER successfully fetched',
-    }).build();
+    return result;
   }
 }

@@ -3,15 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { UnitProfitsService } from '../services';
 import { AddUnitProfitHistoryDto } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { UnitProfitsService } from '../services';
 
 @Controller('units/:unitId/profits')
 export class UnitProfitsController {
@@ -28,13 +26,7 @@ export class UnitProfitsController {
 
     this.logger.log(`Add profit history with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setMessage(
-        `Successfully added profit history for unit with id ${unitId}`,
-      )
-      .setData(result)
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get()
@@ -43,13 +35,7 @@ export class UnitProfitsController {
 
     this.logger.log(`Get profit histories with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setMessage(
-        `Successfully get profit histories for unit with id ${unitId}`,
-      )
-      .setData(result)
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put(':profitId')
@@ -66,13 +52,7 @@ export class UnitProfitsController {
 
     this.logger.log(`Update profit history with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setMessage(
-        `Successfully updated profit history for unit with id ${unitId}`,
-      )
-      .setData(result)
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Delete(':profitId')
@@ -87,12 +67,6 @@ export class UnitProfitsController {
 
     this.logger.log(`Delete profit history with unitId: '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setMessage(
-        `Successfully deleted profit history for unit with id ${unitId}`,
-      )
-      .setData(result)
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

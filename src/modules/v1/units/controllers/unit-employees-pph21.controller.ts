@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -10,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { ResponseBuilder } from '~common/response.builder';
 import {
   AddUnitEmployeePph21Dto,
   AddUnitEmployeePph21Schema,
@@ -39,11 +37,7 @@ export class UnitEmployeesPph21Controller {
       `Tax with id ${result.id} successfully added for employee ${employeeId}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil ditambahkan')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Get()
@@ -62,11 +56,7 @@ export class UnitEmployeesPph21Controller {
       `Taxes for employee with id ${employeeId} successfully retrieved`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil diambil')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Put(':taxId')
@@ -80,10 +70,6 @@ export class UnitEmployeesPph21Controller {
 
     this.logger.log(`Tax with id ${taxId} successfully updated`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil diubah')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 }

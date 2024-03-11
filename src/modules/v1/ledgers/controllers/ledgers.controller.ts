@@ -1,14 +1,12 @@
 import {
   Controller,
   Get,
-  HttpStatus,
   Logger,
   Param,
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/v1/auth/decorators';
 import { GetLedgerFiltersDto, GetLedgerPayloadDto } from '../dto';
 import { GetLedgerSortDto } from '../dto/get-ledger-sort.dto';
@@ -46,10 +44,6 @@ export class LedgersController {
     this.logger.log(`Query Sort: ${JSON.stringify(sort)}`);
     this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Success')
-      .setData(result)
-      .build();
+    return result;
   }
 }

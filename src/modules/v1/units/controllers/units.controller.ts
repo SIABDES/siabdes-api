@@ -3,17 +3,15 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Query,
 } from '@nestjs/common';
-import { UnitsService } from '../services';
-import { CreateUnitDto } from '../dto';
-import { GetUser } from '~modules/v1/auth/decorators';
-import { ResponseBuilder } from '~common/response.builder';
 import { PaginationDto } from '~common/dto';
+import { GetUser } from '~modules/v1/auth/decorators';
+import { CreateUnitDto } from '../dto';
+import { UnitsService } from '../services';
 
 @Controller('units')
 export class UnitsController {
@@ -32,11 +30,7 @@ export class UnitsController {
       `Unit created for bumdes '${result.bumdesId}' with unit id '${result.unitId}'`,
     );
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.CREATED)
-      .setMessage('Unit berhasil dibuat')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get(':unitId')
@@ -48,11 +42,7 @@ export class UnitsController {
 
     this.logger.log(`Get unit by id '${unitId}' for bumdes '${bumdesId}'`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Unit berhasil ditemukan')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get()
@@ -65,11 +55,7 @@ export class UnitsController {
     this.logger.log(`Get units for bumdes '${bumdesId}'`);
     this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Unit berhasil ditemukan')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Delete(':unitId')
@@ -81,11 +67,7 @@ export class UnitsController {
 
     this.logger.log(`Delete unit by id '${unitId}' for bumdes '${bumdesId}'`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Unit berhasil dihapus')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get(':unitId/metadata')
@@ -94,10 +76,6 @@ export class UnitsController {
 
     this.logger.log(`Get metadata for unit '${unitId}'`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Metadata berhasil ditemukan')
-      .setData(result)
-      .build();
+    return result;
   }
 }

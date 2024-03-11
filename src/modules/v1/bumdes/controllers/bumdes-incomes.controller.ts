@@ -3,18 +3,16 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { BumdesIncomesService } from '../services';
 import {
   AddBumdesIncomeHistoryDto,
   UpdateBumdesIncomeHistoryDto,
 } from '../dto';
-import { ResponseBuilder } from '~common/response.builder';
+import { BumdesIncomesService } from '../services';
 
 @Controller('bumdes/:bumdesId/incomes')
 export class BumdesIncomesController {
@@ -31,11 +29,7 @@ export class BumdesIncomesController {
 
     this.logger.log(`Add income history for Bumdes ${bumdesId} success`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.CREATED)
-      .setData(result)
-      .setMessage('Tambah riwayat pendapatan berhasil')
-      .build();
+    return result;
   }
 
   @Get()
@@ -44,11 +38,7 @@ export class BumdesIncomesController {
 
     this.logger.log(`Get income history for Bumdes ${bumdesId} success`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setData(result)
-      .setMessage('Ambil riwayat pendapatan berhasil')
-      .build();
+    return result;
   }
 
   @Put(':incomeId')
@@ -65,11 +55,7 @@ export class BumdesIncomesController {
 
     this.logger.log(`Update income history for Bumdes ${bumdesId} success`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setData(result)
-      .setMessage('Update riwayat pendapatan berhasil')
-      .build();
+    return result;
   }
 
   @Delete(':incomeId')
@@ -80,10 +66,5 @@ export class BumdesIncomesController {
     await this.incomesService.deleteHistory(bumdesId, incomeId);
 
     this.logger.log(`Delete income history for Bumdes ${bumdesId} success`);
-
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Hapus riwayat pendapatan berhasil')
-      .build();
   }
 }

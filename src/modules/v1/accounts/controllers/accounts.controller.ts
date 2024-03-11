@@ -1,9 +1,8 @@
-import { Controller, Get, HttpStatus, Logger, Query } from '@nestjs/common';
-import { AccountsService } from '../services';
-import { AccountsFiltersDto } from '../dto';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { PaginationDto } from '~common/dto';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser } from '~modules/v1/auth/decorators';
+import { AccountsFiltersDto } from '../dto';
+import { AccountsService } from '../services';
 
 @Controller('accounts')
 export class AccountsController {
@@ -27,11 +26,7 @@ export class AccountsController {
     this.logger.log(`Query Filter: ${JSON.stringify(filters)}`);
     this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Akun berhasil diambil')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get('subgroups')
@@ -40,10 +35,6 @@ export class AccountsController {
 
     this.logger.log(`Get accounts subgroups success`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Sub-kelompok akun berhasil diambil')
-      .setData(result)
-      .build();
+    return result;
   }
 }

@@ -7,7 +7,6 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ResponseBuilder } from '~common/response.builder';
 import { UnitPph21Service } from '../services';
 import { OptionalTaxesPeriodDto } from '../dto';
 
@@ -28,11 +27,7 @@ export class UnitPph21Controller {
       `Unit '${unitId}' fetched pph21 taxes with ${result._count} taxes`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Get(':taxId')
@@ -44,11 +39,7 @@ export class UnitPph21Controller {
 
     this.logger.log(`Unit '${unitId}' fetched pph21 tax '${taxId}'`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('PPh21 berhasil ditemukan')
-      .setStatusCode(HttpStatus.OK)
-      .build();
+    return result;
   }
 
   @Delete(':taxId')
@@ -57,10 +48,6 @@ export class UnitPph21Controller {
 
     this.logger.log(`Tax with id ${taxId} successfully deleted`);
 
-    return new ResponseBuilder()
-      .setMessage('PPh21 berhasil dihapus')
-      .setStatusCode(HttpStatus.OK)
-      .setData(result)
-      .build();
+    return result;
   }
 }

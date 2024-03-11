@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
@@ -16,7 +15,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthUserRole } from '@prisma/client';
 import { PaginationDto } from '~common/dto';
 import { buildValidationForEvidence } from '~common/pipes/helpers';
-import { ResponseBuilder } from '~common/response.builder';
 import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
 import {
   CreateJournalDto,
@@ -48,11 +46,7 @@ export class JournalsController {
 
     this.logger.log(`Jurnal berhasil dibuat dengan id: ${result.id}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.CREATED)
-      .setMessage('Jurnal berhasil dibuat')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get()
@@ -74,11 +68,7 @@ export class JournalsController {
     this.logger.log(`Query Sort: ${JSON.stringify(sort)}`);
     this.logger.log(`Query Pagination: ${JSON.stringify(pagination)}`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Jurnal berhasil didapatkan')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Get(':journalId')
@@ -93,11 +83,7 @@ export class JournalsController {
 
     this.logger.log(`Detail jurnal berhasil didapatkan pada id '${result.id}'`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Detail jurnal berhasil didapatkan')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Put(':journalId')
@@ -118,11 +104,7 @@ export class JournalsController {
 
     this.logger.log(`Jurnal berhasil diupdate pada journal id '${result.id}'`);
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Jurnal berhasil diupdate')
-      .setData(result)
-      .build();
+    return result;
   }
 
   @Delete(':journalId')
@@ -136,10 +118,6 @@ export class JournalsController {
       `Jurnal berhasil soft delete pada journal id '${result.id}' `,
     );
 
-    return new ResponseBuilder()
-      .setStatusCode(HttpStatus.OK)
-      .setMessage('Jurnal berhasil dihapus')
-      .setData(result)
-      .build();
+    return result;
   }
 }

@@ -3,15 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { UnitIncomesService } from '../services';
-import { ResponseBuilder } from '~common/response.builder';
 import { AddUnitIncomeHistoryDto, UpdateUnitIncomeHistoryDto } from '../dto';
+import { UnitIncomesService } from '../services';
 
 @Controller('units/:unitId/incomes')
 export class UnitIncomesController {
@@ -27,10 +25,7 @@ export class UnitIncomesController {
       `Successfully retrieve unit incomes history for unit ${unitId}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully retrieve unit incomes history')
-      .build();
+    return result;
   }
 
   @Post()
@@ -42,11 +37,7 @@ export class UnitIncomesController {
 
     this.logger.log(`Successfully add unit incomes history for unit ${unitId}`);
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully add unit incomes history')
-      .setStatusCode(HttpStatus.CREATED)
-      .build();
+    return result;
   }
 
   @Put(':incomeId')
@@ -65,10 +56,7 @@ export class UnitIncomesController {
       `Successfully update unit incomes history for unit ${unitId}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully update unit incomes history')
-      .build();
+    return result;
   }
 
   @Delete(':incomeId')
@@ -85,9 +73,6 @@ export class UnitIncomesController {
       `Successfully delete unit incomes history for unit ${unitId}`,
     );
 
-    return new ResponseBuilder()
-      .setData(result)
-      .setMessage('Successfully delete unit incomes history')
-      .build();
+    return result;
   }
 }
