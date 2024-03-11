@@ -6,11 +6,9 @@ import {
   UnitEmployeeType,
 } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
-import { BumdesIdsSchema, PaginationSchema } from '~common/dto';
+import { IdsWithPaginationSchema } from '~common/schemas';
 
-export const GetManyEmployeesSchema = BumdesIdsSchema.merge(
-  PaginationSchema,
-).extend({
+export const GetManyEmployeesSchema = IdsWithPaginationSchema.extend({
   nik: z.string().optional(),
   name: z.string().optional(),
   npwp: z.string().optional(),

@@ -1,4 +1,4 @@
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import {
   CreateJournalDto,
   GetJournalsFilterDto,
@@ -31,7 +31,7 @@ export interface IJournalsService {
     unitId: string,
     sort?: GetJournalsSortDto,
     filter?: GetJournalsFilterDto,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetJournalsResponse>;
 
   getJournalDetails(

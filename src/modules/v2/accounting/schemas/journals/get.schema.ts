@@ -1,6 +1,6 @@
 import { JournalCategory } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
-import { IdsWithPaginationSchema } from '~common/dto/common-filter.dto';
+import { IdsWithPaginationSchema } from '~common/schemas';
 
 export const GetManyJournalsV2Schema = IdsWithPaginationSchema.extend({
   category: z.nativeEnum(JournalCategory).optional(),

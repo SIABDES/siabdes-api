@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { BumdesIdsDto } from '~common/dto';
 import { CommonDeleteDto } from '~common/dto/delete.dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { AddPpnV2Dto, EditPpnV2Dto, OptionalGetManyPpnV2Dto } from '../dto';
@@ -16,6 +15,7 @@ import {
   GetPpnListV2Response,
 } from '../responses';
 import { PpnFileV2Service } from './ppn-file.v2.service';
+import { IdsDto } from '~common/dto';
 
 @Injectable()
 export class PpnV2Service {
@@ -97,7 +97,7 @@ export class PpnV2Service {
 
   async addPpn(
     evidence: Express.Multer.File,
-    ids: BumdesIdsDto,
+    ids: IdsDto,
     dto: AddPpnV2Dto,
   ): Promise<AddPpnV2Response> {
     const { key } = await this.fileService.upload(evidence, ids);

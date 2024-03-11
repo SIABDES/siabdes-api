@@ -1,4 +1,4 @@
-import { PaginationResponse } from '~common/types/responses';
+import { PaginationResponse } from '~common/responses';
 import { GetUnit } from '../get-unit.type';
 
 export type GetUnitsResponse = PaginationResponse & {

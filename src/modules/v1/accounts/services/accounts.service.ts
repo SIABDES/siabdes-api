@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Account, Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { AccountsFiltersDto } from '../dto';
 import { IAccountsService } from '../interfaces';
@@ -45,7 +45,7 @@ export class AccountsService implements IAccountsService {
   async findAll(
     filters: AccountsFiltersDto,
     unitId?: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<AccountsFindAllResponse> {
     if (unitId) {
       const unit = await this.prisma.bumdesUnit.findUnique({

@@ -1,5 +1,5 @@
 import { Controller, Get, Logger, Param, Query } from '@nestjs/common';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { WtbFilterDto } from '../dto';
 import { WtbService } from '../services/wtb.service';
 
@@ -13,7 +13,7 @@ export class WtbController {
   async getWtbForUnit(
     @Param('unitId') unitId: string,
     @Query() filter?: WtbFilterDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.wtbService.getWtbForUnit(
       unitId,

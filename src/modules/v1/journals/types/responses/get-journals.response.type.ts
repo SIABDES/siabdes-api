@@ -1,4 +1,4 @@
-import { PaginationResponse } from '~common/types/responses';
+import { PaginationResponse } from '~common/responses';
 import { JournalDetailsWithOptionalItemsType } from '../journal.type';
 
 export type GetJournalsResponse = PaginationResponse & {

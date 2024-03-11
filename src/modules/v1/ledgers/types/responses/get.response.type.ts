@@ -1,4 +1,4 @@
-import { PaginationResponse } from '~common/types/responses';
+import { PaginationResponse } from '~common/responses';
 import { LedgerTransactionDetails } from '../ledger-details.type';
 
 export type GetLedgerResponse = PaginationResponse & {

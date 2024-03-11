@@ -1,7 +1,7 @@
 import { UnitEmployeeType } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { z } from 'nestjs-zod/z';
-import { AllEmployeeTypeEnumSchema } from '~common/dto';
+import { AllEmployeeTypeEnumSchema } from '~common/schemas';
 
 const GrossNormalSalaryV2Schema = z.object({
   salary: z.number().nonnegative(),

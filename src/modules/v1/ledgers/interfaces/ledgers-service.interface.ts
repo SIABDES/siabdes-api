@@ -1,4 +1,4 @@
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import {
   GetLedgerFiltersDto,
   GetLedgerPayloadDto,
@@ -14,6 +14,6 @@ export interface ILedgersService {
     sort: GetLedgerSortDto,
     filters: GetLedgerFiltersDto,
     unitId?: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetLedgerResponse>;
 }

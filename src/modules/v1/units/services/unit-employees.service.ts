@@ -5,7 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pph21TerPercentage, Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
+import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
   AddUnitEmployeeDto,
@@ -24,7 +25,6 @@ import {
   GetUnitEmployeesResponse,
   UpdateUnitEmployeeResponse,
 } from '../types/responses';
-import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 
 @Injectable()
 export class UnitEmployeesService implements IUnitEmployeesService {
@@ -223,7 +223,7 @@ export class UnitEmployeesService implements IUnitEmployeesService {
   async getEmployees(
     unitId: string,
     filter?: GetEmployeesFilterDto,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetUnitEmployeesResponse> {
     try {
       const unit = await this.prisma.bumdesUnit.findUnique({

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AllEmployeeTypeEnumSchema, BumdesIdsSchema } from '~common/dto';
+import { AllEmployeeTypeEnumSchema, IdsSchema } from '~common/schemas';
 
-export const GetManyPph21V2Schema = BumdesIdsSchema.extend({
+export const GetManyPph21V2Schema = IdsSchema.extend({
   nik: z.string().optional(),
   npwp: z.string().optional(),
   employee_id: z.string().optional(),

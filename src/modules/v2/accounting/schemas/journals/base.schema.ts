@@ -1,7 +1,7 @@
 import { JournalCategory } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { z } from 'nestjs-zod/z';
-import { StringToBoolSchema } from '~common/dto';
+import { StringToBoolSchema } from '~common/schemas';
 
 export const JournalTransactionV2Schema = z.object({
   account_id: z.coerce.number().nonnegative(),

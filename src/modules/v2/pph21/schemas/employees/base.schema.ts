@@ -6,7 +6,7 @@ import {
   UnitEmployeeStatus,
 } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
-import { AllEmployeeTypeEnumSchema } from '~common/dto';
+import { AllEmployeeTypeEnumSchema } from '~common/schemas';
 
 const BaseEmployeeV2Schema = z.object({
   name: z.string().min(1, 'Nama tidak boleh kosong'),

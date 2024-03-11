@@ -15,7 +15,7 @@ import {
   GetUnitMetadataResponse,
   GetUnitsResponse,
 } from '../types/responses';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitsService implements IUnitsService {
@@ -137,7 +137,7 @@ export class UnitsService implements IUnitsService {
 
   async getUnits(
     bumdesId: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetUnitsResponse> {
     const paginationQuery: Prisma.BumdesUnitFindManyArgs = {
       cursor: pagination.cursor ? { id: String(pagination.cursor) } : undefined,

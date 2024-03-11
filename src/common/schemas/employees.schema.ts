@@ -1,5 +1,5 @@
 import { UnitEmployeeType } from '@prisma/client';
-import { z } from 'zod';
+import { z } from 'nestjs-zod/z';
 
 export const AllEmployeeTypeEnumSchema = z.enum(
   [

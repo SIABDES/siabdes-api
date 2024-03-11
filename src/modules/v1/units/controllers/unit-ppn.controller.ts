@@ -12,8 +12,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PaginationDto } from '~common/dto';
-import { buildValidationForEvidence } from '~common/pipes/helpers';
+import { OptionalPaginationDto } from '~common/dto';
+import { buildEvidenceValidationPipe } from '~common/pipes';
 import { GetUser } from '~modules/v1/auth/decorators';
 import {
   AddPpnObjectDto,
@@ -32,7 +32,7 @@ export class UnitPpnController {
   async getPpnTaxes(
     @GetUser('unitId') unitId: string,
     @Query() filter?: GetPpnTaxesFilterDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.ppnService.getPpnTaxes(
       unitId,
@@ -52,7 +52,7 @@ export class UnitPpnController {
   async addPpnTax(
     @GetUser('unitId') unitId: string,
     @Body() dto: AddPpnObjectDto,
-    @UploadedFile(buildValidationForEvidence()) evidence: Express.Multer.File,
+    @UploadedFile(buildEvidenceValidationPipe()) evidence: Express.Multer.File,
   ) {
     const result = await this.ppnService.addPpnTax(unitId, evidence, dto);
 
@@ -79,7 +79,7 @@ export class UnitPpnController {
     @GetUser('unitId') unitId: string,
     @Param('ppnId') ppnId: string,
     @Body() dto: UpdatePpnObjectDto,
-    @UploadedFile(buildValidationForEvidence()) evidence?: Express.Multer.File,
+    @UploadedFile(buildEvidenceValidationPipe()) evidence?: Express.Multer.File,
   ) {
     const result = await this.ppnService.updatePpnTaxById(
       unitId,

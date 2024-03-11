@@ -1,7 +1,7 @@
 import { z } from 'nestjs-zod/z';
-import { BumdesIdsSchema } from '~common/dto';
+import { IdsSchema } from '~common/schemas';
 
-export const GetManyPpnV2Schema = BumdesIdsSchema.extend({
+export const GetManyPpnV2Schema = IdsSchema.extend({
   start_transaction_date: z.dateString().or(z.date()).optional(),
   end_transaction_date: z.dateString().or(z.date()).optional(),
 });

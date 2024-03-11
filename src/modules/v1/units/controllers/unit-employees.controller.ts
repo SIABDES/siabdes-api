@@ -3,13 +3,14 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { OptionalPaginationDto } from '~common/dto';
 import { GetUser } from '~modules/v1/auth/decorators';
 import {
   AddUnitEmployeeDto,
@@ -22,8 +23,6 @@ import {
 } from '../dto';
 import { UnitEmployeesService } from '../services';
 import { UnitsConfig } from '../units.config';
-import { ZodValidationPipe } from 'nestjs-zod';
-import { PaginationDto } from '~common/dto';
 
 @Controller('units/:unitId/employees')
 export class UnitEmployeesController {
@@ -52,7 +51,7 @@ export class UnitEmployeesController {
   async getEmployees(
     @GetUser('unitId') unitId: string,
     @Query() filter?: GetEmployeesFilterDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.employeesService.getEmployees(
       unitId,

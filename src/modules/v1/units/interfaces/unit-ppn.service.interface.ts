@@ -1,4 +1,4 @@
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import {
   AddPpnObjectDto,
   GetPpnTaxesFilterDto,
@@ -21,7 +21,7 @@ export interface IUnitPpnService {
 
   getPpnTaxes(
     unitId: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
     filter?: GetPpnTaxesFilterDto,
   ): Promise<GetPpnTaxesResponse>;
 

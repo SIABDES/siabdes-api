@@ -14,7 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthUserRole } from '@prisma/client';
 import { OptionalCommonDeleteDto } from '~common/dto';
-import { buildValidationForEvidence } from '~common/pipes/helpers';
+import { buildEvidenceValidationPipe } from '~common/pipes';
 import { HasRoles } from '~modules/v1/auth/decorators';
 import {
   AddJournalV2Dto,
@@ -38,7 +38,7 @@ export class JournalsV2Controller {
   @HasRoles(AuthUserRole.UNIT)
   async addJournal(
     @Body() dto: AddJournalV2Dto,
-    @UploadedFile(buildValidationForEvidence()) evidence?: Express.Multer.File,
+    @UploadedFile(buildEvidenceValidationPipe()) evidence?: Express.Multer.File,
   ) {
     this.logger.log(`Menambahkan jurnal baru untuk unit ID '${dto.unit_id}'`);
 
@@ -77,7 +77,7 @@ export class JournalsV2Controller {
   async updateJournal(
     @Body() dto: UpdateJournalV2Dto,
     @Param('id') id: string,
-    @UploadedFile(buildValidationForEvidence()) evidence?: Express.Multer.File,
+    @UploadedFile(buildEvidenceValidationPipe()) evidence?: Express.Multer.File,
   ) {
     this.logger.log(`Mengubah jurnal dengan ID '${id}'`);
 

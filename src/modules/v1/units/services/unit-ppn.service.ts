@@ -1,6 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { PpnFilesService } from '~modules/v1/files_manager/services';
 import {
@@ -16,6 +15,7 @@ import {
   GetPpnTaxesResponse,
   UpdatePpnTaxResponse,
 } from '../types/responses';
+import { OptionalPaginationDto } from '~common/dto';
 
 @Injectable()
 export class UnitPpnService implements IUnitPpnService {
@@ -236,7 +236,7 @@ export class UnitPpnService implements IUnitPpnService {
 
   async getPpnTaxes(
     unitId: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
     filter?: GetPpnTaxesFilterDto,
   ): Promise<GetPpnTaxesResponse> {
     try {

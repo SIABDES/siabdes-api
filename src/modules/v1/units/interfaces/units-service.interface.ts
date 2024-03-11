@@ -1,4 +1,4 @@
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { CreateUnitDto } from '../dto';
 import {
   CreateUnitResponse,
@@ -18,7 +18,7 @@ export interface IUnitsService {
 
   getUnits(
     bumdesId: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetUnitsResponse>;
 
   getUnitById(bumdesId: string, unitId: string): Promise<GetUnitResponse>;

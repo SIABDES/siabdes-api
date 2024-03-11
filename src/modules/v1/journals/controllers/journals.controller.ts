@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthUserRole } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
-import { buildValidationForEvidence } from '~common/pipes/helpers';
+import { OptionalPaginationDto } from '~common/dto';
+import { buildEvidenceValidationPipe } from '~common/pipes';
 import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
 import {
   CreateJournalDto,
@@ -35,7 +35,7 @@ export class JournalsController {
   async createJournal(
     @GetUser('unitId') unitId: string,
     @Body() data: CreateJournalDto,
-    @UploadedFile(buildValidationForEvidence())
+    @UploadedFile(buildEvidenceValidationPipe())
     evidenceFile?: Express.Multer.File,
   ) {
     const result = await this.journalsService.createJournal(
@@ -54,7 +54,7 @@ export class JournalsController {
     @GetUser('unitId') unitId: string,
     @Query() filter?: GetJournalsFilterDto,
     @Query() sort?: GetJournalsSortDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.journalsService.getJournals(
       unitId,
@@ -92,7 +92,7 @@ export class JournalsController {
     @GetUser('unitId') unitId: string,
     @Param('journalId') journalId: string,
     @Body() data: UpdateJournalDto,
-    @UploadedFile(buildValidationForEvidence())
+    @UploadedFile(buildEvidenceValidationPipe())
     evidenceFile?: Express.Multer.File,
   ) {
     const result = await this.journalsService.updateJournal(

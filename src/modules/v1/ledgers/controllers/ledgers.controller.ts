@@ -6,7 +6,7 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { GetUser } from '~modules/v1/auth/decorators';
 import { GetLedgerFiltersDto, GetLedgerPayloadDto } from '../dto';
 import { GetLedgerSortDto } from '../dto/get-ledger-sort.dto';
@@ -26,7 +26,7 @@ export class LedgersController {
     @GetUser('unitId') unitId?: string,
     @Query() filters?: GetLedgerFiltersDto,
     @Query() sort?: GetLedgerSortDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.ledgersService.getLedger(
       bumdesId,

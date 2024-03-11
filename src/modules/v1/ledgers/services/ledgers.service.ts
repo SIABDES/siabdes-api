@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { AccountsService } from '~modules/v1/accounts/services';
 import {
@@ -30,7 +30,7 @@ export class LedgersService implements ILedgersService {
     sort: GetLedgerSortDto,
     filters: GetLedgerFiltersDto,
     unitId?: string,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetLedgerResponse> {
     const hasNoUnitId = !filters.unit_id && !unitId;
 

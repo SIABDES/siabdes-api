@@ -1,6 +1,6 @@
 import { HttpStatus, ParseFilePipeBuilder } from '@nestjs/common';
 
-export function buildValidationForEvidence() {
+export function buildEvidenceValidationPipe() {
   return new ParseFilePipeBuilder()
     .addFileTypeValidator({
       fileType: 'image',

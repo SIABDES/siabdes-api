@@ -1,4 +1,4 @@
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import {
   AddUnitEmployeeDto,
   GetEmployeesFilterDto,
@@ -24,7 +24,7 @@ export interface IUnitEmployeesService {
   getEmployees(
     unitId: string,
     filter?: GetEmployeesFilterDto,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetUnitEmployeesResponse>;
 
   getEmployeeById(

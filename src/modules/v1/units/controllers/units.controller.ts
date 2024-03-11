@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { GetUser } from '~modules/v1/auth/decorators';
 import { CreateUnitDto } from '../dto';
 import { UnitsService } from '../services';
@@ -48,7 +48,7 @@ export class UnitsController {
   @Get()
   async getBumdesUnits(
     @GetUser('bumdesId') bumdesId: string,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.unitsService.getUnits(bumdesId, pagination);
 

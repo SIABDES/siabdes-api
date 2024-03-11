@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { WtbFilterDto } from '../dto';
 import {
@@ -21,7 +21,7 @@ export class WtbService implements IWtbService {
   async getWtbForUnit(
     unitId: string,
     filter?: WtbFilterDto,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetWtbResponse> {
     const { end_occurred_at, start_occurred_at } = filter;
 

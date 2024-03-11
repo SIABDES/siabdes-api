@@ -1,5 +1,5 @@
 import { Controller, Get, Logger, Query } from '@nestjs/common';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { GetUser } from '~modules/v1/auth/decorators';
 import { AccountsFiltersDto } from '../dto';
 import { AccountsService } from '../services';
@@ -14,7 +14,7 @@ export class AccountsController {
   async findAll(
     @GetUser('unitId') unitId?: string,
     @Query() filters?: AccountsFiltersDto,
-    @Query() pagination?: PaginationDto,
+    @Query() pagination?: OptionalPaginationDto,
   ) {
     const result = await this.accountsService.findAll(
       filters,

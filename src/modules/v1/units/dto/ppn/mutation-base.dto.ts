@@ -1,13 +1,9 @@
 import {
   PpnTaxItemType,
-  PpnTransactionType,
   PpnTaxObject,
+  PpnTransactionType,
 } from '@prisma/client';
 import { z } from 'nestjs-zod/z';
-import {
-  StringNumberIntPositiveSchema,
-  StringNumberNonNegativeSchema,
-} from '~common/dto';
 
 export const MutationPpnObjectBaseSchema = z.object({
   given_to: z.string(),
@@ -30,12 +26,12 @@ export const MutationPpnObjectBaseSchema = z.object({
     .array(
       z.object({
         name: z.string(),
-        quantity: StringNumberIntPositiveSchema,
-        price: StringNumberNonNegativeSchema,
-        discount: StringNumberNonNegativeSchema,
-        total_price: StringNumberNonNegativeSchema,
-        dpp: StringNumberNonNegativeSchema,
-        ppn: StringNumberNonNegativeSchema,
+        quantity: z.coerce.number().int().positive(),
+        price: z.coerce.number().nonnegative(),
+        discount: z.coerce.number().nonnegative(),
+        total_price: z.coerce.number().nonnegative(),
+        dpp: z.coerce.number().nonnegative(),
+        ppn: z.coerce.number().nonnegative(),
       }),
     )
     .min(1),

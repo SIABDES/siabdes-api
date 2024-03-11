@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '~common/dto';
+import { OptionalPaginationDto } from '~common/dto';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { JournalFilesService } from '~modules/v1/files_manager/services';
 import {
@@ -170,7 +170,7 @@ export class JournalsService implements IJournalsService {
     unitId: string,
     sort?: GetJournalsSortDto,
     filter?: GetJournalsFilterDto,
-    pagination?: PaginationDto,
+    pagination?: OptionalPaginationDto,
   ): Promise<GetJournalsResponse> {
     const paginationQuery: Prisma.JournalFindManyArgs = {
       cursor: pagination?.cursor
