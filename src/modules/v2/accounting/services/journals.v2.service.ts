@@ -1,10 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { JournalCategory, Prisma } from '@prisma/client';
-import { CommonDeleteDto } from '~common/dto';
+import { CommonDeleteDto, IdsDto } from '~common/dto';
 import { PrismaClientExceptionCode } from '~common/exceptions';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
@@ -19,29 +20,45 @@ import {
   GetManyJournalsV2Response,
   UpdateJournalV2Response,
 } from '../responses';
+import { FilesService } from '~common/services';
+import { FileResourceLocation } from '~common/types';
 
 @Injectable()
 export class JournalsV2Service {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly filesService: FilesService,
+  ) {}
 
   async addJournal(
     dto: AddJournalV2Dto,
+    ids: IdsDto,
     evidence?: Express.Multer.File,
   ): Promise<AddJournalV2Response> {
+    if (!ids.unit_id) throw new BadRequestException('unit_id is required');
+
     if (dto.category === JournalCategory.GENERAL && !evidence)
       throw new BadRequestException(
         'Jurnal umum harus memiliki bukti transaksi',
       );
 
-    const evidenceUrl = '';
+    let evidenceKey: string;
+
+    if (evidence) {
+      const { key } = await this.filesService.upload(evidence, {
+        ...ids,
+        resource: FileResourceLocation.JOURNALS,
+      });
+      evidenceKey = key;
+    }
 
     const journal = await this.prisma.journal.create({
       data: {
-        bumdesUnit: { connect: { id: dto.unit_id } },
+        bumdesUnit: { connect: { id: ids.unit_id } },
         category: dto.category,
         description: dto.description,
         occurredAt: dto.occurred_at,
-        evidence: evidenceUrl,
+        evidence: evidenceKey,
         items: {
           createMany: {
             data: dto.data_transactions.map((transaction) => ({
@@ -139,23 +156,39 @@ export class JournalsV2Service {
   async updateJournal(
     id: string,
     dto: UpdateJournalV2Dto,
+    ids: IdsDto,
     evidence?: Express.Multer.File,
   ): Promise<UpdateJournalV2Response> {
     const journal = await this.prisma.journal.findUnique({
-      where: { id },
+      where: { id, bumdesUnitId: ids.unit_id },
+      select: {
+        id: true,
+        bumdesUnitId: true,
+      },
     });
 
     if (!journal) throw new NotFoundException('Jurnal tidak ditemukan');
 
-    const evidenceUrl = '';
+    let evidenceKey: string;
 
-    await this.prisma.journal.update({
+    if (evidence) {
+      if (!ids.bumdes_id || !ids.unit_id)
+        throw new BadRequestException('bumdesId and unitId are required');
+
+      const { key } = await this.filesService.upload(evidence, {
+        unit_id: ids.unit_id,
+        bumdes_id: ids.bumdes_id,
+      });
+      evidenceKey = key;
+    }
+
+    const journalUpdated = await this.prisma.journal.update({
       where: { id, deletedAt: { equals: null } },
       data: {
         category: dto.category,
         description: dto.description,
         occurredAt: dto.occurred_at,
-        evidence: evidenceUrl,
+        evidence: evidenceKey,
         items: {
           deleteMany: {},
           createMany: {
@@ -167,11 +200,12 @@ export class JournalsV2Service {
           },
         },
       },
+      select: { id: true, updatedAt: true },
     });
 
     return {
-      id: journal.id,
-      updated_at: journal.updatedAt,
+      id: journalUpdated.id,
+      updated_at: journalUpdated.updatedAt,
     };
   }
 

@@ -1,4 +1,5 @@
 import { z } from 'nestjs-zod/z';
+import { FileResourceLocation } from '~common/types';
 import { StringToBoolSchema } from './utils.schema';
 
 export const CommonDeleteSchema = z.object({
@@ -25,6 +26,7 @@ export const IdsSchema = z.object({
 
 export const CommonFilePathSchema = IdsSchema.extend({
   key: z.string().min(1),
+  resource: z.nativeEnum(FileResourceLocation),
 })
   .required({
     bumdes_id: true,

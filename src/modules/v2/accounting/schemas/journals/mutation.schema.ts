@@ -1,6 +1,7 @@
 import { JournalV2Schema } from './base.schema';
 
 export const AddJournalV2Schema = JournalV2Schema.omit({
+  unit_id: true,
   evidence: true,
 });
 

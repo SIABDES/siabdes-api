@@ -37,7 +37,7 @@ export class PpnV2Controller {
     @UploadedFile() evidence: Express.Multer.File,
     @GetUser() user: JwtUserPayload,
   ) {
-    this.logger.log(`Adding PPN, body: ${JSON.stringify(dto)}`);
+    this.logger.log(`Adding PPN for unit ID: ${user.unitId}`);
 
     const result = await this.ppnService.addPpn(
       evidence,
@@ -108,6 +108,17 @@ export class PpnV2Controller {
     const result = await this.ppnService.editPpnById(id, dto, evidence);
 
     this.logger.log(`PPN has been edited`);
+
+    return result;
+  }
+
+  @Get(':id/evidence')
+  async getPpnEvidence(@Param('id') ppnId: string) {
+    this.logger.log(`Getting evidence for PPN by ID: ${ppnId}`);
+
+    const result = await this.ppnService.getEvidenceById(ppnId);
+
+    this.logger.log(`Evidence has been retrieved`);
 
     return result;
   }

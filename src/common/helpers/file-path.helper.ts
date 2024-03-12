@@ -1,43 +1,38 @@
+import { BadRequestException } from '@nestjs/common';
 import * as mime from 'mime-types';
 import { nanoid } from 'nanoid';
 import { CommonFilePathDto } from '~common/dto';
+import {
+  FileKeyWithExtension,
+  FileResourceBasePath,
+  FileResourceKey,
+  FileResourcePath,
+} from '~common/types';
 
-type AvailableResourceLocation = 'journals' | 'ppn';
+export function getBaseResourcePath(
+  dto: CommonFilePathDto,
+): FileResourceBasePath {
+  if (!dto.unit_id || !dto.bumdes_id) {
+    throw new BadRequestException('unit_id and bumdes_id are required');
+  }
 
-type GetResourceBasePathArgs = {
-  resource: AvailableResourceLocation;
-  path: CommonFilePathDto;
-};
-
-type GetResourcePathArgs = GetResourceBasePathArgs & {
-  fileKey: string;
-};
-
-type GenerateResourcePathArgs = GetResourceBasePathArgs & {
-  file: Express.Multer.File;
-};
-
-export function getResourceBasePath(args: GetResourceBasePathArgs) {
-  const { resource, path } = args;
-
-  return `${path.bumdes_id}/${path.unit_id}/${resource}` as const;
+  return `${dto.bumdes_id}/${dto.unit_id}`;
 }
 
-export function getResourcePath(args: GetResourcePathArgs) {
-  const { fileKey, ...rest } = args;
-  const basePath = getResourceBasePath(rest);
-
-  return `${basePath}/${fileKey}` as const;
+export function getResourcePath(dto: CommonFilePathDto): FileResourcePath {
+  return `${getBaseResourcePath(dto)}/${dto.resource}`;
 }
 
-export function generateResourcePath(args: GenerateResourcePathArgs) {
-  const { file, ...rest } = args;
+export function generateFileKey(
+  file: Express.Multer.File,
+  nanoSize?: number,
+): FileKeyWithExtension {
+  return `${nanoid(nanoSize || 27)}.${mime.extension(file.mimetype)}`;
+}
 
-  if (rest.path.key) return rest.path.key;
-
-  const basePath = getResourceBasePath(rest);
-
-  const fileKey = `${nanoid(27)}.${mime.extension(file.mimetype)}` as const;
-
-  return `${basePath}/${fileKey}` as const;
+export function generateResourceKey(
+  file: Express.Multer.File,
+  dto: CommonFilePathDto,
+): FileResourceKey {
+  return `${getResourcePath(dto)}/${generateFileKey(file)}` as const;
 }

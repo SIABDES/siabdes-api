@@ -14,15 +14,29 @@ import {
   GetPpnByIdV2Response,
   GetPpnListV2Response,
 } from '../responses';
-import { PpnFileV2Service } from './ppn-file.v2.service';
 import { IdsDto } from '~common/dto';
+import { FilesService } from '~common/services';
+import { FileResourceLocation } from '~common/types';
 
 @Injectable()
 export class PpnV2Service {
   constructor(
     private prisma: PrismaService,
-    private readonly fileService: PpnFileV2Service,
+    private readonly fileService: FilesService,
   ) {}
+
+  async getEvidenceById(id: string): Promise<string> {
+    const ppn = await this.prisma.ppnTax.findUnique({
+      where: { id },
+      select: { transactionEvidenceKey: true },
+    });
+
+    if (!ppn) throw new NotFoundException('Data PPN tidak ditemukan');
+
+    if (!ppn.transactionEvidenceKey) return null;
+
+    return await this.fileService.getUrl(ppn.transactionEvidenceKey);
+  }
 
   async getById(ppnId: string): Promise<GetPpnByIdV2Response> {
     const ppn = await this.prisma.ppnTax.findUnique({
@@ -100,7 +114,10 @@ export class PpnV2Service {
     ids: IdsDto,
     dto: AddPpnV2Dto,
   ): Promise<AddPpnV2Response> {
-    const { key } = await this.fileService.upload(evidence, ids);
+    const { key } = await this.fileService.upload(evidence, {
+      ...ids,
+      resource: FileResourceLocation.PPN,
+    });
 
     const ppn = await this.prisma.ppnTax.create({
       data: {
