@@ -2,6 +2,7 @@ import { Controller, Get, Logger, Param, Query } from '@nestjs/common';
 import { GetManyJournalsV2Dto } from '../dto';
 import { JournalsV2Service } from '../services/journals.v2.service';
 
+// TODO: Add super admin only decorator
 @Controller({
   path: 'journals',
   version: '2',

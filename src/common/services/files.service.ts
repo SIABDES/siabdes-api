@@ -15,7 +15,7 @@ export class FilesService {
     path: CommonFilePathDto,
     metadata?: ItemBucketMetadata,
   ) {
-    const key = generateResourceKey(file, path);
+    const key = path.key || generateResourceKey(file, path);
 
     await this.minio.putObject(
       this.minio.bucketName,
@@ -35,11 +35,11 @@ export class FilesService {
     key: string,
     options?: { expiry?: number; respHeaders?: FileResponseHeaders },
   ): Promise<string> {
-    return this.minio.presignedGetObject(
+    return await this.minio.presignedGetObject(
       this.minio.bucketName,
       key,
       options?.expiry || URL_GET_EXPIRY,
-      options?.respHeaders,
+      options?.respHeaders ?? {},
     );
   }
 

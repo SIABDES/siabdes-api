@@ -35,7 +35,9 @@ export class PpnV2Service {
 
     if (!ppn.transactionEvidenceKey) return null;
 
-    return await this.fileService.getUrl(ppn.transactionEvidenceKey);
+    const res = await this.fileService.getUrl(ppn.transactionEvidenceKey);
+
+    return res;
   }
 
   async getById(ppnId: string): Promise<GetPpnByIdV2Response> {
@@ -219,9 +221,15 @@ export class PpnV2Service {
 
       if (!ppn) throw new NotFoundException('Data PPN tidak ditemukan');
 
-      const { key } = await this.fileService.upload(evidence, {
-        key: ppn.transactionEvidenceKey,
-      });
+      let evidenceKey: string = ppn.transactionEvidenceKey;
+
+      if (evidence) {
+        const { key } = await this.fileService.upload(evidence, {
+          key: ppn.transactionEvidenceKey,
+        });
+
+        evidenceKey = key;
+      }
 
       const editPpn = await this.prisma.ppnTax.update({
         where: { id: ppnId, deletedAt: { equals: null } },
@@ -232,7 +240,7 @@ export class PpnV2Service {
           transactionType: dto.transaction_type,
           transactionNumber: dto.transaction_number,
           object: dto.tax_object,
-          transactionEvidenceKey: key,
+          transactionEvidenceKey: evidenceKey,
           objectItems: {
             deleteMany: {},
             createMany: {
