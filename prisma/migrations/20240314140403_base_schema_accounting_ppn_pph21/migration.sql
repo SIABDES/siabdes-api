@@ -11,10 +11,13 @@ CREATE SCHEMA IF NOT EXISTS "journals";
 CREATE SCHEMA IF NOT EXISTS "taxes";
 
 -- CreateEnum
-CREATE TYPE "auth"."users_role" AS ENUM ('UNIT', 'BUMDES', 'KECAMATAN', 'KABUPATEN');
+CREATE TYPE "auth"."users_role" AS ENUM ('UNIT', 'BUMDES', 'KECAMATAN', 'KABUPATEN', 'SUPER_ADMIN');
 
 -- CreateEnum
 CREATE TYPE "bumdes"."BumdesUnitBusinessType" AS ENUM ('SERVICES', 'COMMERCE', 'INDUSTRY');
+
+-- CreateEnum
+CREATE TYPE "journals"."AccountType" AS ENUM ('GLOBAL', 'CUSTOM');
 
 -- CreateEnum
 CREATE TYPE "journals"."journal_categories" AS ENUM ('GENERAL', 'ADJUSTMENT');
@@ -205,7 +208,6 @@ CREATE TABLE "journals"."account_groups" (
     "id" SERIAL NOT NULL,
     "ref" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
 
     CONSTRAINT "account_groups_pkey" PRIMARY KEY ("id")
 );
@@ -215,8 +217,8 @@ CREATE TABLE "journals"."account_subgroups" (
     "id" SERIAL NOT NULL,
     "ref" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
     "groupRef" TEXT NOT NULL,
+    "refSlug" TEXT NOT NULL,
 
     CONSTRAINT "account_subgroups_pkey" PRIMARY KEY ("id")
 );
@@ -226,27 +228,14 @@ CREATE TABLE "journals"."accounts" (
     "id" SERIAL NOT NULL,
     "ref" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
     "isCredit" BOOLEAN NOT NULL,
     "groupRef" TEXT NOT NULL,
     "subgroupRef" TEXT NOT NULL,
     "businessTypes" "bumdes"."BumdesUnitBusinessType"[],
+    "type" "journals"."AccountType" NOT NULL,
+    "unitOwnerId" TEXT,
 
     CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "journals"."custom_accounts" (
-    "id" TEXT NOT NULL,
-    "ref" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "isCredit" BOOLEAN NOT NULL,
-    "groupRef" TEXT NOT NULL,
-    "subgroupRef" TEXT NOT NULL,
-    "businessTypes" "bumdes"."BumdesUnitBusinessType"[],
-
-    CONSTRAINT "custom_accounts_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -276,35 +265,6 @@ CREATE TABLE "journals"."journal_items" (
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "journal_items_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "journals"."custom_journals" (
-    "id" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "occurredAt" TIMESTAMP(3) NOT NULL,
-    "category" "journals"."journal_categories" NOT NULL,
-    "evidence" TEXT,
-    "bumdesUnitId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "deletedAt" TIMESTAMP(3),
-
-    CONSTRAINT "custom_journals_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "journals"."custom_journal_items" (
-    "id" TEXT NOT NULL,
-    "amount" DECIMAL(65,30) NOT NULL,
-    "isCredit" BOOLEAN NOT NULL,
-    "accountId" TEXT NOT NULL,
-    "journalId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "deletedAt" TIMESTAMP(3),
-
-    CONSTRAINT "custom_journal_items_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -392,6 +352,8 @@ CREATE TABLE "taxes"."pph21_ter_percentages" (
 -- CreateTable
 CREATE TABLE "taxes"."pph21_taxes" (
     "id" TEXT NOT NULL,
+    "employeeType" "taxes"."UnitEmployeeType" NOT NULL,
+    "hasNpwp" BOOLEAN NOT NULL,
     "periodMonth" INTEGER NOT NULL,
     "periodYear" INTEGER NOT NULL,
     "salary" DECIMAL(65,30),
@@ -400,7 +362,6 @@ CREATE TABLE "taxes"."pph21_taxes" (
     "bonus" DECIMAL(65,30),
     "overtimeSalary" DECIMAL(65,30),
     "assurance" DECIMAL(65,30),
-    "pkp" DECIMAL(65,30),
     "dailySalary" DECIMAL(65,30),
     "monthlySalary" DECIMAL(65,30),
     "workingDays" INTEGER,
@@ -416,8 +377,56 @@ CREATE TABLE "taxes"."pph21_taxes" (
     CONSTRAINT "pph21_taxes_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "taxes"."pph21_december_results" (
+    "id" TEXT NOT NULL,
+    "currentYear" DECIMAL(65,30) NOT NULL,
+    "beforeDecember" DECIMAL(65,30) NOT NULL,
+    "taxId" TEXT NOT NULL,
+
+    CONSTRAINT "pph21_december_results_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "taxes"."pph21_net_calculations" (
+    "id" TEXT NOT NULL,
+    "positionDeduction" DECIMAL(65,30) NOT NULL,
+    "annualContribution" DECIMAL(65,30) NOT NULL,
+    "annualAssurance" DECIMAL(65,30) NOT NULL,
+    "result" DECIMAL(65,30) NOT NULL,
+    "taxId" TEXT NOT NULL,
+
+    CONSTRAINT "pph21_net_calculations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "taxes"."pph21_taxables" (
+    "id" TEXT NOT NULL,
+    "percentage" DECIMAL(65,30),
+    "ptkp" DECIMAL(65,30),
+    "amount" DECIMAL(65,30) NOT NULL,
+    "result" DECIMAL(65,30) NOT NULL,
+    "taxId" TEXT NOT NULL,
+
+    CONSTRAINT "pph21_taxables_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "taxes"."pph21_tariffs" (
+    "id" TEXT NOT NULL,
+    "percentage" DECIMAL(65,30) NOT NULL,
+    "amount" DECIMAL(65,30) NOT NULL,
+    "result" DECIMAL(65,30) NOT NULL,
+    "taxId" TEXT NOT NULL,
+
+    CONSTRAINT "pph21_tariffs_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_identifier_key" ON "auth"."users"("identifier");
+
+-- CreateIndex
+CREATE INDEX "users_identifier_idx" ON "auth"."users"("identifier");
 
 -- CreateIndex
 CREATE INDEX "bumdes_address" ON "bumdes"."bumdes"("province", "regency", "district", "village", "postalCode");
@@ -432,25 +441,52 @@ CREATE INDEX "bumdes_unit_business_type" ON "bumdes"."bumdes_unit"("businessType
 CREATE UNIQUE INDEX "account_groups_ref_key" ON "journals"."account_groups"("ref");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "account_groups_slug_key" ON "journals"."account_groups"("slug");
+CREATE INDEX "account_groups_ref_idx" ON "journals"."account_groups"("ref");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "account_subgroups_ref_key" ON "journals"."account_subgroups"("ref");
+CREATE UNIQUE INDEX "account_subgroups_refSlug_key" ON "journals"."account_subgroups"("refSlug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "account_subgroups_slug_key" ON "journals"."account_subgroups"("slug");
+CREATE INDEX "account_subgroups_ref_groupRef_idx" ON "journals"."account_subgroups"("ref", "groupRef");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "accounts_slug_key" ON "journals"."accounts"("slug");
+CREATE INDEX "accounts_ref_idx" ON "journals"."accounts"("ref");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "custom_accounts_slug_key" ON "journals"."custom_accounts"("slug");
+CREATE INDEX "journals_bumdesUnitId_occurredAt_idx" ON "journals"."journals"("bumdesUnitId", "occurredAt" DESC);
+
+-- CreateIndex
+CREATE INDEX "journal_items_accountId_journalId_idx" ON "journals"."journal_items"("accountId", "journalId");
+
+-- CreateIndex
+CREATE INDEX "ppn_taxes_bumdesUnitId_transactionDate_idx" ON "taxes"."ppn_taxes"("bumdesUnitId", "transactionDate" DESC);
+
+-- CreateIndex
+CREATE INDEX "ppn_object_items_taxId_idx" ON "taxes"."ppn_object_items"("taxId");
+
+-- CreateIndex
+CREATE INDEX "unit_employees_nik_bumdesUnitId_startWorkingAt_idx" ON "taxes"."unit_employees"("nik", "bumdesUnitId", "startWorkingAt" DESC);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "unit_employees_nik_bumdesUnitId_key" ON "taxes"."unit_employees"("nik", "bumdesUnitId");
 
 -- CreateIndex
+CREATE INDEX "pph21_ptkp_boundaries_status_periodYear_periodMonth_minimum_idx" ON "taxes"."pph21_ptkp_boundaries"("status", "periodYear", "periodMonth", "minimumSalary", "terType");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "pph21_ptkp_boundaries_status_periodYear_periodMonth_key" ON "taxes"."pph21_ptkp_boundaries"("status", "periodYear", "periodMonth");
+
+-- CreateIndex
+CREATE INDEX "pph21_taxes_employeeId_periodYear_periodMonth_employeeType__idx" ON "taxes"."pph21_taxes"("employeeId", "periodYear", "periodMonth", "employeeType", "hasNpwp");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pph21_december_results_taxId_key" ON "taxes"."pph21_december_results"("taxId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pph21_net_calculations_taxId_key" ON "taxes"."pph21_net_calculations"("taxId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pph21_taxables_taxId_key" ON "taxes"."pph21_taxables"("taxId");
 
 -- AddForeignKey
 ALTER TABLE "auth"."users" ADD CONSTRAINT "users_bumdesId_fkey" FOREIGN KEY ("bumdesId") REFERENCES "bumdes"."bumdes"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -483,13 +519,10 @@ ALTER TABLE "journals"."account_subgroups" ADD CONSTRAINT "account_subgroups_gro
 ALTER TABLE "journals"."accounts" ADD CONSTRAINT "accounts_groupRef_fkey" FOREIGN KEY ("groupRef") REFERENCES "journals"."account_groups"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "journals"."accounts" ADD CONSTRAINT "accounts_subgroupRef_fkey" FOREIGN KEY ("subgroupRef") REFERENCES "journals"."account_subgroups"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "journals"."accounts" ADD CONSTRAINT "accounts_subgroupRef_fkey" FOREIGN KEY ("subgroupRef") REFERENCES "journals"."account_subgroups"("refSlug") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "journals"."custom_accounts" ADD CONSTRAINT "custom_accounts_groupRef_fkey" FOREIGN KEY ("groupRef") REFERENCES "journals"."account_groups"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "journals"."custom_accounts" ADD CONSTRAINT "custom_accounts_subgroupRef_fkey" FOREIGN KEY ("subgroupRef") REFERENCES "journals"."account_subgroups"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "journals"."accounts" ADD CONSTRAINT "accounts_unitOwnerId_fkey" FOREIGN KEY ("unitOwnerId") REFERENCES "bumdes"."bumdes_unit"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "journals"."journals" ADD CONSTRAINT "journals_bumdesUnitId_fkey" FOREIGN KEY ("bumdesUnitId") REFERENCES "bumdes"."bumdes_unit"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -499,15 +532,6 @@ ALTER TABLE "journals"."journal_items" ADD CONSTRAINT "journal_items_accountId_f
 
 -- AddForeignKey
 ALTER TABLE "journals"."journal_items" ADD CONSTRAINT "journal_items_journalId_fkey" FOREIGN KEY ("journalId") REFERENCES "journals"."journals"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "journals"."custom_journals" ADD CONSTRAINT "custom_journals_bumdesUnitId_fkey" FOREIGN KEY ("bumdesUnitId") REFERENCES "bumdes"."bumdes_unit"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "journals"."custom_journal_items" ADD CONSTRAINT "custom_journal_items_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "journals"."custom_accounts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "journals"."custom_journal_items" ADD CONSTRAINT "custom_journal_items_journalId_fkey" FOREIGN KEY ("journalId") REFERENCES "journals"."custom_journals"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "taxes"."ppn_taxes" ADD CONSTRAINT "ppn_taxes_bumdesUnitId_fkey" FOREIGN KEY ("bumdesUnitId") REFERENCES "bumdes"."bumdes_unit"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -523,3 +547,15 @@ ALTER TABLE "taxes"."pph21_taxes" ADD CONSTRAINT "pph21_taxes_employeeId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "taxes"."pph21_taxes" ADD CONSTRAINT "pph21_taxes_bumdesUnitId_fkey" FOREIGN KEY ("bumdesUnitId") REFERENCES "bumdes"."bumdes_unit"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "taxes"."pph21_december_results" ADD CONSTRAINT "pph21_december_results_taxId_fkey" FOREIGN KEY ("taxId") REFERENCES "taxes"."pph21_taxes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "taxes"."pph21_net_calculations" ADD CONSTRAINT "pph21_net_calculations_taxId_fkey" FOREIGN KEY ("taxId") REFERENCES "taxes"."pph21_taxes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "taxes"."pph21_taxables" ADD CONSTRAINT "pph21_taxables_taxId_fkey" FOREIGN KEY ("taxId") REFERENCES "taxes"."pph21_taxes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "taxes"."pph21_tariffs" ADD CONSTRAINT "pph21_tariffs_taxId_fkey" FOREIGN KEY ("taxId") REFERENCES "taxes"."pph21_taxes"("id") ON DELETE CASCADE ON UPDATE CASCADE;

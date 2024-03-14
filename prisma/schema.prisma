@@ -28,6 +28,7 @@ model AuthUser {
   deletedAt DateTime?
   bumdesId  String?
 
+  @@index([identifier])
   @@map("users")
   @@schema("auth")
 }
@@ -171,7 +172,7 @@ model BumdesUnit {
   thirdPartyPartners String[] // Kerja sama pihak ketiga
 
   journals          Journal[]
-  customJournals    CustomJournal[]
+  customAccounts    Account[]
   ppnTaxes          PpnTax[]
   capitalsHistory   BumdesUnitCapitalHistory[] // Riwayat Permodalan
   incomesHistory    BumdesUnitIncomeHistory[] // Riwayat Aset dan Omzet
@@ -255,27 +256,27 @@ model AccountGroup {
   id   Int    @id @default(autoincrement())
   ref  String @unique // misal kelompok Aset: ref = 1
   name String
-  slug String @unique
 
-  accounts       Account[]
-  customAccounts CustomAccount[]
-  subgroups      AccountSubgroup[]
+  accounts  Account[]
+  subgroups AccountSubgroup[]
 
+  @@index([ref])
   @@map("account_groups")
   @@schema("journals")
 }
 
 model AccountSubgroup {
   id       Int          @id @default(autoincrement())
-  ref      String       @unique // Misal: ref = 1-1, format: <account group ref>-<account subgroup ref>. src: COA
+  ref      String // Misal: ref = 5, format: <account group ref>-<account subgroup ref>. src: COA
   name     String
-  slug     String       @unique
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
-  accounts       Account[]
-  customAccounts CustomAccount[]
+  refSlug String @unique // Misal: refSlug = 1-5 untuk group ref = 1, subgroup ref = 5
 
+  accounts Account[]
+
+  @@index([ref, groupRef])
   @@map("account_subgroups")
   @@schema("journals")
 }
@@ -284,41 +285,30 @@ model Account {
   id       Int     @id @default(autoincrement())
   ref      String // misal di kelompok Aset, akun Kas: ref = 1-1001. format: <account group ref>-<account ref>. src: COA
   name     String
-  slug     String  @unique
   isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
 
   group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
   groupRef String
 
-  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
+  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [refSlug], onDelete: Cascade, onUpdate: Cascade)
   subgroupRef String
 
-  journalItems JournalItem[]
-
+  journalItems  JournalItem[]
   businessTypes BumdesUnitBusinessType[]
 
+  type        AccountType
+  unitOwner   BumdesUnit? @relation(fields: [unitOwnerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  unitOwnerId String?
+
+  @@index([ref])
   @@map("accounts")
   @@schema("journals")
 }
 
-model CustomAccount {
-  id       String  @id @default(cuid())
-  ref      String
-  name     String
-  slug     String  @unique
-  isCredit Boolean // Saldo Umum => Kredit jika true, Debit jika false
+enum AccountType {
+  GLOBAL
+  CUSTOM
 
-  group    AccountGroup @relation(fields: [groupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
-  groupRef String
-
-  subgroup    AccountSubgroup @relation(fields: [subgroupRef], references: [ref], onDelete: Cascade, onUpdate: Cascade)
-  subgroupRef String
-
-  journalItems CustomJournalItem[]
-
-  businessTypes BumdesUnitBusinessType[]
-
-  @@map("custom_accounts")
   @@schema("journals")
 }
 
@@ -339,6 +329,7 @@ model Journal {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([bumdesUnitId, occurredAt(sort: Desc)])
   @@map("journals")
   @@schema("journals")
 }
@@ -359,48 +350,8 @@ model JournalItem {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([accountId, journalId])
   @@map("journal_items")
-  @@schema("journals")
-}
-
-model CustomJournal {
-  id String @id @default(cuid())
-
-  description String
-  occurredAt  DateTime
-  category    JournalCategory
-  evidence    String?
-
-  bumdesUnit   BumdesUnit @relation(fields: [bumdesUnitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  bumdesUnitId String
-
-  items CustomJournalItem[]
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("custom_journals")
-  @@schema("journals")
-}
-
-model CustomJournalItem {
-  id String @id @default(cuid())
-
-  amount   Decimal
-  isCredit Boolean
-
-  account   CustomAccount @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  accountId String
-
-  journal   CustomJournal @relation(fields: [journalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  journalId String
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("custom_journal_items")
   @@schema("journals")
 }
 
@@ -442,6 +393,7 @@ model PpnTax {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([bumdesUnitId, transactionDate(sort: Desc)])
   @@map("ppn_taxes")
   @@schema("taxes")
 }
@@ -480,6 +432,7 @@ model PpnTaxObjectItem {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([taxId])
   @@map("ppn_object_items")
   @@schema("taxes")
 }
@@ -562,6 +515,7 @@ model UnitEmployee {
   deletedAt DateTime?
 
   @@unique([nik, bumdesUnitId])
+  @@index([nik, bumdesUnitId, startWorkingAt(sort: Desc)])
   @@map("unit_employees")
   @@schema("taxes")
 }
@@ -604,6 +558,7 @@ model Pph21PtkpBoundary {
   periodMonth Int
 
   @@unique([status, periodYear, periodMonth])
+  @@index([status, periodYear, periodMonth, minimumSalary, terType])
   @@map("pph21_ptkp_boundaries")
   @@schema("taxes")
 }
@@ -662,6 +617,7 @@ model Pph21Tax {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@index([employeeId, periodYear, periodMonth, employeeType, hasNpwp])
   @@map("pph21_taxes")
   @@schema("taxes")
 }
