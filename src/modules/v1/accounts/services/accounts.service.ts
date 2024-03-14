@@ -35,7 +35,6 @@ export class AccountsService implements IAccountsService {
       subgroups: subgroups.map((subgroup) => ({
         id: subgroup.id,
         name: subgroup.name,
-        slug: subgroup.slug,
         group_ref: subgroup.groupRef,
         ref: subgroup.ref,
       })),
@@ -87,7 +86,6 @@ export class AccountsService implements IAccountsService {
         businessTypes: true,
         isCredit: true,
         name: true,
-        slug: true,
       },
     });
 
@@ -100,7 +98,6 @@ export class AccountsService implements IAccountsService {
         ref: result.ref,
         business_type: result.businessTypes,
         name: result.name,
-        slug: result.slug,
         is_credit: result.isCredit,
       })),
     };

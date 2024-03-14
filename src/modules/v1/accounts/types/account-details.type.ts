@@ -8,5 +8,4 @@ export type AccountDetails = {
   subggroup_ref: string;
   ref: string;
   is_credit: boolean;
-  slug: string;
 };
