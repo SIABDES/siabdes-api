@@ -4,7 +4,7 @@ import { z } from 'nestjs-zod/z';
 import { StringToBoolSchema } from '~common/schemas';
 
 export const JournalTransactionV2Schema = z.object({
-  account_id: z.coerce.number().nonnegative(),
+  account_id: z.coerce.number().positive(),
   amount: z.coerce
     .number()
     .positive({ message: 'Nilai transaksi harus lebih dari 0' }),

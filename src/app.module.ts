@@ -1,11 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import {
-  HTTP_EXCEPTION_FILTER_KEY,
-  NestProblemDetailsModule,
-} from 'nest-problem-details-filter';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { CommonModule } from '~common/common.module';
 import { ResponseInterceptor } from '~common/interceptors';
@@ -17,7 +13,6 @@ import { PrismaModule } from './lib/prisma/prisma.module';
 
 @Module({
   imports: [
-    NestProblemDetailsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
@@ -58,10 +53,6 @@ import { PrismaModule } from './lib/prisma/prisma.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
-    },
-    {
-      provide: APP_FILTER,
-      useExisting: HTTP_EXCEPTION_FILTER_KEY,
     },
   ],
 })

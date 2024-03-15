@@ -1,19 +1,11 @@
 import { z } from 'nestjs-zod/z';
+import { StringToBoolSchema } from '~common/schemas';
 
 export const JournalItemSchema = z
   .object({
-    amount: z
-      .string()
-      .transform((val) => parseFloat(val))
-      .or(z.number().min(1)),
-    account_id: z
-      .string()
-      .transform((val) => parseInt(val))
-      .or(z.number().min(1)),
-    is_credit: z
-      .string()
-      .transform((val) => val === 'true')
-      .or(z.boolean()),
+    amount: z.coerce.number().nonnegative(),
+    account_id: z.coerce.number().positive(),
+    is_credit: StringToBoolSchema,
   })
   .refine(
     (val) => {

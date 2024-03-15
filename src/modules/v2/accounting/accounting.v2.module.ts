@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
-import { JournalsV2Controller } from './controllers/journals.v2.controller';
-import { JournalsV2Service } from './services/journals.v2.service';
-import { UnitJournalsV2Controller } from './controllers/unit-journals.v2.controller';
+import { JournalsV2Service, LedgersV2Service } from './services';
+import {
+  JournalsV2Controller,
+  UnitJournalsV2Controller,
+  UnitLedgersV2Controller,
+} from './controllers';
 
 @Module({
   imports: [],
-  controllers: [JournalsV2Controller, UnitJournalsV2Controller],
-  providers: [JournalsV2Service],
-  exports: [JournalsV2Service],
+  controllers: [
+    JournalsV2Controller,
+    UnitJournalsV2Controller,
+    UnitLedgersV2Controller,
+  ],
+  providers: [JournalsV2Service, LedgersV2Service],
+  exports: [JournalsV2Service, LedgersV2Service],
 })
 export class AccountingV2Module {}

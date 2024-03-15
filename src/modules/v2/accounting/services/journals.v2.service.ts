@@ -1,12 +1,13 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { JournalCategory, Prisma } from '@prisma/client';
 import { CommonDeleteDto, IdsDto } from '~common/dto';
 import { PrismaClientExceptionCode } from '~common/exceptions';
+import { FilesService } from '~common/services';
+import { FileResourceLocation } from '~common/types';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import {
   AddJournalV2Dto,
@@ -20,8 +21,6 @@ import {
   GetManyJournalsV2Response,
   UpdateJournalV2Response,
 } from '../responses';
-import { FilesService } from '~common/services';
-import { FileResourceLocation } from '~common/types';
 
 @Injectable()
 export class JournalsV2Service {
