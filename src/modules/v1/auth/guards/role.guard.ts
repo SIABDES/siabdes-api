@@ -35,6 +35,6 @@ export class AuthRoleGuard implements CanActivate {
     });
 
     // If the user's role is not in the required roles, deny access
-    return requiredRoles.includes(foundUser.role);
+    return foundUser.role && requiredRoles.includes(foundUser.role);
   }
 }
