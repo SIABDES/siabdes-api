@@ -87,3 +87,17 @@ export function assignAccountPosition({
 
   return result;
 }
+
+export function addMultipleSection(...sections: WtbContentV2[]): WtbContentV2 {
+  const result: WtbContentDecimalV2 = {
+    credit: new Decimal(0),
+    debit: new Decimal(0),
+  };
+
+  sections.forEach((section) => {
+    result.credit = result.credit.plus(section.credit);
+    result.debit = result.debit.plus(section.debit);
+  });
+
+  return mapContentDecimalToNumber(result);
+}

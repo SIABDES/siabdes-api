@@ -5,6 +5,7 @@ import { PrismaService } from '~lib/prisma/prisma.service';
 import { WTB_CATEGORY_GROUP_REFS } from '../constants';
 import { GetWtbV2Dto } from '../dto';
 import {
+  addMultipleSection,
   assignAccountPosition,
   calculateJournalItemAmount,
   calculateNeracaSetelahnya,
@@ -158,7 +159,7 @@ export class WtbV2Service {
   }
 
   async getUnitWtbSummary(dto: GetWtbV2Dto): Promise<GetWtbSummaryV2Response> {
-    return {
+    const summary: GetWtbSummaryV2Response = {
       sum: prepareWtbCalculationResult(),
       laba_rugi_bersih: {
         laba_rugi: { credit: 0, debit: 0 },
@@ -166,5 +167,52 @@ export class WtbV2Service {
       },
       total: prepareWtbCalculationResult(),
     };
+
+    const wtbResult = await this.getUnitWtb(dto);
+
+    wtbResult.accounts.forEach((account) => {
+      // Summary
+      summary.sum.neraca_saldo.credit += account.result.neraca_saldo.credit;
+      summary.sum.neraca_saldo.debit += account.result.neraca_saldo.debit;
+
+      summary.sum.penyesuaian.credit += account.result.penyesuaian.credit;
+      summary.sum.penyesuaian.debit += account.result.penyesuaian.debit;
+
+      summary.sum.neraca_setelahnya.credit +=
+        account.result.neraca_setelahnya.credit;
+      summary.sum.neraca_setelahnya.debit +=
+        account.result.neraca_setelahnya.debit;
+
+      summary.sum.laba_rugi.credit += account.result.laba_rugi.credit;
+      summary.sum.laba_rugi.debit += account.result.laba_rugi.debit;
+
+      summary.sum.posisi_keuangan.credit +=
+        account.result.posisi_keuangan.credit;
+      summary.sum.posisi_keuangan.debit += account.result.posisi_keuangan.debit;
+    });
+
+    // Laba rugi bersih
+    summary.laba_rugi_bersih.laba_rugi = mapContentDecimalToNumber(
+      subtractSection(summary.sum.laba_rugi),
+    );
+    summary.laba_rugi_bersih.posisi_keuangan = mapContentDecimalToNumber(
+      subtractSection(summary.sum.posisi_keuangan),
+    );
+
+    // Total
+    summary.total.neraca_saldo = summary.sum.neraca_saldo;
+    summary.total.penyesuaian = summary.sum.penyesuaian;
+    summary.total.neraca_setelahnya = summary.sum.neraca_setelahnya;
+
+    summary.total.laba_rugi = addMultipleSection(
+      summary.sum.laba_rugi,
+      summary.laba_rugi_bersih.laba_rugi,
+    );
+    summary.total.posisi_keuangan = addMultipleSection(
+      summary.sum.posisi_keuangan,
+      summary.laba_rugi_bersih.posisi_keuangan,
+    );
+
+    return summary;
   }
 }
