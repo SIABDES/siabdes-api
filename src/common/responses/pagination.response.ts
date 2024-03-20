@@ -1,3 +1,3 @@
 export type PaginationResponse = {
-  next_cursor?: string;
+  next_cursor?: string | number;
 };
