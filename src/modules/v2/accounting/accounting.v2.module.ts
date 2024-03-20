@@ -6,9 +6,14 @@ import {
   UnitLedgersV2Controller,
   UnitWtbV2Controller,
 } from './controllers';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-  imports: [],
+  imports: [
+    CacheModule.register({
+      ttl: 5000, // 5 seconds
+    }),
+  ],
   controllers: [
     JournalsV2Controller,
     UnitJournalsV2Controller,
