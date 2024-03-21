@@ -65,6 +65,7 @@ export class UnitV2Service {
     const units = await this.prisma.bumdesUnit.findMany({
       where: {
         bumdesId: dto.bumdes_id ? dto.bumdes_id : undefined,
+        deletedAt: { equals: null },
       },
       select: { id: true, name: true, businessType: true, createdAt: true },
     });
@@ -82,7 +83,7 @@ export class UnitV2Service {
 
   async findById(id: string): Promise<GetUnitDetailsV2Response> {
     const unit = await this.prisma.bumdesUnit.findUnique({
-      where: { id },
+      where: { id, deletedAt: { equals: null } },
     });
 
     if (!unit) throw new NotFoundException('Unit not found');
