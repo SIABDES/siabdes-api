@@ -2,6 +2,7 @@ import { Pph21PtkpStatus, Pph21TerType } from '@prisma/client';
 import { z } from 'zod';
 
 export const GetTerV2Schema = z.object({
+  unit_id: z.string().optional(),
   gross_salary: z.coerce.number().nonnegative(),
   period_years: z.coerce.number().int().min(1900),
   period_month: z.coerce.number().int().min(1).max(12),

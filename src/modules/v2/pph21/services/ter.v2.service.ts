@@ -3,10 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { GetTerV2Dto } from '../dto';
 import { GetTerV2Response } from '../responses';
-import { mapPtkpStatus } from '~common/helpers/ptkp-mapper.helper';
 
 @Injectable()
 export class TerV2Service {
@@ -18,7 +18,12 @@ export class TerV2Service {
 
     const employee = await this.prisma.unitEmployee.findUnique({
       where: { id: dto.employee_id, deletedAt: { equals: null } },
-      select: { marriageStatus: true, childrenAmount: true, npwpStatus: true },
+      select: {
+        marriageStatus: true,
+        childrenAmount: true,
+        npwpStatus: true,
+        bumdesUnitId: true,
+      },
     });
 
     if (!employee) throw new NotFoundException('Employee not found');

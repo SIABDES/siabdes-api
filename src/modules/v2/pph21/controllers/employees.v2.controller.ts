@@ -1,23 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Logger,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
-import { ZodValidationPipe } from 'nestjs-zod';
-import { OptionalCommonDeleteDto } from '~common/dto/delete.dto';
-import { GetUser } from '~modules/v1/auth/decorators';
-import {
-  AddEmployeeV2Dto,
-  AddEmployeeV2Schema,
-  GetManyEmployeesV2Dto,
-  GetTerV2Dto,
-} from '../dto';
+import { Controller, Get, Logger, Param, Query } from '@nestjs/common';
+import { AuthUserRole } from '@prisma/client';
+import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
+import { GetManyEmployeesV2Dto, GetTerV2Dto } from '../dto';
 import { EmployeesV2Service } from '../services/employees.v2.service';
 import { TerV2Service } from '../services/ter.v2.service';
 
@@ -25,6 +9,7 @@ import { TerV2Service } from '../services/ter.v2.service';
   path: 'employees',
   version: '2',
 })
+@HasRoles(AuthUserRole.SUPER_ADMIN)
 export class EmployeesV2Controller {
   private readonly logger: Logger = new Logger(EmployeesV2Controller.name);
 
@@ -32,20 +17,6 @@ export class EmployeesV2Controller {
     private readonly service: EmployeesV2Service,
     private readonly terService: TerV2Service,
   ) {}
-
-  @Post()
-  async addEmployee(
-    @GetUser('unitId') unitId: string,
-    @Body(new ZodValidationPipe(AddEmployeeV2Schema)) dto: AddEmployeeV2Dto,
-  ) {
-    const result = await this.service.addEmployee(unitId, dto);
-
-    this.logger.log(
-      `Add employee for unit '${unitId}' with employee ID '${result.id}'`,
-    );
-
-    return result;
-  }
 
   @Get()
   async getManyEmployees(@Query() dto?: GetManyEmployeesV2Dto) {
@@ -65,49 +36,17 @@ export class EmployeesV2Controller {
     return result;
   }
 
-  @Put(':id')
-  async updateEmployee(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(AddEmployeeV2Schema)) dto: AddEmployeeV2Dto,
-  ) {
-    const result = await this.service.updateEmployeeById(id, dto);
-
-    this.logger.log(`Update employee by ID '${id}'`);
-
-    return result;
-  }
-
-  @Delete(':id')
-  async deleteEmployee(
-    @Param('id') id: string,
-    @Query() deleteDto?: OptionalCommonDeleteDto,
-  ) {
-    let result;
-
-    if (deleteDto?.hard_delete) {
-      result = await this.service.hardDeleteById(id, deleteDto.force);
-    } else {
-      result = await this.service.softDeleteById(id);
-    }
-
-    this.logger.log(
-      `Delete employee by ID '${id}' with ${
-        deleteDto?.hard_delete ? 'hard' : 'soft'
-      } delete`,
-    );
-
-    return result;
-  }
-
   @Get(':id/ter')
   async getEmployeeTer(
     @Param('id') employeeId: string,
     @Query() dto: GetTerV2Dto,
+    @GetUser('unitId') unitId: string,
   ) {
     this.logger.log(`Getting employee TER by ID '${employeeId}'`);
 
     const result = await this.terService.getTerByEmployeeId({
       ...dto,
+      unit_id: unitId,
       employee_id: employeeId,
     });
 
