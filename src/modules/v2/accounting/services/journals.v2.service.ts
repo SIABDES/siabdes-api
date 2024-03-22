@@ -98,7 +98,11 @@ export class JournalsV2Service {
 
     if (!journal) throw new NotFoundException('Jurnal tidak ditemukan');
 
-    const evidenceUrl = await this.filesService.getUrl(journal.evidence);
+    let evidenceUrl: string;
+
+    if (journal.evidence) {
+      evidenceUrl = await this.filesService.getUrl(journal.evidence);
+    }
 
     return {
       id: journal.id,
