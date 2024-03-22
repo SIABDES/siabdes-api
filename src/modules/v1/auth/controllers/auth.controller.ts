@@ -4,7 +4,10 @@ import { AuthLoginDto, AuthRegisterDto } from '../dto';
 import { AuthService } from '../services/auth.service';
 import { JwtUserPayload } from '../types';
 
-@Controller('auth')
+@Controller({
+  path: 'auth',
+  version: ['1', '2'],
+})
 export class AuthController {
   private logger: Logger = new Logger('AuthController');
 
