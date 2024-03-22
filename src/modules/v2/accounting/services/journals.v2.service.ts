@@ -86,13 +86,15 @@ export class JournalsV2Service {
 
     if (!journal) throw new NotFoundException('Jurnal tidak ditemukan');
 
+    const evidenceUrl = await this.filesService.getUrl(journal.evidence);
+
     return {
       id: journal.id,
       unit_id: journal.bumdesUnitId,
       category: journal.category,
       description: journal.description,
       occurred_at: journal.occurredAt,
-      evidence: journal.evidence,
+      evidence: evidenceUrl,
       created_at: journal.createdAt,
       data_transactions: journal.items.map((item) => ({
         account_id: item.accountId,
@@ -100,6 +102,19 @@ export class JournalsV2Service {
         is_credit: item.isCredit,
       })),
     };
+  }
+
+  async getJournalEvidenceById(id): Promise<string> {
+    const journal = await this.prisma.journal.findUnique({
+      where: { id },
+      select: { evidence: true },
+    });
+
+    if (!journal) throw new NotFoundException('Jurnal tidak ditemukan');
+    if (!journal.evidence)
+      throw new NotFoundException('Bukti transaksi tidak ada');
+
+    return await this.filesService.getUrl(journal.evidence);
   }
 
   async getJournals(

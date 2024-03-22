@@ -144,4 +144,21 @@ export class UnitJournalsV2Controller {
 
     return result;
   }
+
+  @Get(':id/evidence')
+  async getJournalEvidence(
+    @Param('id') id: string,
+    @Param('unit_id') unitId: string,
+    @GetUser() user: JwtUserPayload,
+  ) {
+    if (unitId !== user.unitId) throw new ForbiddenException();
+
+    this.logger.log(`Mengambil bukti jurnal dengan ID '${id}'`);
+
+    const result = await this.journalsService.getJournalEvidenceById(id);
+
+    this.logger.log(`Bukti jurnal dengan ID '${id}' berhasil diambil`);
+
+    return result;
+  }
 }
