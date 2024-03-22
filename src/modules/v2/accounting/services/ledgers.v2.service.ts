@@ -1,22 +1,30 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AccountType } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { PrismaService } from '~lib/prisma/prisma.service';
 import { GetLedgersV2Dto } from '../dto';
 import {
+  calculateLedgerFinalBalance,
+  calculateLedgerJournalItems,
+} from '../helpers';
+import { LedgersV2Repository } from '../repositories';
+import {
+  GetAllLedgersV2Response,
   GetLedgersFinalBalanceV2Response,
   GetLedgersV2Response,
 } from '../responses';
+import {
+  LedgerAccountInfoWithTransactions,
+  LedgersFindJournalItemsResult,
+} from '../types';
 
 @Injectable()
 export class LedgersV2Service {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly ledgersRepository: LedgersV2Repository,
+    private prisma: PrismaService,
+  ) {}
 
-  // TODO: Implement for custom account
   async getLedgers(dto: GetLedgersV2Dto): Promise<GetLedgersV2Response> {
     const { account_id, unit_id } = dto;
 
@@ -24,70 +32,28 @@ export class LedgersV2Service {
     if (!account_id)
       throw new BadRequestException('Account ID or Ref is required');
 
-    const account = await this.prisma.account.findFirst({
-      orderBy: { ref: 'asc' },
-      where: {
-        id: account_id,
-        OR: [
-          {
-            type: AccountType.GLOBAL,
-          },
-          {
-            type: AccountType.CUSTOM,
-            unitOwnerId: unit_id,
-          },
-        ],
-      },
-      select: {
-        isCredit: true,
-      },
+    const account = await this.ledgersRepository.findAccount({
+      account_id,
+      unit_id,
+      dto,
     });
 
-    if (!account) throw new NotFoundException('Account not found');
-
-    const journalItems = await this.prisma.journalItem.findMany({
-      orderBy: { journal: { occurredAt: 'desc' } },
-      where: {
-        journal: { bumdesUnitId: unit_id },
-        accountId: account_id,
-      },
-      cursor: dto.cursor ? { id: dto.cursor as string } : undefined,
-      take: dto.limit || 50,
-      skip: dto.cursor ? 1 : 0,
-      select: {
-        id: true,
-        amount: true,
-        isCredit: true,
-        journal: { select: { description: true, occurredAt: true } },
-      },
+    const journalItems = await this.ledgersRepository.findJournalItems({
+      account_id,
+      unit_id,
+      dto,
     });
 
-    let resultBalance = new Decimal(dto.last_balance || 0);
-
-    const transactions = journalItems.map((item) => {
-      const previousBalance = resultBalance.toNumber();
-
-      const transactionAmount =
-        account.isCredit === item.isCredit
-          ? item.amount
-          : item.amount.negated();
-
-      resultBalance = resultBalance.plus(transactionAmount);
-
-      return {
-        id: item.id,
-        occurred_at: item.journal.occurredAt,
-        description: item.journal.description,
-        is_credit: item.isCredit,
-        amount: item.amount.toNumber(),
-        previous_balance: previousBalance,
-        result_balance: resultBalance.toNumber(),
-      };
-    });
+    const { resultBalance, transactions } = calculateLedgerJournalItems(
+      new Decimal(dto.last_balance || 0),
+      account,
+      journalItems,
+    );
 
     return {
       last_balance: dto.last_balance || 0,
       result_balance: resultBalance.toNumber(),
+      account_is_credit: account.isCredit,
       _count: journalItems.length,
       next_cursor: journalItems[journalItems.length - 1]?.id,
       transactions,
@@ -107,10 +73,49 @@ export class LedgersV2Service {
         'Required fields "start_occurred_at" and "end_occurred_at"',
       );
 
-    const account = await this.prisma.account.findFirst({
-      orderBy: { ref: 'asc' },
+    const account = await this.ledgersRepository.findAccount({
+      account_id,
+      unit_id,
+      dto,
+    });
+
+    const journals = await this.ledgersRepository.findJournals({
+      account_id,
+      unit_id,
+      dto,
+    });
+
+    const journalItems = journals.flatMap((journal) => journal.items);
+
+    const finalBalance = calculateLedgerFinalBalance(account, journalItems);
+
+    return {
+      account_id: account.id,
+      account_name: account.name,
+      account_ref: account.ref,
+      account_group_ref: account.groupRef,
+      account_subgroup_ref: account.subgroupRef,
+      account_is_credit: account.isCredit,
+      start_occurred_at,
+      end_occurred_at,
+      journals_count: journals.length,
+      items_count: journalItems.length,
+      final_balance: finalBalance.toNumber(),
+    };
+  }
+
+  async getAllLedgers(dto: GetLedgersV2Dto): Promise<GetAllLedgersV2Response> {
+    const { unit_id, business_type, start_occurred_at, end_occurred_at } = dto;
+
+    if (!unit_id) throw new BadRequestException('Unit ID is required');
+    if (!start_occurred_at || !end_occurred_at)
+      throw new BadRequestException(
+        'Required fields "start_occurred_at" and "end_occurred_at"',
+      );
+
+    const accounts = await this.prisma.account.findMany({
       where: {
-        id: account_id,
+        businessTypes: { has: business_type },
         OR: [
           {
             type: AccountType.GLOBAL,
@@ -128,58 +133,68 @@ export class LedgersV2Service {
         groupRef: true,
         subgroupRef: true,
         isCredit: true,
-      },
-    });
-
-    if (!account) throw new NotFoundException('Account not found');
-
-    const journals = await this.prisma.journal.findMany({
-      orderBy: { occurredAt: 'desc' },
-      where: {
-        bumdesUnitId: unit_id,
-        occurredAt: {
-          gte: start_occurred_at,
-          lte: end_occurred_at,
-        },
-        items: {
-          some: { accountId: account_id },
-        },
-      },
-      select: {
-        items: {
-          where: { accountId: account_id },
-          select: {
-            amount: true,
-            isCredit: true,
+        journalItems: {
+          orderBy: {
+            journal: {
+              occurredAt: 'asc',
+            },
+          },
+          where: {
+            journal: {
+              bumdesUnitId: { equals: unit_id },
+              occurredAt: {
+                gte: start_occurred_at,
+                lte: end_occurred_at,
+              },
+            },
+          },
+          include: {
+            journal: true,
           },
         },
       },
     });
 
-    const items = journals.flatMap((journal) => journal.items);
+    const resultAccounts: LedgerAccountInfoWithTransactions[] = accounts.map(
+      (account) => {
+        const journalItems: LedgersFindJournalItemsResult =
+          account.journalItems.map((journalItem) => {
+            return {
+              id: journalItem.id,
+              isCredit: journalItem.isCredit,
+              amount: journalItem.amount,
+              journal: {
+                description: journalItem.journal.description,
+                occurredAt: journalItem.journal.occurredAt,
+              },
+            };
+          });
 
-    let finalBalance = new Decimal(0);
+        const { resultBalance, transactions } = calculateLedgerJournalItems(
+          new Decimal(0),
+          account,
+          journalItems,
+        );
 
-    items.forEach((item) => {
-      const actualAmount =
-        item.isCredit === account.isCredit
-          ? item.amount
-          : item.amount.negated();
-      finalBalance = finalBalance.plus(actualAmount);
-    });
+        return {
+          account_id: account.id,
+          account_name: account.name,
+          account_ref: account.ref,
+          account_group_ref: account.groupRef,
+          account_subgroup_ref: account.subgroupRef,
+          account_is_credit: account.isCredit,
+          transaction_count: journalItems.length,
+          result_balance: resultBalance.toNumber(),
+          transactions,
+        };
+      },
+    );
 
     return {
-      account_id: account.id,
-      account_name: account.name,
-      account_ref: account.ref,
-      account_group_ref: account.groupRef,
-      account_subgroup_ref: account.subgroupRef,
-      account_is_credit: account.isCredit,
-      start_occurred_at,
-      end_occurred_at,
-      journals_count: journals.length,
-      items_count: items.length,
-      final_balance: finalBalance.toNumber(),
+      _count: accounts.length,
+      accounts: resultAccounts.filter(
+        (account) => account.transaction_count > 0,
+      ),
     };
   }
 }

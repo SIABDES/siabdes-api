@@ -42,6 +42,26 @@ export class UnitLedgersV2Controller {
     return result;
   }
 
+  @Get('/all')
+  async getAllLedgers(
+    @Query() dto: GetLedgersV2Dto,
+    @GetUser() user: JwtUserPayload,
+    @Param('unit_id') unitId: string,
+  ) {
+    if (user.unitId !== unitId) throw new ForbiddenException();
+
+    this.logger.log(`Get all ledgers for unit ${unitId}`);
+
+    const result = await this.ledgersService.getAllLedgers({
+      ...dto,
+      unit_id: unitId,
+    });
+
+    this.logger.log(`Get all ledgers for unit ${unitId} success!`);
+
+    return result;
+  }
+
   @Get('/final-balance')
   async getFinalBalance(
     @Query() dto: GetLedgersV2Dto,

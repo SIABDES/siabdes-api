@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { JournalsV2Service, LedgersV2Service, WtbV2Service } from './services';
 import {
   JournalsV2Controller,
@@ -7,6 +7,14 @@ import {
   UnitWtbV2Controller,
 } from './controllers';
 import { CacheModule } from '@nestjs/cache-manager';
+import { LedgersV2Repository } from './repositories';
+
+const providers: Provider[] = [
+  JournalsV2Service,
+  LedgersV2Service,
+  WtbV2Service,
+  LedgersV2Repository,
+];
 
 @Module({
   imports: [
@@ -20,7 +28,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     UnitLedgersV2Controller,
     UnitWtbV2Controller,
   ],
-  providers: [JournalsV2Service, LedgersV2Service, WtbV2Service],
-  exports: [JournalsV2Service, LedgersV2Service, WtbV2Service],
+  providers: providers,
+  exports: providers,
 })
 export class AccountingV2Module {}

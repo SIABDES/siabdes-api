@@ -16,3 +16,9 @@ export type LedgerAccountInfo = {
   account_subgroup_ref: string;
   account_is_credit: boolean;
 };
+
+export type LedgerAccountInfoWithTransactions = LedgerAccountInfo & {
+  transaction_count: number;
+  result_balance: number;
+  transactions: LedgerTransactionItem[];
+};
