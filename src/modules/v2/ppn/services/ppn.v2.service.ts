@@ -48,6 +48,12 @@ export class PpnV2Service {
 
     if (!ppn) throw new NotFoundException('Data PPN tidak ditemukan');
 
+    let evidenceUrl: string;
+
+    if (ppn.transactionEvidenceKey) {
+      evidenceUrl = await this.fileService.getUrl(ppn.transactionEvidenceKey);
+    }
+
     return {
       id: ppn.id,
       transaction_date: ppn.transactionDate,
@@ -55,6 +61,7 @@ export class PpnV2Service {
       item_type: ppn.itemType,
       transaction_number: ppn.transactionNumber,
       transaction_type: ppn.transactionType,
+      transaction_evidence: evidenceUrl,
       tax_object: ppn.object,
       created_at: ppn.createdAt,
       object_items: ppn.objectItems.map((item) => ({
