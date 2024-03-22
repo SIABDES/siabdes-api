@@ -55,7 +55,7 @@ export class LedgersV2Repository {
     dto,
   }: LedgersFindJournalItemsArgs): Promise<LedgersFindJournalItemsResult> {
     const journalItems = await this.prisma.journalItem.findMany({
-      orderBy: { journal: { occurredAt: 'desc' } },
+      orderBy: { journal: { occurredAt: 'asc' } },
       where: {
         journal: { bumdesUnitId: unit_id },
         accountId: account_id,
