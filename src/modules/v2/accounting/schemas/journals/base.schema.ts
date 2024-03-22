@@ -11,6 +11,12 @@ export const JournalTransactionV2Schema = z.object({
   is_credit: StringToBoolSchema,
 });
 
+export const JournalTransactionWithAccountV2Schema =
+  JournalTransactionV2Schema.extend({
+    account_name: z.string(),
+    account_ref: z.string(),
+  });
+
 export const JournalV2Schema = z.object({
   unit_id: z.string(),
   description: z.string(),
@@ -55,7 +61,16 @@ export const JournalV2Schema = z.object({
     ),
 });
 
+export const JournalDetailsV2Schema = JournalV2Schema.omit({
+  data_transactions: true,
+}).extend({
+  id: z.string(),
+  created_at: z.date(),
+  data_transactions: z.array(JournalTransactionWithAccountV2Schema).min(2),
+});
+
 export type JournalV2Type = z.infer<typeof JournalV2Schema>;
+export type JournalDetailsV2Type = z.infer<typeof JournalDetailsV2Schema>;
 export type JournalTransactionV2Type = z.infer<
   typeof JournalTransactionV2Schema
 >;

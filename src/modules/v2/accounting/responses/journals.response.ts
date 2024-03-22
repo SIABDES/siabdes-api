@@ -1,4 +1,5 @@
-import { JournalDetailsV2Type, JournalOverviewV2Type } from '../types';
+import { JournalDetailsV2Type } from '../schemas';
+import { JournalOverviewV2Type } from '../types';
 
 export type AddJournalV2Response = {
   id: string;

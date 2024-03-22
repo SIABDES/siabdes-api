@@ -80,7 +80,19 @@ export class JournalsV2Service {
     const journal = await this.prisma.journal.findUnique({
       where: { id, deletedAt: { equals: null } },
       include: {
-        items: true,
+        items: {
+          select: {
+            amount: true,
+            isCredit: true,
+            accountId: true,
+            account: {
+              select: {
+                name: true,
+                ref: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -98,6 +110,8 @@ export class JournalsV2Service {
       created_at: journal.createdAt,
       data_transactions: journal.items.map((item) => ({
         account_id: item.accountId,
+        account_name: item.account.name,
+        account_ref: item.account.ref,
         amount: item.amount.toNumber(),
         is_credit: item.isCredit,
       })),
