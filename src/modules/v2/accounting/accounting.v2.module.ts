@@ -1,6 +1,12 @@
 import { Module, Provider } from '@nestjs/common';
-import { JournalsV2Service, LedgersV2Service, WtbV2Service } from './services';
 import {
+  AccountsV2Service,
+  JournalsV2Service,
+  LedgersV2Service,
+  WtbV2Service,
+} from './services';
+import {
+  AccountsV2Controller,
   JournalsV2Controller,
   UnitJournalsV2Controller,
   UnitLedgersV2Controller,
@@ -14,6 +20,7 @@ const providers: Provider[] = [
   LedgersV2Service,
   WtbV2Service,
   LedgersV2Repository,
+  AccountsV2Service,
 ];
 
 @Module({
@@ -27,6 +34,7 @@ const providers: Provider[] = [
     UnitJournalsV2Controller,
     UnitLedgersV2Controller,
     UnitWtbV2Controller,
+    AccountsV2Controller,
   ],
   providers: providers,
   exports: providers,
