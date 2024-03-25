@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { AccountType } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { PrismaService } from '~lib/prisma/prisma.service';
-import { GetLedgersV2Dto } from '../dto';
+import { GetAllLedgersV2Dto, GetLedgersV2Dto } from '../dto';
 import {
   calculateLedgerFinalBalance,
   calculateLedgerJournalItems,
@@ -104,7 +104,9 @@ export class LedgersV2Service {
     };
   }
 
-  async getAllLedgers(dto: GetLedgersV2Dto): Promise<GetAllLedgersV2Response> {
+  async getAllLedgers(
+    dto: GetAllLedgersV2Dto,
+  ): Promise<GetAllLedgersV2Response> {
     const { unit_id, business_type, start_occurred_at, end_occurred_at } = dto;
 
     if (!unit_id) throw new BadRequestException('Unit ID is required');

@@ -9,7 +9,7 @@ import {
 import { LedgersV2Service } from '../services';
 import { GetUser, HasRoles } from '~modules/v1/auth/decorators';
 import { AuthUserRole } from '@prisma/client';
-import { GetLedgersV2Dto } from '../dto';
+import { GetAllLedgersV2Dto, GetLedgersV2Dto } from '../dto';
 import { JwtUserPayload } from '~modules/v1/auth/types';
 
 @Controller({
@@ -44,7 +44,7 @@ export class UnitLedgersV2Controller {
 
   @Get('/all')
   async getAllLedgers(
-    @Query() dto: GetLedgersV2Dto,
+    @Query() dto: GetAllLedgersV2Dto,
     @GetUser() user: JwtUserPayload,
     @Param('unit_id') unitId: string,
   ) {
