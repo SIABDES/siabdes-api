@@ -61,16 +61,31 @@ export const JournalV2Schema = z.object({
     ),
 });
 
-export const JournalDetailsV2Schema = JournalV2Schema.omit({
-  data_transactions: true,
-}).extend({
+export const JournalDetailsV2Schema = JournalV2Schema.extend({
   id: z.string(),
   created_at: z.date(),
   data_transactions: z.array(JournalTransactionWithAccountV2Schema).min(2),
 });
 
+export const JournalEvidenceRetryStatusV2Schema = z.nativeEnum({
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  NO_EVIDENCE: 'NO_EVIDENCE',
+});
+
+export const JournalOverviewV2Schema = JournalV2Schema.extend({
+  id: z.string(),
+  created_at: z.date(),
+  transaction_amount: z.number().positive(),
+  data_transactions: z
+    .array(JournalTransactionWithAccountV2Schema)
+    .min(2)
+    .optional(),
+});
+
 export type JournalV2Type = z.infer<typeof JournalV2Schema>;
 export type JournalDetailsV2Type = z.infer<typeof JournalDetailsV2Schema>;
+export type JournalOverviewV2Type = z.infer<typeof JournalOverviewV2Schema>;
 export type JournalTransactionV2Type = z.infer<
   typeof JournalTransactionV2Schema
 >;

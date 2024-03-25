@@ -1,5 +1,4 @@
-import { JournalDetailsV2Type } from '../schemas';
-import { JournalOverviewV2Type } from '../types';
+import { JournalDetailsV2Type, JournalOverviewV2Type } from '../schemas';
 
 export type AddJournalV2Response = {
   id: string;
@@ -21,5 +20,5 @@ export type GetJournalByIdV2Response = JournalDetailsV2Type;
 
 export type GetManyJournalsV2Response = {
   _count: number;
-  journals: (JournalOverviewV2Type | JournalDetailsV2Type)[];
+  journals: JournalOverviewV2Type[];
 };

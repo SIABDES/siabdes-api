@@ -21,6 +21,7 @@ import {
   GetManyJournalsV2Response,
   UpdateJournalV2Response,
 } from '../responses';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class JournalsV2Service {
@@ -138,6 +139,12 @@ export class JournalsV2Service {
   async getJournals(
     dto?: GetManyJournalsV2Dto,
   ): Promise<GetManyJournalsV2Response> {
+    if (dto.is_detailed && (!dto.start_occurred_at || !dto.end_occurred_at)) {
+      throw new BadRequestException(
+        'start_occurred_at and end_occurred_at required when is_detailed is true',
+      );
+    }
+
     const whereQuery: Prisma.JournalWhereInput = {
       category: dto.category,
       deletedAt: { equals: null },
@@ -159,7 +166,23 @@ export class JournalsV2Service {
 
     const journals = await this.prisma.journal.findMany({
       where: whereQuery,
-      include: { items: true },
+      include: {
+        items: {
+          select: {
+            amount: true,
+            isCredit: true,
+            accountId: true,
+            account: dto.is_detailed
+              ? {
+                  select: {
+                    name: true,
+                    ref: true,
+                  },
+                }
+              : undefined,
+          },
+        },
+      },
       orderBy: { occurredAt: 'desc' },
       cursor: dto.cursor ? { id: dto.cursor as string } : undefined,
       skip: dto.cursor ? 1 : 0,
@@ -168,20 +191,32 @@ export class JournalsV2Service {
 
     return {
       _count: journals.length,
-      journals: journals.map((journal) => ({
-        id: journal.id,
-        unit_id: journal.bumdesUnitId,
-        category: journal.category,
-        description: journal.description,
-        occurred_at: journal.occurredAt,
-        evidence: journal.evidence,
-        created_at: journal.createdAt,
-        data_transactions: journal.items.map((item) => ({
-          account_id: item.accountId,
-          amount: item.amount.toNumber(),
-          is_credit: item.isCredit,
-        })),
-      })),
+      journals: journals.map((journal) => {
+        const totalCredit = journal.items
+          .filter((item) => item.isCredit)
+          .reduce((acc, item) => acc.plus(item.amount), new Decimal(0));
+
+        const transactionAmount = totalCredit.toNumber();
+
+        return {
+          id: journal.id,
+          unit_id: journal.bumdesUnitId,
+          category: journal.category,
+          description: journal.description,
+          occurred_at: journal.occurredAt,
+          created_at: journal.createdAt,
+          transaction_amount: transactionAmount,
+          data_transactions: dto.is_detailed
+            ? journal.items.map((item) => ({
+                account_id: item.accountId,
+                account_ref: item.account.ref,
+                account_name: item.account.name,
+                amount: item.amount.toNumber(),
+                is_credit: item.isCredit,
+              }))
+            : undefined,
+        };
+      }),
     };
   }
 
